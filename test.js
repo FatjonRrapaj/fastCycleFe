@@ -39,13 +39,13 @@ gsap.to(sections, {
   ease: "none",
   scrollTrigger: {
     trigger: ".container",
-    scrub: 0,
+    scrub: 0.2,
     pin: true,
     snap: {
       onStart: () => disableScroll(),
       onSnapComplete: () => enableScroll(),
       snapTo: 1 / (sections.length - 1),
-      duration: { min: 1, max: 2 },
+      duration: { min: 0.7, max: 1 },
       inertia: true,
     },
     end: () => "+=" + document.querySelector(".container").offsetHeight,
