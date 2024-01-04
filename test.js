@@ -3,10 +3,10 @@ gsap.registerPlugin(Observer);
 
 //OBSERVING W Blocked SCROLLING
 const svgParts = [
-  { class: ".line", length: 522, stagger: false },
-  { class: ".square", length: 2488, stagger: false },
-  { class: ".circle", length: 1953.9, stagger: false },
-  { class: ".drone", length: 888, stagger: 0.2 },
+  { class: ".line", length: 522, stagger: false, duration: 1 },
+  { class: ".square", length: 2488, stagger: false, duration: 1 },
+  { class: ".dronePlaceholder", length: 999, stagger: 0.3, duration: 1 },
+  { class: ".droneSketch", length: 2630.2, stagger: false, duration: 2 },
 ];
 
 let sections = document.querySelectorAll(".section");
@@ -33,7 +33,7 @@ function gotoSection(index, direction) {
   let fromTop = direction === 1;
   let dFactor = fromTop ? -1 : 1;
   let tl = gsap.timeline({
-    defaults: { ease: "power1.inOut" },
+    defaults: { ease: "power1.out" },
     onComplete: () => {
       animating = false;
     },
@@ -61,7 +61,7 @@ function gotoSection(index, direction) {
   )
     .to(svgParts[svgPartsIndex].class, {
       strokeDashoffset: direction === 1 ? 0 : svgParts[svgPartsIndex].length,
-      duration: 0.7,
+      duration: svgParts[svgPartsIndex].duration,
       stagger: svgParts[svgPartsIndex].stagger,
     })
     .fromTo(
