@@ -1,11 +1,17 @@
+@import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap");
+
 * {
   padding: 0;
   margin: 0;
+  user-select: none;
 }
 
 body {
   height: 100vh;
   width: 100vw;
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 1.5rem;
+  letter-spacing: 0.1em;
 }
 
 .container {
@@ -14,12 +20,25 @@ body {
 }
 
 .section {
-  height: 100vh;
-  width: 50vh;
-  margin-left: 50vh;
+  height: 100%;
+  width: 50%;
+  top: 0;
+  position: fixed;
+  visibility: hidden;
+  margin-left: 30vh;
+  opacity: 0;
+}
+
+.outer {
+  width: 100%;
+  height: 100%;
+  overflow-y: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.bg {
 }
 
 .white-space {
@@ -68,10 +87,4 @@ body {
 .line {
   stroke-dashoffset: 522;
   stroke-dasharray: 522;
-  visibility: hidden;
-}
-
-.no-scroll {
-  overflow: hidden; /* Prevent scrolling */
-  height: 100%;
 }
