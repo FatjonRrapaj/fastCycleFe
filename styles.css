@@ -1,0 +1,73 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  width: 100vw;
+  height: 100vh;
+  background-color: black;
+}
+
+.container {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  color: white;
+}
+
+#svgContainer {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#carouselContianer {
+  flex: 1;
+}
+
+.section {
+  height: 100vh; /* Adjust height as needed */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#s1 {
+  background-color: pink;
+}
+#s2 {
+  background-color: green;
+}
+#s3 {
+  background-color: blue;
+}
+#s4 {
+  background-color: peru;
+}
+
+#svg {
+  width: 400px;
+  height: 400px;
+  position: fixed;
+}
+
+.square {
+  stroke-dasharray: 3000;
+  stroke-dashoffset: 3000;
+}
+.circle {
+  stroke-dasharray: 2100;
+  stroke-dashoffset: 2100;
+}
+
+.drone {
+  stroke-dasharray: 10000;
+  stroke-dashoffset: 10000;
+}
+
+.line {
+  stroke-dasharray: 700;
+  stroke-dashoffset: 700;
+}
