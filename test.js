@@ -6,7 +6,7 @@ const svgParts = [
   { class: ".line", length: 522, stagger: false, duration: 1 },
   { class: ".square", length: 2488, stagger: false, duration: 1 },
   { class: ".dronePlaceholder", length: 999, stagger: 0.3, duration: 1 },
-  { class: ".droneSketch", length: 2630.2, stagger: false, duration: 2 },
+  { class: ".droneSketch", length: 2630.2, stagger: false, duration: 3 },
 ];
 
 let sections = document.querySelectorAll(".section");
@@ -100,10 +100,10 @@ Observer.create({
 
 gotoSection(0, 1);
 
-//LENIS
-const lenis = new Lenis();
-function raf(time) {
-  lenis.raf(time);
-  requestAnimationFrame(raf);
-}
-requestAnimationFrame(raf);
+// //LENIS
+// const lenis = new Lenis();
+// function raf(time) {
+//   lenis.raf(time);
+//   requestAnimationFrame(raf);
+// }
+// requestAnimationFrame(raf);
