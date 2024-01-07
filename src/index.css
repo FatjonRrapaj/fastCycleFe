@@ -1,0 +1,96 @@
+@import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap");
+
+* {
+  padding: 0;
+  margin: 0;
+  user-select: none;
+}
+
+h1 {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  height: 100vh;
+  width: 100vw;
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 1.5rem;
+  letter-spacing: 0.1em;
+}
+
+.container {
+  height: 100%;
+  width: 100%;
+}
+
+.section {
+  height: 100%;
+  width: 50%;
+  top: 0;
+  position: fixed;
+  visibility: hidden;
+  margin-left: 30vh;
+  opacity: 0;
+}
+
+.outer {
+  width: 100%;
+  height: 100%;
+  overflow-y: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.white-space {
+  position: fixed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 50vh;
+  height: 100vh;
+}
+
+.bg {
+  height: 100px;
+  display: flex;
+  align-items: center;
+  margin-left: 100px;
+}
+
+#svg {
+  width: 90%;
+  margin: auto 0;
+}
+
+.square {
+  stroke-dashoffset: 2488;
+  stroke-dasharray: 2488;
+}
+
+.dronePlaceholder {
+  stroke-dashoffset: 999;
+  stroke-dasharray: 999;
+}
+
+.droneSketch {
+  stroke-dashoffset: 2630.2;
+  stroke-dasharray: 2630.2;
+  background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPScxMCcgaGVpZ2h0PScxMCc+CiAgPHJlY3Qgd2lkdGg9JzEwJyBoZWlnaHQ9JzEwJyBmaWxsPSd3aGl0ZScvPgogIDxwYXRoIGQ9J00tMSwxIGwyLC0yCiAgICAgICAgICAgTTAsMTAgbDEwLC0xMAogICAgICAgICAgIE05LDExIGwyLC0yJyBzdHJva2U9J2JsYWNrJyBzdHJva2Utd2lkdGg9JzEnLz4KPC9zdmc+Cg==");
+  background-repeat: repeat;
+}
+
+.line {
+  stroke-dashoffset: 522;
+  stroke-dasharray: 522;
+}
+
+.threejs-container {
+  position: absolute;
+  top: 20%;
+  left: 0;
+  width: 90%;
+  height: 400px;
+  background-color: red;
+}

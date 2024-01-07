@@ -23,6 +23,18 @@ module.exports = {
           },
         },
       },
+      {
+        test: /\.glb$/,
+        use: [
+          {
+            loader: "file-loader",
+            options: {
+              name: "[name].[ext]",
+              outputPath: "assets/models/", // Specify the directory where .glb files will be copied
+            },
+          },
+        ],
+      },
     ],
   },
   plugins: [
@@ -30,8 +42,4 @@ module.exports = {
       template: "./src/index.html",
     }),
   ],
-  devServer: {
-    contentBase: "./dist",
-    open: true,
-  },
 };
