@@ -14,24 +14,10 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import * as dat from "dat.gui";
 
 //GUI
-const gui = new dat.GUI();
-const cameraSettings = {
-  x: 0,
-  y: 0,
-  z: 5,
-};
+const gui = new dat.GUI({ autoPlace: false });
 
-// Camera position folder
-const cameraFolder = gui.addFolder("Camera Position");
-cameraFolder.add(cameraSettings, "x", -10, 10).onChange(updateCameraPosition);
-cameraFolder.add(cameraSettings, "y", -10, 10).onChange(updateCameraPosition);
-cameraFolder.add(cameraSettings, "z", -10, 10).onChange(updateCameraPosition);
-cameraFolder.open();
-
-function updateCameraPosition() {
-  camera.position.set(cameraSettings.x, cameraSettings.y, cameraSettings.z);
-  controls.update();
-}
+const guiContainer = document.querySelector(".gui_container");
+guiContainer.appendChild(gui.domElement);
 
 gsap.registerPlugin(ScrollTrigger, Observer, MotionPathPlugin);
 
@@ -126,38 +112,50 @@ Observer.create({
 gotoSection(0, 1);
 
 //THREE.JS SCENE
+const rendererContainer = document.querySelector(".three-js-container");
+var rendererWidth = rendererContainer.offsetWidth;
+var rendererHeight = rendererContainer.offsetHeight;
 const scene = new THREE.Scene();
-scene.background = new THREE.Color("Red"); // White background
+scene.background = new THREE.Color("white"); // White background
 //CAMERA
 const camera = new THREE.PerspectiveCamera(
   75,
-  window.innerWidth / window.innerHeight,
+  rendererWidth / rendererHeight,
   0.1,
   1000
 );
-camera.position.z = 5; // Adjust as needed
 
 //LOADER
+
 const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setSize(500, 500);
-document.querySelector(".threejs-container").appendChild(renderer.domElement);
+renderer.setSize(rendererWidth, rendererHeight);
+rendererContainer.appendChild(renderer.domElement);
 const dracoLoader = new DRACOLoader();
 dracoLoader.setDecoderPath("./draco/"); // use a full url path
 
 const loader = new GLTFLoader();
 loader.setDRACOLoader(dracoLoader);
+let droneModel = undefined;
 
 loader.load(
   "./drone.glb",
   (gltf) => {
-    const model = gltf.scene;
-    model.traverse((object) => {
+    droneModel = gltf.scene;
+    droneModel.rotation.x = Math.PI / 2;
+    droneModel.rotation.y = Math.PI / 2;
+    droneModel.rotation.z = Math.PI / 0;
+    droneModel.rotation.y = 0;
+    droneModel.rotation.z = 0;
+    droneModel.position.y = 0.15;
+    droneModel.position.x = 0.01;
+    droneModel.traverse((object) => {
       if (object.isMesh) {
         object.material.wireframe = true;
         object.material.color.set(0x000000); // Black color
       }
     });
-    scene.add(model);
+    scene.add(gltf.scene);
+    scene.animations.map((animation) => animation.play());
   },
   undefined,
   (error) => {
@@ -165,18 +163,69 @@ loader.load(
   }
 );
 
-//LIGHTING
-const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-directionalLight.position.set(0, 0, 0); // Adjust as needed
-scene.add(directionalLight);
+// //LIGHTING
+// const PointLight = new THREE.PointLight(0xffffff, 60);
+// PointLight.position.set(0, 2, 0); // Adjust as needed
+// scene.add(PointLight);
 
 //CONTROLS
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 
-//CAMERA ADJUST Z
-camera.position.set(0, 0, 0.2); // Position above the object
-camera.lookAt(scene.position); // Look at the center of the scene
+// camera.lookAt(scene.position); // Look at the center of the scene
+
+// Camera position folder
+const cameraPositionSettings = {
+  x: 0,
+  y: 0,
+  z: 3.84,
+};
+const cameraPositionFolder = gui.addFolder("Camera Position");
+cameraPositionFolder
+  .add(cameraPositionSettings, "x", -10, 10)
+  .onChange(updateCameraPosition);
+cameraPositionFolder
+  .add(cameraPositionSettings, "y", -10, 10)
+  .onChange(updateCameraPosition);
+cameraPositionFolder
+  .add(cameraPositionSettings, "z", -10, 10)
+  .onChange(updateCameraPosition);
+cameraPositionFolder.open();
+
+function updateCameraPosition() {
+  camera.position.set(
+    cameraPositionSettings.x,
+    cameraPositionSettings.y,
+    cameraPositionSettings.z
+  );
+  controls.update();
+}
+updateCameraPosition();
+// Camera rotation folder
+const cubeRotationSettings = {
+  x: 0,
+  y: 0,
+  z: 3.6,
+};
+const cameraRotationFolder = gui.addFolder("Cube Rotation");
+cameraRotationFolder
+  .add(cubeRotationSettings, "x", -Math.PI, Math.PI)
+  .onChange(updateCameraRotation);
+cameraRotationFolder
+  .add(cubeRotationSettings, "y", -Math.PI, Math.PI)
+  .onChange(updateCameraRotation);
+cameraRotationFolder
+  .add(cubeRotationSettings, "z", -Math.PI, Math.PI)
+  .onChange(updateCameraRotation);
+cameraRotationFolder.open();
+
+function updateCameraRotation() {
+  camera.rotateX(cubeRotationSettings.x);
+  camera.rotateY(cubeRotationSettings.y);
+  camera.rotateZ(cubeRotationSettings.z);
+
+  controls.update();
+}
 
 function animate() {
   requestAnimationFrame(animate);

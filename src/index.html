@@ -7,8 +7,12 @@
   </head>
   <body>
     <div class="container">
+      <div class="threed-container">
+        <div class="three-js-container"></div>
+      </div>
       <div class="white-space">
         <svg
+          id="droneSvg"
           width="652"
           height="651"
           viewBox="0 0 652 651"
@@ -20,7 +24,7 @@
             cx="217"
             cy="219"
             r="16"
-            stroke="black"
+            stroke="red"
             stroke-width="1"
           />
           <circle
@@ -28,7 +32,7 @@
             cx="439"
             cy="220"
             r="16"
-            stroke="black"
+            stroke="red"
             stroke-width="1"
           />
           <circle
@@ -36,7 +40,7 @@
             cx="460"
             cy="431"
             r="16"
-            stroke="black"
+            stroke="red"
             stroke-width="1"
           />
           <circle
@@ -44,7 +48,7 @@
             cx="195"
             cy="432"
             r="16"
-            stroke="black"
+            stroke="red"
             stroke-width="1"
           />
           <rect
@@ -53,7 +57,7 @@
             y="173"
             width="304"
             height="304"
-            stroke="black"
+            stroke="red"
             stroke-width="1"
           />
           <rect
@@ -63,45 +67,40 @@
             width="89"
             height="140"
             rx="29"
-            stroke="black"
+            stroke="red"
             stroke-width="1"
           />
-          <path class="line" d="M326 324.5V0" stroke="black" stroke-width="1" />
+          <path class="line" d="M326 324.5V0" stroke="red" stroke-width="1" />
           <path
             class="line"
             d="M326 324L555.5 94.5"
-            stroke="black"
+            stroke="red"
             stroke-width="1"
           />
           <path
             class="line"
             d="M326 324.5H651.5"
-            stroke="black"
+            stroke="red"
             stroke-width="1"
           />
           <path
             class="line"
             d="M326 324L557 555"
-            stroke="black"
+            stroke="red"
             stroke-width="1"
           />
-          <path class="line" d="M326 324V651" stroke="black" stroke-width="1" />
+          <path class="line" d="M326 324V651" stroke="red" stroke-width="1" />
           <path
             class="line"
             d="M326 324L95 555"
-            stroke="black"
+            stroke="red"
             stroke-width="1"
           />
-          <path
-            class="line"
-            d="M326 324.5H0.5"
-            stroke="black"
-            stroke-width="1"
-          />
+          <path class="line" d="M326 324.5H0.5" stroke="red" stroke-width="1" />
           <path
             class="line"
             d="M326 324L96.5 94.5"
-            stroke="black"
+            stroke="red"
             stroke-width="1"
           />
           <circle
@@ -109,20 +108,18 @@
             cx="327"
             cy="325"
             r="152"
-            stroke="black"
+            stroke="red"
             stroke-width="1"
           />
 
           <path
             class="droneSketch"
             d="M205 410.501L273.5 345.5C275.5 342 283.5 339 283.5 325.5C283.5 313.893 283.5 303.5 283.5 300.5C279.5 293.5 275.3 289.001 260.5 275.001C245.7 261.001 227 243.501 219.5 236.501C217.333 236.834 212.4 237.001 210 235.001L191.5 258.501L153 287.001L149 282.501L176.5 245.001L201.5 226.501C200.333 222.001 199.7 211.801 206.5 207.001C213.3 202.201 221.667 204.001 225 205.501L240.5 183L277.5 152.5L282 156.5L255 195.5L232.5 214C233.333 216 234.3 221.1 231.5 225.5C247.167 241 279.7 272.3 284.5 273.5V253L291 238L367 237.5L373.5 253V272.5C378.667 268.333 390.2 258.8 395 254C399.8 249.2 416 233.667 423.5 226.501C422.833 223 421.9 215.6 423.5 214L398 195.5L370 158.5L373.5 154L412.5 182.5L430 206.5C433.333 204.167 441.8 201.2 449 208C456.2 214.8 455 222.167 453.5 225L478.5 242.5L509 279L505 283L464.5 256L448 234.5C444.667 235.5 437.7 237.1 436.5 235.5L380.5 289.5C378.167 291.167 373.5 295.9 373.5 301.5C373.5 307.1 373.5 325.167 373.5 333.5C375.167 336 379.8 342.2 385 347C390.2 351.8 434.833 394.667 456.5 415.5C458.167 414.667 462.6 413.6 467 416L483.5 394L521.5 365L526 368.5L496.5 407.5L474 424.5C476.333 427.833 478.8 436.3 470 443.5C467.333 446 460.5 450 454.5 446L434.5 470.5L394.5 498L390.5 493L421 456.5L446 439.5C444 436.333 441 429.1 445 425.5L372 356.5L367.5 377.5L287.5 378L283.5 359L210.5 426C211.833 429 213.4 436 209 440L231.5 456.5L263 495.5L258.5 499.5L218.5 471L200.5 447.5C196.5 448.667 187.1 449.2 181.5 442C175.9 434.8 178.167 427.667 180 425L157.5 410.501L126 373L129.5 369L169.5 395L188 417C190.667 416.167 196.7 414.7 199.5 415.5L204.5 411"
-            stroke="black"
+            stroke="red"
             stroke-width="1.5"
             stroke-linejoin="round"
           />
         </svg>
-
-        <div class="threejs-container"></div>
       </div>
 
       <div id="s0" class="section">
@@ -153,6 +150,14 @@
           </div>
         </div>
       </div>
+      <div id="s5" class="section">
+        <div class="outer">
+          <div class="bg">
+            <h1 class="section-heading">Built in in great detail</h1>
+          </div>
+        </div>
+      </div>
     </div>
+    <div class="gui_container"></div>
   </body>
 </html>

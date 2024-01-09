@@ -24,14 +24,67 @@ body {
   width: 100%;
 }
 
+.white-space {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
+}
+
 .section {
   height: 100%;
-  width: 50%;
+  width: 100%;
   top: 0;
+  right: 0;
   position: fixed;
   visibility: hidden;
-  margin-left: 30vh;
   opacity: 0;
+}
+
+/* #s0 {
+  background-color: rgba(255, 0, 0, 0.2);
+}
+#s1 {
+  background-color: rgba(0, 255, 0, 0.2);
+}
+#s2 {
+  background-color: rgba(0, 0, 255, 0.2);
+}
+#s3 {
+  background-color: rgba(255, 255, 0, 0.2);
+} */
+
+#droneSvg {
+  width: 70vw;
+  height: 70vw;
+  opacity: 0.9;
+  margin-left: -20%;
+}
+
+.three-js-container {
+  width: 70vw;
+  height: 70vw;
+  margin-left: -20%;
+  display: flex;
+}
+
+.threed-container {
+  z-index: 0;
+  position: absolute;
+  display: flex;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.bg {
+  margin-left: 20%;
+  width: 40vw;
 }
 
 .outer {
@@ -41,27 +94,6 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-.white-space {
-  position: fixed;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 50vh;
-  height: 100vh;
-}
-
-.bg {
-  height: 100px;
-  display: flex;
-  align-items: center;
-  margin-left: 100px;
-}
-
-#svg {
-  width: 90%;
-  margin: auto 0;
 }
 
 .square {
@@ -86,11 +118,10 @@ body {
   stroke-dasharray: 522;
 }
 
-.threejs-container {
+.gui_container {
   position: absolute;
-  top: 20%;
-  left: 0;
-  width: 90%;
-  height: 400px;
-  background-color: red;
+  top: 0;
+  right: 0;
+  background-color: blue;
+  z-index: 100;
 }
