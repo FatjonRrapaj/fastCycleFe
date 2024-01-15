@@ -43,15 +43,15 @@ body {
 }
 
 .droneSvg {
-  width: 70vw;
-  height: 70vw;
+  width: 50vw;
+  height: 50vw;
   opacity: 0.9;
   margin-left: -20%;
 }
 
 .three-js-container {
-  width: 70vw;
-  height: 70vw;
+  width: 50vw;
+  height: 50vw;
   margin-left: -20%;
   opacity: 0;
 }
