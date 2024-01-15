@@ -13,20 +13,86 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 
 import * as dat from "dat.gui";
 
-//GUI
-const gui = new dat.GUI({ autoPlace: false });
-
-const guiContainer = document.querySelector(".gui_container");
-guiContainer.appendChild(gui.domElement);
-
 gsap.registerPlugin(ScrollTrigger, Observer, MotionPathPlugin);
 
+//GET WIDTHS
+// const line = document.querySelectorAll(".line")[0];
+// console.log("line length: ", line.getTotalLength());
+// const square = document.querySelector(".square");
+// console.log("square: ", square.getTotalLength());
+// const dronePlaceholder = document.querySelectorAll(".dronePlaceholder")[0];
+// console.log("dronePlaceholder", square.getTotalLength());
+// const droneSketch = document.querySelectorAll(".droneSketch")[0];
+// console.log("droneSketch", droneSketch.getTotalLength());
+// const droneSketchInnerLines = document.querySelectorAll(
+//   ".droneSketchInnerLines"
+// )[0];
+// console.log("droneSketchInnerLines", droneSketchInnerLines.getTotalLength());
+
 //OBSERVING W Blocked SCROLLING
-const svgParts = [
-  { class: ".line", length: 522, stagger: false, duration: 1 },
-  { class: ".square", length: 2488, stagger: false, duration: 1 },
-  { class: ".dronePlaceholder", length: 999, stagger: 0.3, duration: 1 },
-  { class: ".droneSketch", length: 2630.2, stagger: false, duration: 3 },
+
+const animation = [
+  {
+    target: ".line",
+    length: 400,
+    stagger: false,
+    duration: 1,
+    animationFn: (direction) => ({
+      strokeDashoffset: direction === 1 ? 0 : 400,
+    }),
+  },
+  {
+    target: ".square",
+    length: 1700,
+    stagger: false,
+    duration: 1,
+    animationFn: (direction) => ({
+      strokeDashoffset: direction === 1 ? 0 : 1700,
+    }),
+  },
+  {
+    target: ".dronePlaceholder",
+    length: 1700,
+    stagger: 0.3,
+    duration: 1,
+    animationFn: (direction) => ({
+      strokeDashoffset: direction === 1 ? 0 : 1700,
+    }),
+  },
+  {
+    target: ".droneSketch",
+    length: 4261.26806640625,
+    stagger: false,
+    duration: 3,
+    animationFn: (direction) => ({
+      strokeDashoffset: direction === 1 ? 0 : 4261.26806640625,
+    }),
+  },
+  {
+    target: ".droneSketchInnerLines",
+    length: 13475.1396484375,
+    stagger: false,
+    duration: 3,
+    animationFn: (direction) => ({
+      strokeDashoffset: direction === 1 ? 0 : 13475.1396484375,
+    }),
+  },
+  {
+    target: ".three-js-container",
+    stagger: false,
+    duration: 2,
+    animationFn: (direction) => ({
+      opacity: direction === 1 ? 1 : 0,
+    }),
+  },
+  {
+    target: ".droneSvg",
+    stagger: false,
+    duration: 2,
+    animationFn: (direction) => ({
+      opacity: direction === 1 ? 0 : 1,
+    }),
+  },
 ];
 let sections = document.querySelectorAll(".section");
 let outerWrappers = gsap.utils.toArray(".outer");
@@ -41,6 +107,7 @@ let splitHeadings = headings.map(
 let wrap = gsap.utils.wrap(0, sections.length);
 let currentIndex = -1;
 let animating = false;
+
 function gotoSection(index, direction) {
   animating = true;
   let fromTop = direction === 1;
@@ -60,7 +127,8 @@ function gotoSection(index, direction) {
     });
   }
   gsap.set(sections[index], { autoAlpha: 1, zIndex: 1 });
-  const svgPartsIndex = direction === 1 ? index : index + 1;
+  const animationIndex = direction === 1 ? index : index + 1;
+  const animationProp = animation[animationIndex].animationFn(direction);
   tl.fromTo(
     [outerWrappers[index]],
     {
@@ -72,10 +140,10 @@ function gotoSection(index, direction) {
     },
     0
   )
-    .to(svgParts[svgPartsIndex].class, {
-      strokeDashoffset: direction === 1 ? 0 : svgParts[svgPartsIndex].length,
-      duration: svgParts[svgPartsIndex].duration,
-      stagger: svgParts[svgPartsIndex].stagger,
+    .to(animation[animationIndex].target, {
+      ...animationProp,
+      duration: animation[animationIndex].duration,
+      stagger: animation[animationIndex].stagger,
     })
     .fromTo(
       splitHeadings[index].chars,
@@ -97,6 +165,7 @@ function gotoSection(index, direction) {
     );
   currentIndex = index;
 }
+
 Observer.create({
   type: "wheel,touch,pointer",
   wheelSpeed: -1,
@@ -109,7 +178,13 @@ Observer.create({
   tolerance: 300,
   preventDefault: true,
 });
+
 gotoSection(0, 1);
+
+//GUI
+const gui = new dat.GUI({ autoPlace: false });
+const guiContainer = document.querySelector(".gui_container");
+guiContainer.appendChild(gui.domElement);
 
 //THREE.JS SCENE
 const rendererContainer = document.querySelector(".three-js-container");
@@ -147,7 +222,7 @@ loader.load(
     droneModel.rotation.y = 0;
     droneModel.rotation.z = 0;
     droneModel.position.y = 0.15;
-    droneModel.position.x = 0.01;
+    droneModel.position.x = 0.06;
     droneModel.traverse((object) => {
       if (object.isMesh) {
         object.material.wireframe = true;
@@ -178,7 +253,7 @@ controls.enableDamping = true;
 const cameraPositionSettings = {
   x: 0,
   y: 0,
-  z: 3.84,
+  z: 3.1,
 };
 const cameraPositionFolder = gui.addFolder("Camera Position");
 cameraPositionFolder
