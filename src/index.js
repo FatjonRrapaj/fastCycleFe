@@ -32,8 +32,9 @@ gsap.registerPlugin(ScrollTrigger, Observer, MotionPathPlugin);
 //OBSERVING W Blocked SCROLLING
 
 const animation = [
+  //0.brightIdea
   {
-    target: ".line",
+    targets: ".line",
     length: 400,
     stagger: false,
     duration: 1,
@@ -41,59 +42,46 @@ const animation = [
       strokeDashoffset: direction === 1 ? 0 : 400,
     }),
   },
+  //1.together we can identify it's core values
   {
-    target: ".square",
-    length: 1700,
+    targets: [".square", ".dronePlaceholder"],
+    length: [1700, 1700],
     stagger: false,
     duration: 1,
-    animationFn: (direction) => ({
-      strokeDashoffset: direction === 1 ? 0 : 1700,
-    }),
+    animationFn: (direction, index) => {
+      const lengths = [1700, 1700];
+      return { strokeDashoffset: direction === 1 ? 0 : lengths[index] };
+    },
   },
+  //2.visualize the concept
   {
-    target: ".dronePlaceholder",
-    length: 1700,
-    stagger: 0.3,
+    targets: [".droneSketch", ".droneSketchInnerLines"],
+    length: [4261.26806640625, 13475.1396484375],
+    stagger: false,
+    duration: 2,
+    animationFn: (direction, index) => {
+      const lengths = [4261.26806640625, 13475.1396484375];
+      return { strokeDashoffset: direction === 1 ? 0 : lengths[index] };
+    },
+  },
+  //3.build a detailed prototype
+  {
+    targets: [".three-js-container", ".droneSvg"],
+    stagger: false,
     duration: 1,
-    animationFn: (direction) => ({
-      strokeDashoffset: direction === 1 ? 0 : 1700,
-    }),
-  },
-  {
-    target: ".droneSketch",
-    length: 4261.26806640625,
-    stagger: false,
-    duration: 3,
-    animationFn: (direction) => ({
-      strokeDashoffset: direction === 1 ? 0 : 4261.26806640625,
-    }),
-  },
-  {
-    target: ".droneSketchInnerLines",
-    length: 13475.1396484375,
-    stagger: false,
-    duration: 3,
-    animationFn: (direction) => ({
-      strokeDashoffset: direction === 1 ? 0 : 13475.1396484375,
-    }),
-  },
-  {
-    target: ".three-js-container",
-    stagger: false,
-    duration: 2,
-    animationFn: (direction) => ({
-      opacity: direction === 1 ? 1 : 0,
-    }),
-  },
-  {
-    target: ".droneSvg",
-    stagger: false,
-    duration: 2,
-    animationFn: (direction) => ({
-      opacity: direction === 1 ? 0 : 1,
-    }),
+    animationFn: (direction, index) => {
+      const opacities = [
+        { start: 1, end: 0 },
+        { start: 0, end: 1 },
+      ];
+      return {
+        opacity:
+          direction === 1 ? opacities[index].start : opacities[index].end,
+      };
+    },
   },
 ];
+
 let sections = document.querySelectorAll(".section");
 let outerWrappers = gsap.utils.toArray(".outer");
 let headings = gsap.utils.toArray(".section-heading");
@@ -128,7 +116,7 @@ function gotoSection(index, direction) {
   }
   gsap.set(sections[index], { autoAlpha: 1, zIndex: 1 });
   const animationIndex = direction === 1 ? index : index + 1;
-  const animationProp = animation[animationIndex].animationFn(direction);
+
   tl.fromTo(
     [outerWrappers[index]],
     {
@@ -139,30 +127,45 @@ function gotoSection(index, direction) {
       yPercent: 0,
     },
     0
-  )
-    .to(animation[animationIndex].target, {
+  );
+  const currentAnimation = animation[animationIndex];
+
+  if (Array.isArray(currentAnimation.targets)) {
+    currentAnimation.targets.forEach((target, index) => {
+      const animationProp = currentAnimation.animationFn(direction, index);
+      tl.to(target, {
+        ...animationProp,
+        duration: currentAnimation.duration,
+        stagger: currentAnimation.stagger,
+      });
+    });
+  } else {
+    const animationProp = currentAnimation.animationFn(direction);
+    tl.to(currentAnimation.targets, {
       ...animationProp,
-      duration: animation[animationIndex].duration,
-      stagger: animation[animationIndex].stagger,
-    })
-    .fromTo(
-      splitHeadings[index].chars,
-      {
-        autoAlpha: 0.1,
-        yPercent: 150 * dFactor,
+      duration: currentAnimation.duration,
+      stagger: currentAnimation.stagger,
+    });
+  }
+
+  tl.fromTo(
+    splitHeadings[index].chars,
+    {
+      autoAlpha: 0.1,
+      yPercent: 150 * dFactor,
+    },
+    {
+      autoAlpha: 1,
+      yPercent: 0,
+      duration: 0.5,
+      ease: "power1.out",
+      stagger: {
+        each: 0.02,
+        from: "random",
       },
-      {
-        autoAlpha: 1,
-        yPercent: 0,
-        duration: 0.5,
-        ease: "power1.out",
-        stagger: {
-          each: 0.02,
-          from: "random",
-        },
-      },
-      0.1
-    );
+    },
+    0.1
+  );
   currentIndex = index;
 }
 
