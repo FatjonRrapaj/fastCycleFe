@@ -1,6 +1,7 @@
 import "./index.css";
 import { gsap } from "gsap";
 import SplitType from "split-type";
+import Lenis from "@studio-freight/lenis";
 
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Observer } from "gsap/Observer";
@@ -31,158 +32,176 @@ gsap.registerPlugin(ScrollTrigger, Observer, MotionPathPlugin);
 
 //OBSERVING W Blocked SCROLLING
 
-const animation = [
-  //0.brightIdea
-  {
-    targets: ".line",
-    length: 400,
-    stagger: false,
-    duration: 1,
-    animationFn: (direction) => ({
-      strokeDashoffset: direction === 1 ? 0 : 400,
-    }),
-  },
-  //1.together we can identify it's core values
-  {
-    targets: [".square", ".dronePlaceholder"],
-    length: [1700, 1700],
-    stagger: false,
-    duration: 1,
-    animationFn: (direction, index) => {
-      const lengths = [1700, 1700];
-      return { strokeDashoffset: direction === 1 ? 0 : lengths[index] };
-    },
-  },
-  //2.visualize the concept
-  {
-    targets: [".droneSketch", ".droneSketchInnerLines"],
-    length: [4261.26806640625, 13475.1396484375],
-    stagger: false,
-    duration: 2,
-    animationFn: (direction, index) => {
-      const lengths = [4261.26806640625, 13475.1396484375];
-      return { strokeDashoffset: direction === 1 ? 0 : lengths[index] };
-    },
-  },
-  //3.build a detailed prototype
-  {
-    targets: [".three-js-container", ".droneSvg"],
-    stagger: false,
-    duration: 1,
-    animationFn: (direction, index) => {
-      const opacities = [
-        { start: 1, end: 0 },
-        { start: 0, end: 1 },
-      ];
-      return {
-        opacity:
-          direction === 1 ? opacities[index].start : opacities[index].end,
-      };
-    },
-  },
-];
-
-let sections = document.querySelectorAll(".section");
-let outerWrappers = gsap.utils.toArray(".outer");
-let headings = gsap.utils.toArray(".section-heading");
-let splitHeadings = headings.map(
-  (heading) =>
-    new SplitType(heading, {
-      type: "chars,words,lines",
-      linesClass: "clip-text",
-    })
-);
-let wrap = gsap.utils.wrap(0, sections.length);
-let currentIndex = -1;
-let animating = false;
-
-function gotoSection(index, direction) {
-  animating = true;
-  let fromTop = direction === 1;
-  let dFactor = fromTop ? -1 : 1;
-  let tl = gsap.timeline({
-    defaults: { ease: "power1.out" },
-    onComplete: () => {
-      animating = false;
-    },
-  });
-  if (currentIndex >= 0) {
-    gsap.set(sections[currentIndex], {
-      autoAlpha: 0,
-    });
-    tl.set(sections[currentIndex], {
-      autoAlpha: 0,
-    });
-  }
-  gsap.set(sections[index], { autoAlpha: 1, zIndex: 1 });
-  const animationIndex = direction === 1 ? index : index + 1;
-
-  tl.fromTo(
-    [outerWrappers[index]],
+function handleDroneRevealDrawingAnimations(gltfModel) {
+  console.log("gltfModel: ", gltfModel);
+  const animation = [
+    //0.brightIdea
     {
-      yPercent: (i) => (i ? 100 * dFactor : -100 * dFactor),
-      duration: 0.7,
+      targets: ".line",
+      length: 400,
+      stagger: false,
+      duration: 1,
+      animationFn: (direction) => ({
+        strokeDashoffset: direction === 1 ? 0 : 400,
+      }),
     },
+    //1.together we can identify it's core values
     {
-      yPercent: 0,
+      targets: [".square", ".dronePlaceholder"],
+      length: [1700, 1700],
+      stagger: false,
+      duration: 1,
+      animationFn: (direction, index) => {
+        const lengths = [1700, 1700];
+        return { strokeDashoffset: direction === 1 ? 0 : lengths[index] };
+      },
     },
-    0
+    //2.visualize the concept
+    {
+      targets: [".droneSketch", ".droneSketchInnerLines"],
+      length: [4261.26806640625, 13475.1396484375],
+      stagger: false,
+      duration: 1,
+      animationFn: (direction, index) => {
+        const lengths = [4261.26806640625, 13475.1396484375];
+        return { strokeDashoffset: direction === 1 ? 0 : lengths[index] };
+      },
+    },
+    //3.turn vision into reality
+    {
+      targets: [".three-js-container", ".droneSvg"],
+      stagger: false,
+      duration: 1,
+      animationFn: (direction, index) => {
+        const opacities = [
+          { start: 1, end: 0 },
+          { start: 0, end: 1 },
+        ];
+        return {
+          opacity:
+            direction === 1 ? opacities[index].start : opacities[index].end,
+        };
+      },
+    },
+    //4. a touchable reality
+    {
+      targets: gltfModel.rotation,
+      stagger: false,
+      duration: 0.5,
+      easing: "power3.out",
+      animationFn: () => {
+        return {
+          x: Math.PI / 4,
+          y: Math.PI / 4,
+          y: Math.PI / 4,
+        };
+      },
+    },
+  ];
+  let sections = document.querySelectorAll(".section");
+  let outerWrappers = gsap.utils.toArray(".outer");
+  let headings = gsap.utils.toArray(".section-heading");
+  let splitHeadings = headings.map(
+    (heading) =>
+      new SplitType(heading, {
+        type: "chars,words,lines",
+        linesClass: "clip-text",
+      })
   );
-  const currentAnimation = animation[animationIndex];
+  let wrap = gsap.utils.wrap(0, sections.length);
+  let currentIndex = -1;
+  let animating = false;
 
-  if (Array.isArray(currentAnimation.targets)) {
-    currentAnimation.targets.forEach((target, index) => {
-      const animationProp = currentAnimation.animationFn(direction, index);
-      tl.to(target, {
+  function gotoSection(index, direction) {
+    animating = true;
+    let fromTop = direction === 1;
+    let dFactor = fromTop ? -1 : 1;
+    let tl = gsap.timeline({
+      defaults: { ease: "power1.out" },
+      onComplete: () => {
+        animating = false;
+      },
+    });
+    if (currentIndex >= 0) {
+      gsap.set(sections[currentIndex], {
+        autoAlpha: 0,
+      });
+      tl.set(sections[currentIndex], {
+        autoAlpha: 0,
+      });
+    }
+    gsap.set(sections[index], { autoAlpha: 1, zIndex: 1 });
+    const animationIndex = direction === 1 ? index : index + 1;
+
+    tl.fromTo(
+      [outerWrappers[index]],
+      {
+        yPercent: (i) => (i ? 100 * dFactor : -100 * dFactor),
+        duration: 0.7,
+      },
+      {
+        yPercent: 0,
+      },
+      0
+    );
+    const currentAnimation = animation[animationIndex];
+
+    if (Array.isArray(currentAnimation.targets)) {
+      currentAnimation.targets.forEach((target, index) => {
+        const animationProp = currentAnimation.animationFn(direction, index);
+        tl.to(target, {
+          ...animationProp,
+          duration: currentAnimation.duration,
+          stagger: currentAnimation.stagger,
+          ease: currentAnimation.easing ?? "power1.out",
+        });
+      });
+    } else {
+      const animationProp = currentAnimation.animationFn(direction);
+      tl.to(currentAnimation.targets, {
         ...animationProp,
         duration: currentAnimation.duration,
         stagger: currentAnimation.stagger,
+        ease: currentAnimation.easing ?? "power1.out",
       });
-    });
-  } else {
-    const animationProp = currentAnimation.animationFn(direction);
-    tl.to(currentAnimation.targets, {
-      ...animationProp,
-      duration: currentAnimation.duration,
-      stagger: currentAnimation.stagger,
-    });
+    }
+
+    tl.fromTo(
+      splitHeadings[index].chars,
+      {
+        autoAlpha: 0.1,
+        yPercent: 150 * dFactor,
+      },
+      {
+        autoAlpha: 1,
+        yPercent: 0,
+        duration: 0.5,
+        ease: "power1.out",
+        stagger: {
+          each: 0.02,
+          from: "random",
+        },
+      },
+      0.1
+    );
+    currentIndex = index;
   }
 
-  tl.fromTo(
-    splitHeadings[index].chars,
-    {
-      autoAlpha: 0.1,
-      yPercent: 150 * dFactor,
-    },
-    {
-      autoAlpha: 1,
-      yPercent: 0,
-      duration: 0.5,
-      ease: "power1.out",
-      stagger: {
-        each: 0.02,
-        from: "random",
-      },
-    },
-    0.1
-  );
-  currentIndex = index;
+  gotoSection(0, 1);
+
+  Observer.create({
+    type: "wheel,touch,pointer",
+    wheelSpeed: -1,
+    onDown: () =>
+      !animating && currentIndex - 1 >= 0 && gotoSection(currentIndex - 1, -1),
+    onUp: () =>
+      !animating &&
+      currentIndex + 1 < sections.length &&
+      gotoSection(currentIndex + 1, 1),
+    tolerance: 300,
+    preventDefault: true,
+  });
 }
-
-Observer.create({
-  type: "wheel,touch,pointer",
-  wheelSpeed: -1,
-  onDown: () =>
-    !animating && currentIndex - 1 >= 0 && gotoSection(currentIndex - 1, -1),
-  onUp: () =>
-    !animating &&
-    currentIndex + 1 < sections.length &&
-    gotoSection(currentIndex + 1, 1),
-  tolerance: 300,
-  preventDefault: true,
-});
-
-gotoSection(0, 1);
 
 //GUI
 const gui = new dat.GUI({ autoPlace: false });
@@ -204,7 +223,6 @@ const camera = new THREE.PerspectiveCamera(
 );
 
 //LOADER
-
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(rendererWidth, rendererHeight);
 rendererContainer.appendChild(renderer.domElement);
@@ -219,6 +237,7 @@ loader.load(
   "./drone.glb",
   (gltf) => {
     droneModel = gltf.scene;
+    console.log("droneModel: ", droneModel);
     droneModel.rotation.x = Math.PI / 2;
     droneModel.rotation.y = Math.PI / 2;
     droneModel.rotation.z = Math.PI / 0;
@@ -232,8 +251,9 @@ loader.load(
         object.material.color.set(0x000000); // Black color
       }
     });
-    scene.add(gltf.scene);
+    scene.add(droneModel);
     scene.animations.map((animation) => animation.play());
+    handleDroneRevealDrawingAnimations(droneModel);
   },
   undefined,
   (error) => {
@@ -241,7 +261,7 @@ loader.load(
   }
 );
 
-// //LIGHTING
+//LIGHTING
 // const PointLight = new THREE.PointLight(0xffffff, 60);
 // PointLight.position.set(0, 2, 0); // Adjust as needed
 // scene.add(PointLight);
@@ -250,8 +270,7 @@ loader.load(
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 
-// camera.lookAt(scene.position); // Look at the center of the scene
-
+camera.lookAt(scene.position); // Look at the center of the scene
 // Camera position folder
 const cameraPositionSettings = {
   x: 0,
@@ -279,31 +298,6 @@ function updateCameraPosition() {
   controls.update();
 }
 updateCameraPosition();
-// Camera rotation folder
-const cubeRotationSettings = {
-  x: 0,
-  y: 0,
-  z: 3.6,
-};
-const cameraRotationFolder = gui.addFolder("Cube Rotation");
-cameraRotationFolder
-  .add(cubeRotationSettings, "x", -Math.PI, Math.PI)
-  .onChange(updateCameraRotation);
-cameraRotationFolder
-  .add(cubeRotationSettings, "y", -Math.PI, Math.PI)
-  .onChange(updateCameraRotation);
-cameraRotationFolder
-  .add(cubeRotationSettings, "z", -Math.PI, Math.PI)
-  .onChange(updateCameraRotation);
-cameraRotationFolder.open();
-
-function updateCameraRotation() {
-  camera.rotateX(cubeRotationSettings.x);
-  camera.rotateY(cubeRotationSettings.y);
-  camera.rotateZ(cubeRotationSettings.z);
-
-  controls.update();
-}
 
 function animate() {
   requestAnimationFrame(animate);
@@ -313,10 +307,9 @@ function animate() {
 
 animate();
 
-//LENIS
-// const lenis = new Lenis();
-// function raf(time) {
-//   lenis.raf(time);
-//   requestAnimationFrame(raf);
-// }
-// requestAnimationFrame(raf);
+const lenis = new Lenis();
+function raf(time) {
+  lenis.raf(time);
+  requestAnimationFrame(raf);
+}
+requestAnimationFrame(raf);
