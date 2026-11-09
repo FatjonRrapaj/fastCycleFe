@@ -1,11 +1,19 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const CopyWebpackPlugin = require("copy-webpack-plugin");
+
+const pages = ["about", "work", "process", "contact"];
 
 module.exports = {
-  entry: "./src/index.js", // Your entry point
+  entry: {
+    main: "./src/index.js",
+    site: "./src/site.js",
+  },
   output: {
     path: path.resolve(__dirname, "dist"),
-    filename: "bundle.js",
+    filename: "[name].bundle.js",
+    clean: true,
+    publicPath: "/",
   },
   module: {
     rules: [
@@ -23,23 +31,47 @@ module.exports = {
           },
         },
       },
-      {
-        test: /\.glb$/,
-        use: [
-          {
-            loader: "file-loader",
-            options: {
-              name: "[name].[ext]",
-              outputPath: "assets/models/", // Specify the directory where .glb files will be copied
-            },
-          },
-        ],
-      },
     ],
   },
   plugins: [
     new HtmlWebpackPlugin({
       template: "./src/index.html",
+      filename: "index.html",
+      chunks: ["main"],
+    }),
+    ...pages.map(
+      (page) =>
+        new HtmlWebpackPlugin({
+          template: `./src/pages/${page}.html`,
+          filename: `${page}.html`,
+          chunks: ["site"],
+        })
+    ),
+    new CopyWebpackPlugin({
+      patterns: [
+        { from: "public", to: "." },
+        {
+          from: "node_modules/three/examples/jsm/libs/draco/gltf",
+          to: "draco",
+        },
+      ],
     }),
   ],
+  devServer: {
+    static: [
+      {
+        directory: path.join(__dirname, "public"),
+      },
+      {
+        directory: path.join(
+          __dirname,
+          "node_modules/three/examples/jsm/libs/draco/gltf"
+        ),
+        publicPath: "/draco",
+      },
+    ],
+    historyApiFallback: true,
+    port: 8080,
+    hot: true,
+  },
 };
