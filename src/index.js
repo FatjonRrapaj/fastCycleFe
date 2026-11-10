@@ -54,6 +54,69 @@ const bodyParts = placeholderParts.slice(4);
 const svgEl = document.querySelector(".drone-svg");
 const threeContainer = document.querySelector(".three-js-container");
 const visualStage = document.querySelector(".visual-stage");
+const droneStoryTitle = document.querySelector(".drone-story-title");
+const droneStorySub = document.querySelector(".drone-story-sub");
+const visualCaption = document.querySelector(".visual-caption");
+
+const DRONE_STAGES = {
+  blank: {
+    id: "blank",
+    title: "From a blank page",
+    sub: "Greenfielding starts here",
+    caption: "Idea → shipped app",
+  },
+  frame: {
+    id: "frame",
+    title: "Frame the problem",
+    sub: "Pin the must-ship slice",
+    caption: "Idea → shipped app",
+  },
+  napkin: {
+    id: "napkin",
+    title: "Napkin sketch",
+    sub: "Capture the idea fast",
+    caption: "Sketch the product",
+  },
+  shape: {
+    id: "shape",
+    title: "Shape the core",
+    sub: "Flows, stack, constraints",
+    caption: "Shape before you harden",
+  },
+  build: {
+    id: "build",
+    title: "Build the real thing",
+    sub: "Design + engineering together",
+    caption: "Wireframe → product",
+  },
+  lift: {
+    id: "lift",
+    title: "Lift off the page",
+    sub: "Sketch becomes 3D",
+    caption: "Wireframe → product",
+  },
+  ship: {
+    id: "ship",
+    title: "Ship it",
+    sub: "Color, polish, release",
+    caption: "Shipped",
+  },
+};
+
+let activeDroneStage = "";
+
+function setDroneStory(stage) {
+  if (!stage || stage.id === activeDroneStage) return;
+  activeDroneStage = stage.id;
+  if (droneStoryTitle) {
+    droneStoryTitle.textContent = stage.title;
+    droneStoryTitle.classList.remove("is-pop");
+    void droneStoryTitle.offsetWidth;
+    droneStoryTitle.classList.add("is-pop");
+  }
+  if (droneStorySub) droneStorySub.textContent = stage.sub;
+  if (visualCaption) visualCaption.textContent = stage.caption;
+}
 
 const renderer = new THREE.WebGLRenderer({
   antialias: true,
@@ -630,20 +693,29 @@ function drawUniform(parts, t) {
   });
 }
 
+// Long outline paths need a softer scrub so the tip doesn't race.
+function drawLongPaths(parts, t) {
+  const progress = gsap.parseEase("power1.inOut")(gsap.utils.clamp(0, 1, t));
+  parts.forEach(({ el, length }) => {
+    el.style.strokeDashoffset = String(length * (1 - progress));
+  });
+}
+
 /**
- * Free-scroll mapping: while a paragraph is on screen, fire 2 fast sequences.
- * Each beat finishes early in its window so both complete before you leave.
+ * Even two-beat split across a full section scroll (0 → 1).
+ * Short geometry uses this; long sketch/detail paths use the whole section.
  */
 function sequencePair(local) {
   return {
-    a: gsap.utils.clamp(0, 1, mapRange(local, 0.0, 0.28) * 1.15),
-    b: gsap.utils.clamp(0, 1, mapRange(local, 0.32, 0.6) * 1.15),
+    a: gsap.utils.clamp(0, 1, mapRange(local, 0.0, 0.48)),
+    b: gsap.utils.clamp(0, 1, mapRange(local, 0.52, 1.0)),
   };
 }
 
-const scrollSections = gsap.utils
-  .toArray(".page-shell .section")
-  .filter((section) => section.id !== "cta" && section.id !== "hero");
+const SECTION_ORDER = ["about", "skills", "work", "experience"];
+const scrollSections = SECTION_ORDER.map((id) =>
+  document.getElementById(id)
+).filter(Boolean);
 
 const sectionLocal = scrollSections.map(() => 0);
 
@@ -654,33 +726,28 @@ let introTl = null;
 let introStarted = false;
 
 function applySectionSequences() {
-  const promise = sequencePair(sectionLocal[0] || 0);
-  const process = sequencePair(sectionLocal[1] || 0);
-  const services = sequencePair(sectionLocal[2] || 0);
-  const speed = sectionLocal[3] || 0;
+  // about → markers/body, skills → outer sketch, work → inner detail,
+  // experience → morph / tilt / color
+  const aboutT = sectionLocal[0] || 0;
+  const skillsT = sectionLocal[1] || 0;
+  const workT = sectionLocal[2] || 0;
+  const experienceT = sectionLocal[3] || 0;
+  const about = sequencePair(aboutT);
 
-  // Beat 1: all eight rays grow outward from the center together.
+  // Self-playing intro (not scroll-linked).
   drawUniform(lineParts, intro.lines);
-  // Beat 2: the frame draws only after the rays have played.
   drawUniform(squareParts, intro.frame);
 
-  drawUniform(markerParts, promise.a);
-  drawUniform(bodyParts, promise.b);
+  drawUniform(markerParts, about.a);
+  drawUniform(bodyParts, about.b);
 
-  sketchParts.forEach(({ el, length }) => {
-    const drawn = length * (0.55 * process.a + 0.45 * process.b);
-    el.style.strokeDashoffset = String(Math.max(0, length - drawn));
-  });
+  // Long paths: one continuous draw across the whole section.
+  drawLongPaths(sketchParts, skillsT);
+  drawLongPaths(detailParts, workT);
 
-  detailParts.forEach(({ el, length }) => {
-    const drawn = length * (0.5 * services.a + 0.5 * services.b);
-    el.style.strokeDashoffset = String(Math.max(0, length - drawn));
-  });
-
-  // Show the wireframe, tilt it to face the viewer, then color it.
-  const morphT = gsap.utils.clamp(0, 1, mapRange(speed, 0.0, 0.28));
-  const tiltT = gsap.utils.clamp(0, 1, mapRange(speed, 0.36, 0.64));
-  const colorT = gsap.utils.clamp(0, 1, mapRange(speed, 0.72, 1));
+  const morphT = gsap.utils.clamp(0, 1, mapRange(experienceT, 0.0, 0.34));
+  const tiltT = gsap.utils.clamp(0, 1, mapRange(experienceT, 0.34, 0.67));
+  const colorT = gsap.utils.clamp(0, 1, mapRange(experienceT, 0.67, 1.0));
 
   svgEl.style.opacity = String(1 - morphT);
   threeContainer.style.opacity = String(morphT);
@@ -688,21 +755,28 @@ function applySectionSequences() {
   transformControls.visible = morphT > 0.05;
   applyColorProgress(colorT);
 
-  // Top-down match first. Then pitch and yaw so the nose and lens
-  // turn toward the viewer, still uncolored.
   droneState.rotX = gsap.utils.interpolate(0, -1.35, tiltT);
   droneState.rotY = gsap.utils.interpolate(0, 0.55, tiltT);
-  // Keep the gimbal locked to the body mount — extra axis tilt unseats the lens.
   droneState.camTilt = 0;
   droneState.floatY = gsap.utils.interpolate(0, 0.035, colorT);
+
+  // Captions follow the same section ownership as the draws.
+  let stage = DRONE_STAGES.blank;
+  if (colorT > 0.2) stage = DRONE_STAGES.ship;
+  else if (morphT > 0.15) stage = DRONE_STAGES.lift;
+  else if (workT > 0.08) stage = DRONE_STAGES.build;
+  else if (skillsT > 0.08) stage = DRONE_STAGES.shape;
+  else if (aboutT > 0.05 || intro.frame >= 1) stage = DRONE_STAGES.napkin;
+  else if (intro.frame > 0.15) stage = DRONE_STAGES.frame;
+  setDroneStory(stage);
 
   const built =
     (intro.lines +
       intro.frame +
-      (sectionLocal[0] || 0) +
-      (sectionLocal[1] || 0) +
-      (sectionLocal[2] || 0) +
-      (sectionLocal[3] || 0)) /
+      aboutT +
+      skillsT +
+      workT +
+      experienceT) /
     6;
   visualStage.style.opacity = window.matchMedia("(max-width: 980px)").matches
     ? String(0.5 + built * 0.28)
@@ -728,14 +802,14 @@ window.__forceDroneReady = forceDroneReady;
 
 applySectionSequences();
 
-// Normal page scroll only — no pin, no snap, no extra height.
-// Hero entrance is timed, not scrubbed. Each later section still hosts 2 beats.
+// One section → one animation family. Full section height = full draw.
 scrollSections.forEach((section, i) => {
+  const longPath = section.id === "skills" || section.id === "work";
   ScrollTrigger.create({
     trigger: section,
-    start: "top 80%",
-    end: "bottom 35%",
-    scrub: 0.25,
+    start: "top 70%",
+    end: "bottom 30%",
+    scrub: longPath ? 0.55 : 0.35,
     onUpdate: (self) => syncSectionProgress(i, self.progress),
     onLeave: () => syncSectionProgress(i, 1),
     onLeaveBack: () => syncSectionProgress(i, 0),
@@ -758,7 +832,7 @@ function playIntro() {
   introTl
     .to(intro, {
       lines: 1,
-      duration: 1.35,
+      duration: 1.5,
       ease: "power1.inOut",
       onUpdate: applySectionSequences,
     })
@@ -766,11 +840,11 @@ function playIntro() {
       intro,
       {
         frame: 1,
-        duration: 1.05,
+        duration: 1.15,
         ease: "power1.inOut",
         onUpdate: applySectionSequences,
       },
-      "+=0.2"
+      "+=0.25"
     );
 }
 
