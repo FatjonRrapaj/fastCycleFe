@@ -1,7 +1,7 @@
 {
-  "name": "fast-cycle",
+  "name": "fatjon-rrapaj-dev",
   "version": "1.0.0",
-  "description": "The company's website",
+  "description": "Personal portfolio — Fatjon Rrapaj, Mobile Developer",
   "main": "index.html",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
