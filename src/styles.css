@@ -1,18 +1,64 @@
-@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Syne:wght@500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap");
 
 :root {
-  --ink: #0a1219;
-  --ink-soft: #243040;
-  --muted: #5d6b7a;
-  --paper: #e7ecf1;
-  --paper-deep: #d7dee7;
-  --line: rgba(10, 18, 25, 0.12);
-  --accent: #ff3b1f;
-  --accent-deep: #d92d14;
-  --glow: rgba(255, 59, 31, 0.18);
+  /* Sketch board — engineering paper */
+  --s-ink: #f3faf8;
+  --s-ink-soft: rgba(243, 250, 248, 0.74);
+  --s-muted: rgba(243, 250, 248, 0.5);
+  --s-paper: #1b4f57;
+  --s-paper-mid: #163f47;
+  --s-paper-deep: #0f2d34;
+  --s-line: rgba(243, 250, 248, 0.18);
+  --s-accent: #9fe8df;
+  --s-accent-deep: #6fd4c8;
+  --s-glow: rgba(159, 232, 223, 0.16);
+  --s-nav: rgba(15, 45, 52, 0.62);
+  --s-card: rgba(243, 250, 248, 0.05);
+  --s-grid: rgba(243, 250, 248, 0.055);
+
+  /* Live site — mint / teal only */
+  --l-ink: #0d2a30;
+  --l-ink-soft: #2b5158;
+  --l-muted: #5c7d84;
+  --l-paper: #eef8f6;
+  --l-paper-mid: #e2f2ef;
+  --l-paper-deep: #cfe8e3;
+  --l-line: rgba(13, 42, 48, 0.12);
+  --l-accent: #12c4b0;
+  --l-accent-deep: #0a9f8f;
+  --l-glow: rgba(18, 196, 176, 0.18);
+  --l-nav: rgba(238, 248, 246, 0.78);
+  --l-card: rgba(255, 255, 255, 0.62);
+
+  /* 0 = sketch, 1 = live. Driven by the drone color beat. */
+  --theme-t: 0;
+  --theme-inv: calc(1 - var(--theme-t));
+
+  --ink: color-mix(in srgb, var(--s-ink) calc(var(--theme-inv) * 100%), var(--l-ink) calc(var(--theme-t) * 100%));
+  --ink-soft: color-mix(in srgb, var(--s-ink-soft) calc(var(--theme-inv) * 100%), var(--l-ink-soft) calc(var(--theme-t) * 100%));
+  --muted: color-mix(in srgb, var(--s-muted) calc(var(--theme-inv) * 100%), var(--l-muted) calc(var(--theme-t) * 100%));
+  --paper: color-mix(in srgb, var(--s-paper) calc(var(--theme-inv) * 100%), var(--l-paper) calc(var(--theme-t) * 100%));
+  --paper-mid: color-mix(in srgb, var(--s-paper-mid) calc(var(--theme-inv) * 100%), var(--l-paper-mid) calc(var(--theme-t) * 100%));
+  --paper-deep: color-mix(in srgb, var(--s-paper-deep) calc(var(--theme-inv) * 100%), var(--l-paper-deep) calc(var(--theme-t) * 100%));
+  --line: color-mix(in srgb, var(--s-line) calc(var(--theme-inv) * 100%), var(--l-line) calc(var(--theme-t) * 100%));
+  --accent: color-mix(in srgb, var(--s-accent) calc(var(--theme-inv) * 100%), var(--l-accent) calc(var(--theme-t) * 100%));
+  --accent-deep: color-mix(in srgb, var(--s-accent-deep) calc(var(--theme-inv) * 100%), var(--l-accent-deep) calc(var(--theme-t) * 100%));
+  --glow: color-mix(in srgb, var(--s-glow) calc(var(--theme-inv) * 100%), var(--l-glow) calc(var(--theme-t) * 100%));
+  --nav-bg: color-mix(in srgb, var(--s-nav) calc(var(--theme-inv) * 100%), var(--l-nav) calc(var(--theme-t) * 100%));
+  --card-bg: color-mix(in srgb, var(--s-card) calc(var(--theme-inv) * 100%), var(--l-card) calc(var(--theme-t) * 100%));
+  --grid-line: color-mix(in srgb, var(--s-grid) calc(var(--theme-inv) * 100%), transparent calc(var(--theme-t) * 100%));
+  /* Sketch strokes: soft grey matching the 3D wireframe */
+  --stroke: color-mix(in srgb, #9aa8ad calc(var(--theme-inv) * 100%), var(--l-ink) calc(var(--theme-t) * 100%));
+
+  --font-display: "IBM Plex Mono", "IBM Plex Sans", ui-monospace, monospace;
+  --font-body: "IBM Plex Sans", "IBM Plex Mono", system-ui, sans-serif;
   --nav-h: 4.5rem;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
   --stage-w: min(46vw, 620px);
+}
+
+.inner-page {
+  --theme-t: 1;
 }
 
 *,
@@ -35,14 +81,25 @@ html.lenis body {
 body {
   min-height: 100vh;
   color: var(--ink);
-  background:
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px),
     radial-gradient(1200px 700px at 85% 18%, var(--glow), transparent 55%),
-    radial-gradient(900px 500px at 10% 80%, rgba(36, 48, 64, 0.08), transparent 50%),
-    linear-gradient(165deg, #f4f6f8 0%, var(--paper) 45%, var(--paper-deep) 100%);
-  font-family: "IBM Plex Sans", system-ui, sans-serif;
+    radial-gradient(900px 500px at 12% 82%, rgba(0, 183, 166, calc(0.08 * var(--theme-t))), transparent 52%),
+    linear-gradient(165deg, var(--paper) 0%, var(--paper-mid) 48%, var(--paper-deep) 100%);
+  background-size:
+    32px 32px,
+    32px 32px,
+    auto,
+    auto,
+    auto;
+  background-position: center top;
+  font-family: var(--font-body);
   font-size: 1.05rem;
   line-height: 1.6;
   overflow-x: hidden;
+  transition: color 0.05s linear;
 }
 
 img {
@@ -85,7 +142,7 @@ button {
   justify-content: space-between;
   padding: 0 clamp(1.25rem, 4vw, 3rem);
   backdrop-filter: blur(14px);
-  background: rgba(231, 236, 241, 0.72);
+  background: var(--nav-bg);
   border-bottom: 1px solid var(--line);
 }
 
@@ -93,10 +150,11 @@ button {
   display: inline-flex;
   align-items: baseline;
   gap: 0.45rem;
-  font-family: "Syne", sans-serif;
-  font-weight: 800;
-  font-size: 1.2rem;
-  letter-spacing: -0.03em;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
   z-index: 2;
 }
 
@@ -128,16 +186,22 @@ button {
   align-items: center;
   justify-content: center;
   padding: 0.7rem 1.15rem;
-  border-radius: 999px;
-  background: var(--ink);
-  color: #fff !important;
-  font-size: 0.88rem;
-  font-weight: 600;
-  transition: transform 0.25s var(--ease), background 0.2s ease;
+  border-radius: calc(2px + 998px * var(--theme-t));
+  border: 1px solid color-mix(in srgb, transparent calc(var(--theme-t) * 100%), var(--stroke) calc(var(--theme-inv) * 100%));
+  background: color-mix(in srgb, transparent calc(var(--theme-inv) * 100%), var(--l-ink) calc(var(--theme-t) * 100%));
+  color: color-mix(in srgb, var(--stroke) calc(var(--theme-inv) * 100%), #fff calc(var(--theme-t) * 100%)) !important;
+  font-family: "IBM Plex Mono", "IBM Plex Sans", monospace;
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transition: transform 0.25s var(--ease), background 0.2s ease, border-radius 0.2s ease;
 }
 
 .nav-cta:hover {
   background: var(--accent);
+  border-color: var(--accent);
+  color: #fff !important;
   transform: translateY(-1px);
 }
 
@@ -211,10 +275,10 @@ body.nav-open .nav-toggle span::after {
   inset: 12% 8% 18% 4%;
   border-radius: 40% 60% 55% 45% / 45% 40% 60% 55%;
   background:
-    radial-gradient(circle at 40% 35%, rgba(255, 255, 255, 0.7), transparent 55%),
+    radial-gradient(circle at 40% 35%, rgba(255, 255, 255, calc(0.08 + 0.45 * var(--theme-t))), transparent 55%),
     radial-gradient(circle at 70% 70%, var(--glow), transparent 60%);
   filter: blur(2px);
-  opacity: 0.9;
+  opacity: calc(0.45 + 0.45 * var(--theme-t));
   animation: stagePulse 8s ease-in-out infinite alternate;
 }
 
@@ -252,7 +316,8 @@ body.nav-open .nav-toggle span::after {
 .drone-svg circle,
 .drone-svg rect {
   fill: none;
-  stroke: var(--ink);
+  stroke: var(--stroke);
+  stroke-width: 0.45;
   stroke-linecap: round;
   stroke-linejoin: round;
   vector-effect: non-scaling-stroke;
@@ -260,6 +325,7 @@ body.nav-open .nav-toggle span::after {
 
 .three-js-container {
   opacity: 0;
+  pointer-events: none;
 }
 
 .three-js-container canvas {
@@ -272,13 +338,13 @@ body.nav-open .nav-toggle span::after {
   position: absolute;
   left: 8%;
   bottom: 8%;
-  font-family: "Syne", sans-serif;
-  font-size: 0.78rem;
-  font-weight: 600;
-  letter-spacing: 0.14em;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--muted);
-  opacity: 0.7;
+  opacity: 0.75;
 }
 
 /* ——— Content column ——— */
@@ -313,10 +379,10 @@ body.nav-open .nav-toggle span::after {
   align-items: center;
   gap: 0.55rem;
   margin-bottom: 1.25rem;
-  font-family: "Syne", sans-serif;
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.16em;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.74rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--accent);
 }
@@ -324,17 +390,19 @@ body.nav-open .nav-toggle span::after {
 .eyebrow::before {
   content: "";
   width: 1.5rem;
-  height: 2px;
+  height: 1px;
   background: currentColor;
 }
 
 .hero-brand {
-  font-family: "Syne", sans-serif;
-  font-weight: 800;
-  font-size: clamp(3rem, 7vw, 5.6rem);
-  line-height: 0.92;
-  letter-spacing: -0.05em;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(2.6rem, 6.2vw, 4.8rem);
+  line-height: 0.98;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
   margin-bottom: 1.4rem;
+  color: var(--ink);
 }
 
 .hero-brand em {
@@ -343,25 +411,32 @@ body.nav-open .nav-toggle span::after {
 }
 
 .section h2 {
-  font-family: "Syne", sans-serif;
-  font-weight: 700;
-  font-size: clamp(2rem, 4.4vw, 3.4rem);
-  line-height: 1.05;
-  letter-spacing: -0.04em;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.7rem, 3.8vw, 2.8rem);
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
   margin-bottom: 1.1rem;
-  max-width: 14ch;
+  max-width: 16ch;
+  color: var(--ink);
 }
 
 .lead {
-  font-size: clamp(1.05rem, 1.6vw, 1.25rem);
+  font-family: var(--font-display);
+  font-size: clamp(0.98rem, 1.45vw, 1.12rem);
+  line-height: 1.55;
   color: var(--ink-soft);
-  max-width: 34ch;
+  max-width: 42ch;
   margin-bottom: 1.75rem;
 }
 
 .section p {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  line-height: 1.55;
   color: var(--ink-soft);
-  max-width: 38ch;
+  max-width: 42ch;
 }
 
 .section p + p {
@@ -381,30 +456,38 @@ body.nav-open .nav-toggle span::after {
   justify-content: center;
   gap: 0.5rem;
   padding: 0.95rem 1.35rem;
-  border-radius: 999px;
+  border-radius: calc(2px + 998px * var(--theme-t));
   font-weight: 600;
   font-size: 0.95rem;
-  transition: transform 0.25s var(--ease), background 0.2s ease, color 0.2s ease;
+  transition: transform 0.25s var(--ease), background 0.2s ease, color 0.2s ease, border-radius 0.2s ease;
 }
 
 .btn-primary {
-  background: var(--accent);
-  color: #fff;
+  background: color-mix(in srgb, transparent calc(var(--theme-inv) * 100%), var(--accent) calc(var(--theme-t) * 100%));
+  border: 1px solid color-mix(in srgb, var(--stroke) calc(var(--theme-inv) * 100%), var(--accent) calc(var(--theme-t) * 100%));
+  color: color-mix(in srgb, var(--stroke) calc(var(--theme-inv) * 100%), #fff calc(var(--theme-t) * 100%));
+  font-family: "IBM Plex Mono", "IBM Plex Sans", monospace;
+  font-size: 0.88rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .btn-primary:hover {
   background: var(--accent-deep);
+  border-color: var(--accent-deep);
+  color: #fff;
   transform: translateY(-2px);
 }
 
 .btn-ghost {
-  border: 1px solid var(--ink);
+  border: 1px solid var(--stroke);
   color: var(--ink);
+  background: transparent;
 }
 
 .btn-ghost:hover {
   background: var(--ink);
-  color: #fff;
+  color: var(--paper);
   transform: translateY(-2px);
 }
 
@@ -429,8 +512,8 @@ body.nav-open .nav-toggle span::after {
 }
 
 .step-num {
-  font-family: "Syne", sans-serif;
-  font-weight: 700;
+  font-family: "IBM Plex Mono", monospace;
+  font-weight: 500;
   font-size: 0.85rem;
   color: var(--accent);
   padding-top: 0.15rem;
@@ -438,7 +521,7 @@ body.nav-open .nav-toggle span::after {
 
 .feature-list strong {
   display: block;
-  font-family: "Syne", sans-serif;
+  font-family: var(--font-display);
   font-size: 1.15rem;
   letter-spacing: -0.02em;
   margin-bottom: 0.25rem;
@@ -458,20 +541,22 @@ body.nav-open .nav-toggle span::after {
 .service-card {
   padding: 1.25rem 1.2rem;
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.45);
-  transition: border-color 0.2s ease, transform 0.25s var(--ease);
+  background: var(--card-bg);
+  border-radius: calc(0px + 14px * var(--theme-t));
+  transition: border-color 0.2s ease, transform 0.25s var(--ease), border-radius 0.2s ease;
 }
 
 .service-card:hover {
-  border-color: rgba(255, 59, 31, 0.35);
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
   transform: translateY(-3px);
 }
 
 .service-card h3 {
-  font-family: "Syne", sans-serif;
+  font-family: var(--font-display);
   font-size: 1.2rem;
   letter-spacing: -0.02em;
   margin-bottom: 0.4rem;
+  color: var(--ink);
 }
 
 .service-card p {
@@ -496,6 +581,7 @@ body.nav-open .nav-toggle span::after {
   gap: 1rem;
   color: var(--muted);
   font-size: 0.88rem;
+  font-family: "IBM Plex Mono", "IBM Plex Sans", monospace;
 }
 
 .scroll-hint {
@@ -503,11 +589,12 @@ body.nav-open .nav-toggle span::after {
   align-items: center;
   gap: 0.6rem;
   margin-top: 2.5rem;
-  font-size: 0.8rem;
-  letter-spacing: 0.12em;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.74rem;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--muted);
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .scroll-hint i {
@@ -556,26 +643,28 @@ body.nav-open .nav-toggle span::after {
 .placeholder-card {
   min-height: 180px;
   padding: 1.25rem;
-  border: 1px dashed rgba(10, 18, 25, 0.25);
-  background: rgba(255, 255, 255, 0.35);
+  border: 1px dashed color-mix(in srgb, var(--ink) 28%, transparent);
+  background: var(--card-bg);
+  border-radius: calc(0px + 12px * var(--theme-t));
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
 }
 
 .placeholder-card span {
-  font-family: "Syne", sans-serif;
-  font-size: 0.75rem;
-  letter-spacing: 0.12em;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--muted);
   margin-bottom: 0.4rem;
 }
 
 .placeholder-card strong {
-  font-family: "Syne", sans-serif;
+  font-family: var(--font-display);
   font-size: 1.3rem;
   letter-spacing: -0.02em;
+  color: var(--ink);
 }
 
 /* ——— Motion reveals ——— */
@@ -632,7 +721,7 @@ body.nav-open .nav-toggle span::after {
     flex-direction: column;
     justify-content: center;
     gap: 1.5rem;
-    background: rgba(231, 236, 241, 0.97);
+    background: color-mix(in srgb, var(--paper) 96%, transparent);
     transform: translateY(-110%);
     transition: transform 0.35s var(--ease);
   }
@@ -642,7 +731,7 @@ body.nav-open .nav-toggle span::after {
   }
 
   .nav-links a {
-    font-family: "Syne", sans-serif;
+    font-family: var(--font-display);
     font-size: 1.6rem;
     font-weight: 700;
   }

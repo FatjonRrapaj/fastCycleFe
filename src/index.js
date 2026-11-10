@@ -5,6 +5,8 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
+import { TransformControls } from "three/examples/jsm/controls/TransformControls";
+import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment";
 import { initNav, initReveals } from "./nav";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -60,6 +62,8 @@ const renderer = new THREE.WebGLRenderer({
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setClearColor(0x000000, 0);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.2;
 threeContainer.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
@@ -67,15 +71,50 @@ const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
 camera.position.set(0, 0, 3.2);
 camera.lookAt(0, 0, 0);
 
-const ambient = new THREE.AmbientLight(0xffffff, 0.7);
-const key = new THREE.DirectionalLight(0xffffff, 1.35);
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+pmrem.dispose();
+
+const ambient = new THREE.AmbientLight(0xffffff, 1.15);
+const key = new THREE.DirectionalLight(0xffffff, 1.75);
 key.position.set(2.2, 3.4, 4.2);
-const fill = new THREE.DirectionalLight(0xfff1e8, 0.45);
+const fill = new THREE.DirectionalLight(0xb8fff4, 0.85);
 fill.position.set(-2.5, 1.2, 2);
-scene.add(ambient, key, fill);
+const rim = new THREE.DirectionalLight(0xffffff, 0.55);
+rim.position.set(0, -2.2, -3);
+scene.add(ambient, key, fill, rim);
 
 const dronePivot = new THREE.Group();
 scene.add(dronePivot);
+
+const transformControls = new TransformControls(camera, renderer.domElement);
+transformControls.setSize(0.85);
+transformControls.attach(dronePivot);
+scene.add(transformControls);
+
+let debugHoldPose = false;
+transformControls.addEventListener("dragging-changed", (event) => {
+  if (event.value) {
+    debugHoldPose = true;
+    lenis.stop();
+  } else {
+    lenis.start();
+  }
+});
+
+window.addEventListener("keydown", (event) => {
+  if (event.target !== document.body && event.target !== document.documentElement) {
+    return;
+  }
+  const key = event.key.toLowerCase();
+  if (key === "g") transformControls.setMode("translate");
+  if (key === "r") transformControls.setMode("rotate");
+  if (key === "s") transformControls.setMode("scale");
+  if (key === "f") {
+    debugHoldPose = false;
+    fitDroneToSketch();
+  }
+});
 
 let droneModel = null;
 let mixer = null;
@@ -84,6 +123,8 @@ let propellerAxes = [];
 let cameraAxis = null;
 let propellersPlaying = false;
 const meshRecords = [];
+
+const WIRE_COLOR = 0x9aa8ad;
 
 const droneState = {
   // Matched to the SVG top-down sketch during morph
@@ -241,44 +282,70 @@ function fitDroneToSketch() {
   matchSketchSize();
 }
 
+function asMaterialList(mat) {
+  return Array.isArray(mat) ? mat : [mat];
+}
+
 function setWireframeMode(enabled) {
   meshRecords.forEach(({ mesh, wire, solid }) => {
-    if (enabled) {
-      mesh.material = wire;
-      wire.wireframe = true;
-    } else {
-      mesh.material = solid;
-      solid.wireframe = false;
-    }
+    mesh.material = enabled ? wire : solid;
+    asMaterialList(enabled ? wire : solid).forEach((mat) => {
+      mat.wireframe = enabled;
+    });
   });
+}
+
+function applyThemeProgress(t) {
+  const themeT = gsap.utils.clamp(0, 1, t);
+  document.documentElement.style.setProperty("--theme-t", themeT.toFixed(4));
+  document.body.classList.toggle("theme-live", themeT > 0.55);
 }
 
 function applyColorProgress(t) {
   const colorT = gsap.utils.clamp(0, 1, t);
   droneState.colorT = colorT;
+  applyThemeProgress(colorT);
 
   if (colorT <= 0) {
     setWireframeMode(true);
+    meshRecords.forEach(({ wire }) => {
+      asMaterialList(wire).forEach((mat) => {
+        mat.color.setHex(WIRE_COLOR);
+        mat.opacity = 0.72;
+      });
+    });
     stopPropellers();
     return;
   }
 
-  // Mid-crossfade: drop wireframe and bring solid color in
+  // Mid-crossfade: drop grey wireframe and bring solid color in
   if (colorT < 0.55) {
     setWireframeMode(true);
     meshRecords.forEach(({ wire }) => {
-      wire.opacity = 1 - colorT * 0.35;
+      asMaterialList(wire).forEach((mat) => {
+        mat.color.setHex(WIRE_COLOR);
+        mat.opacity = 0.72 - colorT * 0.25;
+      });
     });
   } else {
     setWireframeMode(false);
     const solidT = (colorT - 0.55) / 0.45;
     meshRecords.forEach(({ solid }) => {
-      solid.transparent = solidT < 1;
-      solid.opacity = 0.55 + solidT * 0.45;
-      if (solidT >= 1) {
-        solid.transparent = false;
-        solid.opacity = 1;
-      }
+      asMaterialList(solid).forEach((mat) => {
+        const isGlass = !!mat.userData?.isGlass || mat.transmission > 0;
+        if (isGlass) {
+          // Transmission only reads correctly while transparent stays on.
+          mat.transparent = true;
+          mat.opacity = 0.35 + solidT * 0.65;
+          mat.depthWrite = false;
+        } else if (solidT < 1) {
+          mat.transparent = true;
+          mat.opacity = 0.55 + solidT * 0.45;
+        } else {
+          mat.transparent = false;
+          mat.opacity = 1;
+        }
+      });
     });
   }
 
@@ -330,64 +397,189 @@ dracoLoader.setDecoderPath("/draco/");
 const loader = new GLTFLoader();
 loader.setDRACOLoader(dracoLoader);
 
+function makeGlassMaterial(source) {
+  const glass = new THREE.MeshPhysicalMaterial();
+  glass.name = source?.name || "glass";
+  glass.wireframe = false;
+  glass.map = null;
+  glass.normalMap = null;
+  glass.roughnessMap = null;
+  glass.metalnessMap = null;
+  glass.color.set(0xdffaf4);
+  glass.metalness = 0;
+  glass.roughness = 0.02;
+  glass.transmission = 1;
+  glass.thickness = 1.1;
+  glass.ior = 1.5;
+  glass.transparent = true;
+  glass.opacity = 1;
+  glass.depthWrite = false;
+  glass.side = THREE.FrontSide;
+  glass.envMapIntensity = 2.2;
+  if ("attenuationColor" in glass) {
+    glass.attenuationColor.set(0x9fe8df);
+    glass.attenuationDistance = 0.6;
+  }
+  glass.emissive.setHex(0x000000);
+  glass.emissiveIntensity = 0;
+  glass.userData.isGlass = true;
+  glass.needsUpdate = true;
+  return glass;
+}
+
+function paintSolid(solid, hex, { metalness = 0.25, roughness = 0.42 } = {}) {
+  solid.wireframe = false;
+  solid.map = null;
+  solid.normalMap = null;
+  solid.roughnessMap = null;
+  solid.metalnessMap = null;
+  solid.side = THREE.FrontSide;
+  solid.transparent = false;
+  solid.opacity = 1;
+  solid.color.setHex(hex);
+  solid.metalness = metalness;
+  solid.roughness = roughness;
+  solid.emissive.setHex(0x000000);
+  solid.emissiveIntensity = 0;
+  solid.userData.isGlass = false;
+  solid.needsUpdate = true;
+  return solid;
+}
+
+function styleSolidMaterial(mesh, solid, index = 0) {
+  const matName = (solid.name || "").toLowerCase();
+  // GLTFLoader splits multi-materials into Mesh002 / Mesh002_1 children under the node.
+  const partName = `${mesh.name || ""} ${mesh.parent?.name || ""}`.toLowerCase();
+
+  // Explicit glass slots from the authored materials
+  if (matName === "material" || matName === "material.005") {
+    return makeGlassMaterial(solid);
+  }
+
+  // Propellers: Material.001 blades + hub
+  if (/(?:^|\s)p[1-4](?:\s|$)/.test(partName) || matName === "material.001") {
+    if (matName === "color") {
+      return paintSolid(solid, 0x3d6a70, { metalness: 0.45, roughness: 0.36 });
+    }
+    return paintSolid(solid, 0x8af0e4, { metalness: 0.08, roughness: 0.32 });
+  }
+
+  // Camera: the large sphere is authored as "color" — that should read as glass.
+  if (partName.includes("camera")) {
+    if (matName === "color" || matName === "material.005") {
+      return makeGlassMaterial(solid);
+    }
+    if (matName === "material.004") {
+      return paintSolid(solid, 0xb8ebe3, { metalness: 0.22, roughness: 0.3 });
+    }
+    return makeGlassMaterial(solid);
+  }
+
+  // Body: "color" is the large shell (majority of tris); Material.003 is a small trim.
+  if (matName === "color") {
+    return paintSolid(solid, 0xf5fffb, { metalness: 0.08, roughness: 0.36 });
+  }
+
+  if (matName === "material.003") {
+    return paintSolid(solid, 0x8aebd9, { metalness: 0.2, roughness: 0.34 });
+  }
+
+  if (matName === "material.004") {
+    return paintSolid(solid, 0x8ec9c0, { metalness: 0.3, roughness: 0.36 });
+  }
+
+  return paintSolid(solid, 0xd2efe8, { metalness: 0.22, roughness: 0.44 });
+}
+
 loader.load(
   "/drone.glb",
   (gltf) => {
-    droneModel = gltf.scene;
-    dronePivot.add(droneModel);
+    try {
+      droneModel = gltf.scene;
+      dronePivot.add(droneModel);
 
-    droneModel.traverse((object) => {
-      if (!object.isMesh) return;
+      droneModel.traverse((object) => {
+        if (!object.isMesh) return;
 
-      const solid = object.material.clone();
-      solid.wireframe = false;
-      solid.transparent = false;
-      solid.opacity = 1;
-      if (solid.map) solid.map.colorSpace = THREE.SRGBColorSpace;
-      solid.side = THREE.FrontSide;
+        const materials = Array.isArray(object.material)
+          ? object.material
+          : [object.material];
+        const solids = materials.map((mat, index) => {
+          const solid = mat.isMeshPhysicalMaterial
+            ? mat.clone()
+            : new THREE.MeshStandardMaterial().copy(mat);
+          solid.name = mat.name;
+          return styleSolidMaterial(object, solid, index);
+        });
+        const wires = materials.map(() => {
+          const wire = new THREE.MeshStandardMaterial({
+            color: WIRE_COLOR,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.72,
+            side: THREE.DoubleSide,
+            metalness: 0,
+            roughness: 1,
+          });
+          return wire;
+        });
 
-      const wire = object.material.clone();
-      wire.wireframe = true;
-      wire.color.set(0x0a1219);
-      wire.emissive?.setHex?.(0x000000);
-      wire.map = null;
-      wire.transparent = true;
-      wire.opacity = 0.95;
-      wire.side = THREE.DoubleSide;
-
-      object.material = wire;
-      meshRecords.push({ mesh: object, wire, solid });
-    });
-
-    mixer = new THREE.AnimationMixer(droneModel);
-    propellerActions = gltf.animations
-      .filter((clip) => /propeller/i.test(clip.name))
-      .map((clip) => {
-        const action = mixer.clipAction(clip);
-        action.setLoop(THREE.LoopRepeat, Infinity);
-        action.clampWhenFinished = false;
-        return action;
+        object.material = wires.length === 1 ? wires[0] : wires;
+        meshRecords.push({
+          mesh: object,
+          wire: wires.length === 1 ? wires[0] : wires,
+          solid: solids.length === 1 ? solids[0] : solids,
+        });
       });
 
-    propellerAxes = [];
-    cameraAxis = null;
-    droneModel.traverse((object) => {
-      if (/^p[1-4]Axis$/i.test(object.name)) {
-        object.userData.restQuat = object.quaternion.clone();
-        propellerAxes.push(object);
-      }
-      if (object.name === "droneCameraAxis") {
-        cameraAxis = object;
-        cameraAxis.userData.baseRotX = object.rotation.x;
-      }
-    });
+      mixer = new THREE.AnimationMixer(droneModel);
+      propellerActions = gltf.animations
+        .filter((clip) => /propeller/i.test(clip.name))
+        .map((clip) => {
+          const action = mixer.clipAction(clip);
+          action.setLoop(THREE.LoopRepeat, Infinity);
+          action.clampWhenFinished = false;
+          return action;
+        });
 
-    fitDroneToSketch();
-    applyColorProgress(0);
+      propellerAxes = [];
+      cameraAxis = null;
+      droneModel.traverse((object) => {
+        if (/^p[1-4]Axis$/i.test(object.name)) {
+          object.userData.restQuat = object.quaternion.clone();
+          propellerAxes.push(object);
+        }
+        if (object.name === "droneCameraAxis") {
+          cameraAxis = object;
+          cameraAxis.userData.baseRotX = object.rotation.x;
+        }
+      });
+
+      // Dock the camera sphere into the body connector (mesh space offset).
+      const cameraMesh = droneModel.getObjectByName("droneCamera");
+      if (cameraMesh) {
+        cameraMesh.traverse((object) => {
+          if (!object.isMesh || !object.geometry) return;
+          object.geometry = object.geometry.clone();
+          object.geometry.translate(0, -2.6, 0);
+          object.geometry.computeBoundingBox();
+          object.geometry.computeBoundingSphere();
+        });
+      }
+
+      fitDroneToSketch();
+      applyColorProgress(0);
+      window.__meshRecords = meshRecords;
+      window.__droneReady = true;
+    } catch (error) {
+      console.error("Failed to style drone model", error);
+      window.__droneError = String(error?.stack || error);
+    }
   },
   undefined,
   (error) => {
     console.error("Failed to load drone model", error);
+    window.__droneError = String(error?.stack || error);
   }
 );
 
@@ -401,7 +593,7 @@ function animate() {
   if (mixer) mixer.update(delta);
   spinPropellers(delta);
 
-  if (droneModel) {
+  if (droneModel && !debugHoldPose) {
     const live = droneState.colorT;
     dronePivot.rotation.x = droneState.rotX;
     dronePivot.rotation.y =
@@ -492,13 +684,16 @@ function applySectionSequences() {
 
   svgEl.style.opacity = String(1 - morphT);
   threeContainer.style.opacity = String(morphT);
+  threeContainer.style.pointerEvents = morphT > 0.05 ? "auto" : "none";
+  transformControls.visible = morphT > 0.05;
   applyColorProgress(colorT);
 
   // Top-down match first. Then pitch and yaw so the nose and lens
   // turn toward the viewer, still uncolored.
   droneState.rotX = gsap.utils.interpolate(0, -1.35, tiltT);
   droneState.rotY = gsap.utils.interpolate(0, 0.55, tiltT);
-  droneState.camTilt = gsap.utils.interpolate(0, 0.9, tiltT);
+  // Keep the gimbal locked to the body mount — extra axis tilt unseats the lens.
+  droneState.camTilt = 0;
   droneState.floatY = gsap.utils.interpolate(0, 0.035, colorT);
 
   const built =
@@ -528,6 +723,8 @@ function forceDroneReady() {
   if (introTl && introTl.isActive()) introTl.progress(1);
   applySectionSequences();
 }
+
+window.__forceDroneReady = forceDroneReady;
 
 applySectionSequences();
 
