@@ -694,12 +694,35 @@ body.nav-open .nav-toggle span::after {
   font-size: 0.95rem;
 }
 
-.cta-panel {
-  padding: 2rem 0;
+.section.cta-panel {
+  min-height: calc(100svh - var(--nav-h));
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 4rem 0 3rem;
 }
 
-.cta-panel h2 {
-  max-width: 12ch;
+.section.cta-panel .eyebrow {
+  justify-content: center;
+}
+
+.section.cta-panel .eyebrow::before {
+  display: none;
+}
+
+.section.cta-panel h2 {
+  max-width: 14ch;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.section.cta-panel .lead {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.section.cta-panel .cta-row {
+  justify-content: center;
 }
 
 .site-footer {
@@ -768,6 +791,97 @@ body.nav-open .nav-toggle span::after {
   min-height: 0;
   justify-content: flex-start;
   padding: 0.35rem 0 1.75rem;
+}
+
+.contact-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+}
+
+.section.contact-hero {
+  flex: 1;
+  min-height: 0;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 2rem 0 3rem;
+  border-bottom: 0;
+}
+
+.section.contact-hero .eyebrow {
+  justify-content: center;
+}
+
+.section.contact-hero .eyebrow::before {
+  display: none;
+}
+
+.section.contact-hero .lead,
+.section.contact-hero .hero-brand {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.contact-channels {
+  list-style: none;
+  margin: 2rem auto 0;
+  padding: 0;
+  width: min(34rem, 100%);
+  display: grid;
+  gap: 0.75rem;
+}
+
+.contact-channel {
+  display: grid;
+  gap: 0.2rem;
+  padding: 1.1rem 1.2rem;
+  border: 1px solid var(--line);
+  background: var(--nav-bg);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  text-align: left;
+  transition: border-color 0.2s ease, transform 0.25s var(--ease);
+}
+
+.contact-channel:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.contact-channel__kind {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.contact-channel strong {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  word-break: break-word;
+}
+
+.contact-channel__hint {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.contact-note {
+  margin: 1.75rem auto 0;
+  max-width: 36ch;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.74rem;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.contact-shell .site-footer {
+  margin-top: auto;
 }
 
 /* Pro pattern: short labels, mark on the left, 3 scannable columns */
@@ -1246,6 +1360,11 @@ body.nav-open .nav-toggle span::after {
   width: 100%;
   max-width: 100%;
   overflow: hidden;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
   mask-image: linear-gradient(
     90deg,
     transparent,
@@ -1253,6 +1372,11 @@ body.nav-open .nav-toggle span::after {
     #000 96%,
     transparent
   );
+}
+
+.skill-marquee:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
 }
 
 .skill-marquee__row {
@@ -1269,10 +1393,6 @@ body.nav-open .nav-toggle span::after {
 
 .skill-marquee__row--reverse .skill-marquee__mover {
   animation-direction: reverse;
-}
-
-.skill-marquee:hover .skill-marquee__mover {
-  animation-play-state: paused;
 }
 
 .skill-marquee__track {
@@ -1293,7 +1413,9 @@ body.nav-open .nav-toggle span::after {
   gap: 0.4rem;
   padding: 0.75rem 0.35rem;
   border: 1px solid var(--line);
-  background: var(--card-bg);
+  background: var(--nav-bg);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   text-align: center;
   min-height: 5.2rem;
 }
@@ -1336,6 +1458,126 @@ body.nav-open .nav-toggle span::after {
   .skill-marquee__mover {
     animation: none;
   }
+}
+
+.skills-modal {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  max-width: none;
+  max-height: none;
+  width: 100vw;
+  height: 100vh;
+  background: transparent;
+  color: var(--ink);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.skills-modal:not([open]) {
+  display: none;
+}
+
+.skills-modal::backdrop {
+  background: rgba(8, 28, 32, 0.45);
+  backdrop-filter: blur(18px) saturate(1.2);
+  -webkit-backdrop-filter: blur(18px) saturate(1.2);
+}
+
+.skills-modal__close {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 2;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font-size: 1.75rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.skills-modal__close:hover {
+  color: var(--accent);
+}
+
+.skills-modal__grid {
+  --skill-gap: 0.65rem;
+  list-style: none;
+  margin: 0 auto;
+  padding: 4.5rem clamp(1.25rem, 4vw, 3rem) 2.5rem;
+  width: min(56rem, calc(100% - 2rem));
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: var(--skill-gap);
+}
+
+.skills-modal__grid li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.75rem 0.35rem;
+  border: 1px solid var(--line);
+  background: var(--nav-bg);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  text-align: center;
+  min-height: 5.2rem;
+  opacity: 0;
+  transform: translateY(14px) scale(0.96);
+  transition:
+    opacity 0.38s var(--ease),
+    transform 0.38s var(--ease);
+  transition-delay: 0ms;
+}
+
+.skills-modal.is-open .skills-modal__grid li {
+  opacity: 1;
+  transform: none;
+  transition-delay: calc(var(--i, 0) * 28ms);
+}
+
+.skills-modal__grid img {
+  width: 1.45rem;
+  height: 1.45rem;
+  object-fit: contain;
+}
+
+.skills-modal__grid span {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.03em;
+  color: var(--ink-soft);
+  line-height: 1.25;
+}
+
+@media (max-width: 760px) {
+  .skills-modal__grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .skills-modal__grid li {
+    min-height: 4.6rem;
+    padding: 0.55rem 0.25rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skills-modal__grid li {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+html.skills-modal-open,
+body.skills-modal-open {
+  overflow: hidden;
+  overscroll-behavior: none;
 }
 
 .work-list {
@@ -2007,6 +2249,13 @@ body.demo-modal-open {
     padding: 3.5rem 0;
   }
 
+  .section.cta-panel {
+    min-height: calc(100svh - var(--nav-h) - 46vh);
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+
   .section.hero,
   .section.page-hero {
     min-height: calc(100svh - var(--nav-h) - 46vh);
@@ -2018,6 +2267,10 @@ body.demo-modal-open {
     min-height: 0;
     justify-content: flex-start;
     padding: 0.25rem 0 1.25rem;
+  }
+
+  .section.contact-hero {
+    min-height: calc(100svh - var(--nav-h) - 6rem);
   }
 
   .hero-brand {

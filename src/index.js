@@ -60,11 +60,88 @@ function initHeroCounters() {
   observer.observe(root, { attributes: true, attributeFilter: ["class"] });
 }
 
+function initSkillsModal(lenis) {
+  const trigger = document.querySelector(".skill-marquee");
+  if (!trigger || document.querySelector(".skills-modal")) return;
+
+  const skills = [];
+  const seen = new Set();
+  trigger.querySelectorAll(".skill-marquee__row > .skill-marquee__mover > .skill-marquee__track:first-child li").forEach((li) => {
+    const img = li.querySelector("img");
+    const label = li.querySelector("span")?.textContent?.trim();
+    const src = img?.getAttribute("src");
+    if (!label || !src || seen.has(label)) return;
+    seen.add(label);
+    skills.push({ src, label });
+  });
+  if (!skills.length) return;
+
+  const dialog = document.createElement("dialog");
+  dialog.className = "skills-modal";
+  dialog.setAttribute("aria-label", "Full technologies list");
+  dialog.innerHTML = `
+    <button type="button" class="skills-modal__close" aria-label="Close skills">
+      <span aria-hidden="true">×</span>
+    </button>
+    <ul class="skills-modal__grid">
+      ${skills
+        .map(
+          (s, i) =>
+            `<li style="--i:${i}"><img src="${s.src}" alt="" /><span>${s.label}</span></li>`
+        )
+        .join("")}
+    </ul>
+  `;
+  document.body.appendChild(dialog);
+
+  const closeBtn = dialog.querySelector(".skills-modal__close");
+  let lastFocus = null;
+
+  const setScrollLock = (locked) => {
+    document.documentElement.classList.toggle("skills-modal-open", locked);
+    document.body.classList.toggle("skills-modal-open", locked);
+    if (locked) lenis?.stop();
+    else lenis?.start();
+  };
+
+  const close = () => {
+    dialog.classList.remove("is-open");
+    if (dialog.open) dialog.close();
+    setScrollLock(false);
+    lastFocus?.focus?.();
+    lastFocus = null;
+  };
+
+  const open = () => {
+    lastFocus = document.activeElement;
+    setScrollLock(true);
+    dialog.classList.remove("is-open");
+    if (typeof dialog.showModal === "function") dialog.showModal();
+    else dialog.setAttribute("open", "");
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => dialog.classList.add("is-open"));
+    });
+    closeBtn.focus();
+  };
+
+  trigger.addEventListener("click", open);
+  closeBtn.addEventListener("click", close);
+  dialog.addEventListener("click", (e) => {
+    if (e.target === dialog) close();
+  });
+  dialog.addEventListener("cancel", (e) => {
+    e.preventDefault();
+    close();
+  });
+}
+
 const lenis = new Lenis({
   duration: 1.1,
   smoothWheel: true,
   touchMultiplier: 1.4,
 });
+
+initSkillsModal(lenis);
 
 lenis.on("scroll", ScrollTrigger.update);
 gsap.ticker.add((time) => {
