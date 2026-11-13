@@ -179,50 +179,42 @@ const threeContainer = document.querySelector(".three-js-container");
 const visualStage = document.querySelector(".visual-stage");
 const droneStoryTitle = document.querySelector(".drone-story-title");
 const droneStorySub = document.querySelector(".drone-story-sub");
-const visualCaption = document.querySelector(".visual-caption");
 
 const DRONE_STAGES = {
   blank: {
     id: "blank",
-    title: "From a blank page",
-    sub: "Greenfielding starts here",
-    caption: "Idea → shipped app",
+    title: "Blank page",
+    sub: "Product starts here",
   },
   frame: {
     id: "frame",
-    title: "Frame the problem",
-    sub: "Pin the must-ship slice",
-    caption: "Idea → shipped app",
+    title: "Blank page",
+    sub: "Product starts here",
   },
   napkin: {
     id: "napkin",
-    title: "Napkin sketch",
-    sub: "Capture the idea fast",
-    caption: "Sketch the product",
+    title: "Sketch the product",
+    sub: "Structure before polish",
   },
   shape: {
     id: "shape",
-    title: "Shape the core",
-    sub: "Flows, stack, constraints",
-    caption: "Shape before you harden",
+    title: "Sketch the product",
+    sub: "Structure before polish",
   },
   build: {
     id: "build",
-    title: "Build the real thing",
-    sub: "Design + engineering together",
-    caption: "Wireframe → product",
+    title: "Build the product",
+    sub: "Design + engineering",
   },
   lift: {
     id: "lift",
-    title: "Lift off the page",
-    sub: "Sketch becomes 3D",
-    caption: "Wireframe → product",
+    title: "Build the product",
+    sub: "Design + engineering",
   },
   ship: {
     id: "ship",
-    title: "Ship it",
-    sub: "Color, polish, release",
-    caption: "Shipped",
+    title: "Shipped",
+    sub: "Live in production",
   },
 };
 
@@ -230,7 +222,11 @@ let activeDroneStage = "";
 
 function setDroneStory(stage) {
   if (!stage || stage.id === activeDroneStage) return;
+  const prev = DRONE_STAGES[activeDroneStage];
+  const sameCopy =
+    prev && prev.title === stage.title && prev.sub === stage.sub;
   activeDroneStage = stage.id;
+  if (sameCopy) return;
   if (droneStoryTitle) {
     droneStoryTitle.textContent = stage.title;
     droneStoryTitle.classList.remove("is-pop");
@@ -238,7 +234,6 @@ function setDroneStory(stage) {
     droneStoryTitle.classList.add("is-pop");
   }
   if (droneStorySub) droneStorySub.textContent = stage.sub;
-  if (visualCaption) visualCaption.textContent = stage.caption;
 }
 
 const renderer = new THREE.WebGLRenderer({
@@ -951,11 +946,12 @@ function playIntro() {
   intro.frame = 0;
   applySectionSequences();
 
-  introTl = gsap.timeline();
+  // Beat 1: rays. Hold. Beat 2: frame. Enough air that each read lands.
+  introTl = gsap.timeline({ delay: 0.85 });
   introTl
     .to(intro, {
       lines: 1,
-      duration: 1.5,
+      duration: 1.7,
       ease: "power1.inOut",
       onUpdate: applySectionSequences,
     })
@@ -963,11 +959,11 @@ function playIntro() {
       intro,
       {
         frame: 1,
-        duration: 1.15,
+        duration: 1.35,
         ease: "power1.inOut",
         onUpdate: applySectionSequences,
       },
-      "+=0.25"
+      "+=0.95"
     );
 }
 
