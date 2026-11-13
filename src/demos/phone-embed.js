@@ -2,6 +2,9 @@
  * Shared scaled iframe mount for interactive device demos.
  * Use data-demo-still for a frozen home screen (landing).
  * Omit it for autoplay when visible (experience / projects).
+ *
+ * Lazy: iframe src is set the first time the host nears the viewport,
+ * then kept in memory. Off-screen demos are paused, not unloaded.
  */
 export function mountPhoneDemo(
   host,
@@ -13,6 +16,7 @@ export function mountPhoneDemo(
     width = 375,
     height = 780,
     still = false,
+    lazy = true,
   }
 ) {
   if (!host || host.dataset[mountedKey] === "1") return null;
@@ -21,6 +25,8 @@ export function mountPhoneDemo(
     still ||
     host.hasAttribute("data-demo-still") ||
     host.dataset.demoStill === "1";
+
+  const useLazy = lazy && !host.closest?.(".demo-modal");
 
   host.dataset[mountedKey] = "1";
   host.classList.add("phone-demo-stage", "phone-demo-embed");
@@ -45,13 +51,18 @@ export function mountPhoneDemo(
 
   const params = new URLSearchParams({ embed: "1" });
   if (isStill) params.set("still", "1");
-  frame.src = `${src}?${params.toString()}`;
+  const frameSrc = `${src}?${params.toString()}`;
 
   scaler.appendChild(frame);
   host.innerHTML = "";
   host.appendChild(scaler);
 
   let lastScale = -1;
+  let ready = false;
+  let wantPlay = false;
+  let started = false;
+  let io = null;
+
   const applyScale = () => {
     const w = host.clientWidth || width * 0.448;
     const scale = w / width;
@@ -66,16 +77,13 @@ export function mountPhoneDemo(
   };
   window.addEventListener("resize", onResize);
 
-  let ready = false;
-  let wantPlay = false;
-
   const post = (type) => {
     if (!frame.contentWindow) return;
     frame.contentWindow.postMessage({ type }, "*");
   };
 
   const sync = () => {
-    if (!ready || isStill) return;
+    if (!ready || isStill || !started) return;
     post(wantPlay ? `${prefix}-play` : `${prefix}-pause`);
   };
 
@@ -89,20 +97,50 @@ export function mountPhoneDemo(
   window.addEventListener("message", onMessage);
 
   frame.addEventListener("load", () => {
+    if (!started) return;
     setTimeout(() => {
       ready = true;
       sync();
     }, 200);
   });
 
-  let io = null;
-  if (!isStill) {
+  const start = () => {
+    if (started) return;
+    started = true;
+    frame.src = frameSrc;
+    host.classList.add("is-demo-live");
+    applyScale();
+  };
+
+  if (!useLazy) {
+    start();
+    if (!isStill) wantPlay = true;
+  } else if (!isStill) {
     io = new IntersectionObserver(
       ([entry]) => {
-        wantPlay = !!entry?.isIntersecting && entry.intersectionRatio > 0.35;
+        const near = !!entry?.isIntersecting;
+        if (near) start();
+
+        wantPlay = near && entry.intersectionRatio > 0.35;
         sync();
       },
-      { threshold: [0, 0.35, 0.6] }
+      {
+        threshold: [0, 0.35, 0.6],
+        rootMargin: "180px 0px",
+      }
+    );
+    io.observe(host);
+  } else {
+    // Still shots: load once when near, never autoplay.
+    io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) {
+          start();
+          io?.disconnect();
+          io = null;
+        }
+      },
+      { rootMargin: "200px 0px", threshold: 0 }
     );
     io.observe(host);
   }
@@ -110,6 +148,7 @@ export function mountPhoneDemo(
   return {
     play: () => {
       if (isStill) return;
+      start();
       wantPlay = true;
       sync();
     },
@@ -123,6 +162,7 @@ export function mountPhoneDemo(
       window.removeEventListener("message", onMessage);
       host.innerHTML = "";
       delete host.dataset[mountedKey];
+      host.classList.remove("is-demo-live");
     },
   };
 }
@@ -232,11 +272,16 @@ const DEMO_DEFS = [
   },
 ];
 
+export function findDemoDef(host) {
+  if (!host) return null;
+  return DEMO_DEFS.find((def) => host.matches(def.selector)) || null;
+}
+
 export function mountAllPhoneDemos(root = document) {
   const mounts = [];
   DEMO_DEFS.forEach((def) => {
     root.querySelectorAll(def.selector).forEach((el) => {
-      mounts.push(mountPhoneDemo(el, def));
+      mounts.push(mountPhoneDemo(el, { ...def, lazy: true }));
     });
   });
   return mounts;

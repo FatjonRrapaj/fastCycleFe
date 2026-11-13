@@ -250,6 +250,21 @@
         padding-right: 44px;
       }
 
+      /* Mask without type=password so browsers won't offer to save credentials */
+      input.demo-secret {
+        -webkit-text-security: disc;
+        text-security: disc;
+      }
+
+      input.demo-secret.is-revealed {
+        -webkit-text-security: none;
+        text-security: none;
+      }
+
+      .demo-auth {
+        display: contents;
+      }
+
       .eye {
         position: absolute;
         right: 12px;
@@ -499,20 +514,33 @@
         <div class="auth-bg"></div>
         <div class="sheet open" id="authSheet">
           <h2>Sign in to Beam!</h2>
+          <form class="demo-auth" autocomplete="off" onsubmit="return false;">
           <input
             class="field"
             id="emailField"
-            type="email"
+            type="text"
+            inputmode="email"
             placeholder="Email address"
+            name="demo-beam-user"
             autocomplete="off"
+            data-lpignore="true"
+            data-1p-ignore="true"
+            data-bwignore="true"
+            data-form-type="other"
           />
           <div class="password-wrap">
             <input
-              class="field"
+              class="field demo-secret"
               id="passwordField"
-              type="password"
+              type="text"
               placeholder="Password"
+              name="demo-beam-secret"
               autocomplete="off"
+              data-lpignore="true"
+              data-1p-ignore="true"
+              data-bwignore="true"
+              data-form-type="other"
+              spellcheck="false"
             />
             <button class="eye" type="button" id="eyeBtn" aria-label="Show password">👁</button>
           </div>
@@ -521,6 +549,7 @@
             Login to Beam
           </button>
           <button class="btn-outline" type="button" id="registerBtn">Register</button>
+          </form>
         </div>
       </section>
 
@@ -687,8 +716,7 @@
         }, 1800);
       };
       document.getElementById("eyeBtn").onclick = () => {
-        passwordField.type =
-          passwordField.type === "password" ? "text" : "password";
+        passwordField.classList.toggle("is-revealed");
       };
       emailField.addEventListener("input", updateLoginState);
       passwordField.addEventListener("input", updateLoginState);

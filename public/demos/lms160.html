@@ -212,6 +212,16 @@
         cursor: default;
       }
 
+      /* Mask without type=password so browsers won't offer to save credentials */
+      input.demo-secret {
+        -webkit-text-security: disc;
+        text-security: disc;
+      }
+
+      .demo-auth {
+        display: contents;
+      }
+
       .version {
         position: absolute;
         right: 20px;
@@ -394,30 +404,44 @@
             </div>
           </div>
 
+          <form class="demo-auth" autocomplete="off" onsubmit="return false;">
           <div class="field-wrap">
             <div class="error show" id="emailError">Email or username is required</div>
             <input
               class="field invalid"
               id="email"
-              type="email"
+              type="text"
+              inputmode="email"
               placeholder="Email"
+              name="demo-lms-user"
               autocomplete="off"
+              data-lpignore="true"
+              data-1p-ignore="true"
+              data-bwignore="true"
+              data-form-type="other"
             />
           </div>
 
           <div class="field-wrap">
             <div class="error show" id="passError">Password is required</div>
             <input
-              class="field invalid"
+              class="field invalid demo-secret"
               id="password"
-              type="password"
+              type="text"
               placeholder="Password"
+              name="demo-lms-secret"
               autocomplete="off"
+              data-lpignore="true"
+              data-1p-ignore="true"
+              data-bwignore="true"
+              data-form-type="other"
+              spellcheck="false"
             />
           </div>
 
           <a class="forgot" href="#" id="forgot">Forgot your password?</a>
           <button class="login-btn" type="button" id="loginBtn" disabled>Log in</button>
+          </form>
           <div class="version">Version 1.10.7</div>
         </div>
       </section>

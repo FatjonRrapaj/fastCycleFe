@@ -12,10 +12,8 @@
         <span></span>
       </button>
             <ul class="nav-links">
-        <li><a href="/#work">Work</a></li>
-        <li><a href="/#skills">Skills</a></li>
-        <li><a href="/#experience">Experience</a></li>
-        <li><a href="/projects.html">All projects</a></li>
+        <li><a href="/experience.html">Experience</a></li>
+        <li><a href="/projects.html">Projects</a></li>
         <li><a class="nav-cta" href="/#cta">Hire me</a></li>
       </ul>
     </header>
@@ -49,13 +47,19 @@
             </div>
             <h3>TakeIN User App</h3>
             <p>
-              Customer food-ordering app for TakeIn.KSA on iOS and Android. Owned
-              design system, home → checkout → payments (Moyasar), maps,
-              tracking, wallet, Arabic/RTL, and Maestro coverage. ~950 commits
-              (~45% of team activity).
+              Customer food-ordering app for TakeIn.KSA on iOS and Android —
+              rebuilt core product surfaces from design system to checkout.
             </p>
-            <a class="project-link" href="/demos/takein.html" target="_blank" rel="noopener">Open full demo →</a>
-            <a class="project-link" href="/experience.html#takein">Role details →</a>
+            <ul class="win-list">
+              <li>Owned home, cart, checkout, and restaurant flows end to end</li>
+              <li>Migrated payments to Moyasar with wallet, maps &amp; tracking</li>
+              <li>Arabic localization and RTL polish for the KSA market</li>
+              <li>Maestro E2E + fewer redundant API calls for stabler releases</li>
+            </ul>
+            <div class="project-links">
+              <a class="project-link" href="/experience.html#takein">Role details →</a>
+              <a class="project-link" href="https://takein.sa/" target="_blank" rel="noreferrer">Company page →</a>
+            </div>
           </article>
 
           <article class="project-card project-card--demo reveal" id="truckup">
@@ -71,12 +75,19 @@
             </div>
             <h3>TruckUp Pro</h3>
             <p>
-              Roadside and truck-service pro app: job lifecycle, design system,
-              navigation architecture, rewards, earnings, maps. ~1.4k commits
-              (~38% of team activity) with Maestro + Storybook coverage.
+              Roadside and truck-service pro app — major product and UI rebuild
+              focused on the job lifecycle pros live in every day.
             </p>
-            <a class="project-link" href="/demos/truckup.html" target="_blank" rel="noopener">Open full demo →</a>
-            <a class="project-link" href="/experience.html#truckup">Role details →</a>
+            <ul class="win-list">
+              <li>Rebuilt request → services → arrival → signature job flow</li>
+              <li>New design system and modular navigation architecture</li>
+              <li>Pro Rewards, earnings, and cashout flows</li>
+              <li>Maestro + Storybook coverage to catch UI/flow regressions</li>
+            </ul>
+            <div class="project-links">
+              <a class="project-link" href="/experience.html#truckup">Role details →</a>
+              <a class="project-link" href="https://www.truckup.com/" target="_blank" rel="noreferrer">Company page →</a>
+            </div>
           </article>
 
           <article class="project-card project-card--demo reveal" id="chargebeam">
@@ -92,18 +103,15 @@
             </div>
             <h3>Chargebeam</h3>
             <p>
-              Helps people book electric car charging. Register vehicles via
-              Enode or manually, book any time, pay with Stripe. Drivers get
-              notified and arrive with a portable charging vessel.
+              EV charging booking — register vehicles via Enode or manually,
+              book a slot, pay with Stripe, get notified when the vessel arrives.
             </p>
-            <a class="project-link" href="/demos/chargebeam.html" target="_blank" rel="noopener">Open full demo →</a>
-            <a
-              class="project-link"
-              href="https://apps.apple.com/app/chargebeam"
-              target="_blank"
-              rel="noreferrer"
-              >Chargebeam iOS App →</a
-            >
+            <ul class="win-list">
+              <li>Shipped iOS, Android, admin, and portal in 2.5 months</li>
+              <li>Accelerated funding timeline by ~40%</li>
+              <li>Stripe + Enode integration for payments and EV data</li>
+              <li>Reusable form system: complex flows from ~1 week → hours</li>
+            </ul>
           </article>
 
           <article class="project-card project-card--demo reveal" id="cinolla">
@@ -119,18 +127,18 @@
             </div>
             <h3>Cinolla POS</h3>
             <p>
-              Cashiers and store managers register clients, sell products, take
-              Stripe POS payments, and print invoices via the STARPRINT React
-              Native SDK. Fully designed in Figma and built in React Native.
+              Tablet POS for cashiers and store managers — register clients,
+              sell, take payments, and print invoices on device.
             </p>
-            <a class="project-link" href="/demos/cinolla.html" target="_blank" rel="noopener">Open full demo →</a>
-            <a
-              class="project-link"
-              href="https://cinolla.com"
-              target="_blank"
-              rel="noreferrer"
-              >Company page →</a
-            >
+            <ul class="win-list">
+              <li>Designed in Figma and built natively in React Native</li>
+              <li>Stripe POS with multi-method payments</li>
+              <li>STARPRINT SDK for on-device invoice printing</li>
+              <li>Multiple cashier UI versions for complex form flows</li>
+            </ul>
+            <div class="project-links">
+              <a class="project-link" href="https://cinolla.com" target="_blank" rel="noreferrer">Company page →</a>
+            </div>
           </article>
 
           <article class="project-card project-card--demo reveal" id="openmundo">
@@ -147,17 +155,17 @@
             <h3>Open Mundo</h3>
             <p>
               Language learning for Portuguese, French, Spanish &amp; Italian
-              speakers — live classes with teachers plus async lessons and
-              quizzes.
+              speakers — live classes plus async lessons on tablet and web.
             </p>
-            <a class="project-link" href="/demos/openmundo.html" target="_blank" rel="noopener">Open full demo →</a>
-            <a
-              class="project-link"
-              href="https://www.openmundo.com"
-              target="_blank"
-              rel="noreferrer"
-              >Company page →</a
-            >
+            <ul class="win-list">
+              <li>Greenfield RN Expo / RN Web product from scratch</li>
+              <li>Sync live classes with teachers in-app</li>
+              <li>Async lessons and quizzes for self-paced learning</li>
+              <li>One codebase spanning tablet and web</li>
+            </ul>
+            <div class="project-links">
+              <a class="project-link" href="https://www.openenglish.com/para-empresas/open-mundo/" target="_blank" rel="noreferrer">Company page →</a>
+            </div>
           </article>
 
           <article class="project-card project-card--demo reveal" id="openenglish">
@@ -173,17 +181,18 @@
             </div>
             <h3>Open English Junior</h3>
             <p>
-              Helps kids whose native language is Spanish or Portuguese learn
-              English through sync live classes and async programmed lessons.
+              Kids learning English (native Spanish or Portuguese) through live
+              classes and programmed async lessons.
             </p>
-            <a class="project-link" href="/demos/openenglishjunior.html" target="_blank" rel="noopener">Open full demo →</a>
-            <a
-              class="project-link"
-              href="https://www.openenglish.com"
-              target="_blank"
-              rel="noreferrer"
-              >Company page →</a
-            >
+            <ul class="win-list">
+              <li>Extended and hardened an existing RN Expo / RN Web codebase</li>
+              <li>Sync live classes tailored for younger learners</li>
+              <li>Async programmed lesson paths for progress between sessions</li>
+              <li>Shared tablet + web experience for classrooms and home</li>
+            </ul>
+            <div class="project-links">
+              <a class="project-link" href="https://www.openenglish.com" target="_blank" rel="noreferrer">Company page →</a>
+            </div>
           </article>
 
           <article class="project-card project-card--demo reveal" id="stalmarck">
@@ -199,18 +208,18 @@
             </div>
             <h3>Stalmarck Home Care</h3>
             <p>
-              Scheduling and route optimization for home-care companies —
-              staff/client setup, smart algorithms for travel time and capacity,
-              so teams cover more visits with less waste.
+              Scheduling and route optimization for home-care companies — plan
+              staff and clients so visits fit travel time and capacity.
             </p>
-            <a class="project-link" href="/demos/stalmarck.html" target="_blank" rel="noopener">Open full demo →</a>
-            <a
-              class="project-link"
-              href="https://www.stalmarck.com"
-              target="_blank"
-              rel="noreferrer"
-              >Company page →</a
-            >
+            <ul class="win-list">
+              <li>Smart routing on travel time and capacity constraints</li>
+              <li>Staff and client setup flows for care teams</li>
+              <li>Helped teams cover more visits with less route waste</li>
+              <li>Hardened an existing React scheduling product</li>
+            </ul>
+            <div class="project-links">
+              <a class="project-link" href="https://www.stalmarck.com" target="_blank" rel="noreferrer">Company page →</a>
+            </div>
           </article>
 
           <article class="project-card project-card--demo reveal" id="betterspace">
@@ -226,23 +235,18 @@
             </div>
             <h3>Betterspace</h3>
             <p>
-              Built <strong>four management sites</strong> that shared one
-              component library — themeable UI, forms, charts, and ops flows —
-              so supplier, company-admin, and internal tools stayed consistent
-              while shipping ~40% faster. Alongside that, one
-              <strong>React Native employee app</strong> for mental and physical
-              wellbeing at client companies. CI/CD, performance, and stronger
-              coverage for complex demos (helped land clients like Accenture).
+              Shared platform: four management sites on one React component
+              library, plus a React Native employee wellbeing app.
             </p>
-            <a class="project-link" href="/demos/betterspace.html" target="_blank" rel="noopener">Open full demo →</a>
-            <a class="project-link" href="/experience.html#betterspace">Role details →</a>
-            <a
-              class="project-link"
-              href="https://www.betterspace.de"
-              target="_blank"
-              rel="noreferrer"
-              >Company page →</a
-            >
+            <ul class="win-list">
+              <li>One themeable library across supplier, admin &amp; internal tools</li>
+              <li>~40% faster feature delivery from shared UI/forms/charts</li>
+              <li>RN wellbeing app for employees at client companies</li>
+              <li>Stronger CI/CD and demos that helped land clients like Accenture</li>
+            </ul>
+            <div class="project-links">
+              <a class="project-link" href="/experience.html#betterspace">Role details →</a>
+            </div>
           </article>
 
           <article class="project-card project-card--demo reveal" id="lms160">
@@ -258,13 +262,20 @@
             </div>
             <h3>160 LMS</h3>
             <p>
-              Learning management for managers and instructors across 60+ truck
-              driving schools in the USA — students, curricula, compliance,
-              scheduling, and daily pre-analyzed activity data. Full product
-              internals are covered by NDA (demo shows login → access gate).
+              Learning management for managers and instructors across 60+ US
+              truck driving schools. Internals under NDA — demo shows login →
+              access gate.
             </p>
-            <a class="project-link" href="/demos/lms160.html" target="_blank" rel="noopener">Open full demo →</a>
-            <a class="project-link" href="/experience.html#driving160">Role details →</a>
+            <ul class="win-list">
+              <li>Students, curricula, compliance, and scheduling in one place</li>
+              <li>Daily pre-analyzed activity data for instructors</li>
+              <li>Scaled ops tooling across 60+ academy locations</li>
+              <li>Hardened an existing React product under real school load</li>
+            </ul>
+            <div class="project-links">
+              <a class="project-link" href="/experience.html#driving160">Role details →</a>
+              <a class="project-link" href="https://www.160drivingacademy.com/" target="_blank" rel="noreferrer">Company page →</a>
+            </div>
           </article>
 
           <article class="project-card project-card--demo project-card--truckers reveal" id="truckers">
@@ -284,11 +295,19 @@
             </div>
             <h3>Truckers Network App</h3>
             <p>
-              Connects US truckers with companies — swipe-to-apply job matching,
-              activity tracking, detention AI ratings, and learning materials.
+              Greenfield React Native app connecting US CDL drivers with
+              carriers — jobs, activity, detention insight, and learning.
             </p>
-            <a class="project-link" href="/demos/truckersnetwork.html" target="_blank" rel="noopener">Open full demo →</a>
-            <a class="project-link" href="/experience.html#driving160">Role details →</a>
+            <ul class="win-list">
+              <li>Shipped past 100k downloads from scratch</li>
+              <li>Swipe-to-apply job matching for drivers</li>
+              <li>Detention AI ratings + activity tracking</li>
+              <li>In-app learning materials for undergrads</li>
+            </ul>
+            <div class="project-links">
+              <a class="project-link" href="/experience.html#driving160">Role details →</a>
+              <a class="project-link" href="https://www.160drivingacademy.com/" target="_blank" rel="noreferrer">Company page →</a>
+            </div>
           </article>
 
           <article class="project-card project-card--demo reveal" id="truckersweb">
@@ -304,11 +323,19 @@
             </div>
             <h3>Truckers Network Web Suite</h3>
             <p>
-              Employer recruiting dashboard, driver landing pages, and 160 Driver
-              Score — the same network on the web for managers and carriers.
+              Web side of the Truckers Network — recruiting, driver landing, and
+              scoring for managers and carriers.
             </p>
-            <a class="project-link" href="/demos/truckersnetworkweb.html" target="_blank" rel="noopener">Open full demo →</a>
-            <a class="project-link" href="/experience.html#driving160">Role details →</a>
+            <ul class="win-list">
+              <li>Employer recruiting dashboard for carriers</li>
+              <li>Driver landing pages that feed the mobile network</li>
+              <li>160 Driver Score for hiring signal</li>
+              <li>Greenfield React suite paired with the 100k+ mobile app</li>
+            </ul>
+            <div class="project-links">
+              <a class="project-link" href="/experience.html#driving160">Role details →</a>
+              <a class="project-link" href="https://www.160drivingacademy.com/" target="_blank" rel="noreferrer">Company page →</a>
+            </div>
           </article>
 
           <article class="project-card project-card--demo reveal" id="softmogul">
@@ -324,19 +351,19 @@
             </div>
             <h3>SoftMogul Apps Suite</h3>
             <p>
-              Hospitality PMS in native iOS (Swift) — Reception (PIN, room
-              calendar, drag bookings), Scheduling, Cashier POS, and Customer
-              Display with AirDrop-style device pairing.
+              Hospitality PMS suite in native iOS (Swift) — Reception,
+              Scheduling, Cashier POS, and Customer Display.
             </p>
-            <a class="project-link" href="/demos/softmogulreception.html" target="_blank" rel="noopener">Open Reception demo →</a>
-            <a class="project-link" href="/experience.html#softmogul">Role details →</a>
-            <a
-              class="project-link"
-              href="https://www.softmogul.com"
-              target="_blank"
-              rel="noreferrer"
-              >Company page →</a
-            >
+            <ul class="win-list">
+              <li>Reception tablet: PIN unlock, room calendar, drag bookings</li>
+              <li>MVC → MVVM-RxSwift refactor for maintainability</li>
+              <li>AirDrop-style Multipeer pairing with Customer Display</li>
+              <li>Shared navigation POD — ~80% less chrome duplication</li>
+            </ul>
+            <div class="project-links">
+              <a class="project-link" href="/experience.html#softmogul">Role details →</a>
+              <a class="project-link" href="https://softmogul.com/" target="_blank" rel="noreferrer">Company page →</a>
+            </div>
           </article>
 
           <p class="projects-more reveal">+ many more over the years</p>

@@ -450,57 +450,6 @@
         height: 22px;
       }
 
-      .shimmer {
-        background: linear-gradient(90deg, #ececec 25%, #f7f7f7 37%, #ececec 63%);
-        background-size: 400% 100%;
-        animation: shimmer 1.2s ease-in-out infinite;
-        border-radius: 12px;
-      }
-
-      @keyframes shimmer {
-        0% {
-          background-position: 100% 0;
-        }
-        100% {
-          background-position: 0 0;
-        }
-      }
-
-      .loading-block {
-        display: none;
-        flex-direction: column;
-        gap: 12px;
-        padding: 0 16px;
-      }
-
-      .loading-block.show {
-        display: flex;
-      }
-
-      .home-content.hide {
-        display: none;
-      }
-
-      .shimmer.banner-s {
-        height: 140px;
-      }
-      .shimmer.line {
-        height: 14px;
-        width: 60%;
-      }
-      .shimmer.line.short {
-        width: 40%;
-      }
-      .shimmer.row {
-        height: 72px;
-      }
-      .shimmer.meal-s {
-        width: 56px;
-        height: 56px;
-        border-radius: 14px;
-        flex: 0 0 auto;
-      }
-
       .page-header {
         display: grid;
         grid-template-columns: 36px 1fr 36px;
@@ -1186,7 +1135,6 @@
       @media (prefers-reduced-motion: reduce) {
         .sheet,
         .overlay,
-        .shimmer,
         .map-world,
         .map-pin,
         .progress > i {
@@ -1240,22 +1188,6 @@
               🛒
               <span class="cart-badge">2</span>
             </button>
-          </div>
-
-          <div class="loading-block" id="homeLoading">
-            <div class="shimmer banner-s"></div>
-            <div style="display: flex; gap: 12px">
-              <div class="shimmer meal-s"></div>
-              <div class="shimmer meal-s"></div>
-              <div class="shimmer meal-s"></div>
-              <div class="shimmer meal-s"></div>
-              <div class="shimmer meal-s"></div>
-            </div>
-            <div class="shimmer line"></div>
-            <div class="shimmer line short"></div>
-            <div class="shimmer row"></div>
-            <div class="shimmer row"></div>
-            <div class="shimmer row"></div>
           </div>
 
           <div class="scroll home-content" id="homeContent">
@@ -1645,9 +1577,6 @@
       const sendCodeBtn = document.getElementById("sendCodeBtn");
       const placeProgress = document.getElementById("placeProgress");
       const changeLocationBtn = document.getElementById("changeLocationBtn");
-      const homeLoading = document.getElementById("homeLoading");
-      const homeContent = document.getElementById("homeContent");
-
       const screens = {
         home: document.getElementById("screen-home"),
         map: document.getElementById("screen-map"),
@@ -1714,20 +1643,6 @@
         await wait(120, gen);
         el.click();
         await wait(280, gen);
-      }
-
-      function playLoading(ms = 1400) {
-        closeSheets();
-        showScreen("home");
-        homeContent.classList.add("hide");
-        homeLoading.classList.add("show");
-        return new Promise((resolve) => {
-          setTimeout(() => {
-            homeLoading.classList.remove("show");
-            homeContent.classList.remove("hide");
-            resolve();
-          }, ms);
-        });
       }
 
       function startPlaceCountdown() {
@@ -1833,8 +1748,9 @@
         try {
           while (gen === generation && !paused) {
             if (paused) break;
-            await playLoading(1500);
-            if (gen !== generation) break;
+            closeSheets();
+            showScreen("home");
+            await wait(700, gen);
 
             await tap(document.getElementById("openFilter"), gen);
             await wait(1400, gen);
