@@ -406,12 +406,26 @@ body.nav-open .nav-toggle span::after {
 
 .section.hero,
 .section.page-hero {
+  position: relative;
   justify-content: center;
   text-align: center;
   align-items: center;
   min-height: calc(100vh - var(--nav-h));
   padding-top: 0;
   padding-bottom: 0;
+}
+
+/* Horizontally centered on the window; near the hero bottom */
+.section.hero .scroll-hint {
+  position: absolute;
+  left: 50vw;
+  top: auto;
+  bottom: 2.75rem;
+  transform: translateX(-50%);
+  z-index: 4;
+  margin: 0;
+  width: max-content;
+  pointer-events: none;
 }
 
 .section.hero .eyebrow,
@@ -778,6 +792,11 @@ body.nav-open .nav-toggle span::after {
   min-height: 0;
   justify-content: flex-start;
   padding: 0.35rem 0 1.75rem;
+  border-bottom: 0;
+}
+
+.experience-section {
+  border-top: 0;
 }
 
 .contact-shell {
@@ -1198,7 +1217,7 @@ body.nav-open .nav-toggle span::after {
 
 .timeline-item {
   position: relative;
-  padding: 0 0 2.4rem 1.6rem;
+  padding: 0 0 4rem 1.6rem;
 }
 
 .timeline-item:last-child {

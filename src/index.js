@@ -963,7 +963,7 @@ function playIntro() {
         ease: "power1.inOut",
         onUpdate: applySectionSequences,
       },
-      "+=0.95"
+      "+=0.35"
     );
 }
 
