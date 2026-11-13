@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Betterspace Preview</title>
+    <style>
+      :root {
+        --navy: #1f2a44;
+        --gold: #d4a017;
+        --gold-soft: #f4e4b0;
+        --green: #7aa87a;
+        --red: #d96b5c;
+        --blue: #5b7c99;
+        --purple: #8b7aa8;
+        --bg: #f4f1ea;
+        --card: #ffffff;
+        --text: #243044;
+        --muted: #7a8496;
+        --line: #e6e2d8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: #ddd7cb;
+        font-family: "Avenir Next", "Segoe UI", system-ui, sans-serif;
+        color: var(--text);
+      }
+
+      .site {
+        width: min(1280px, 100%);
+        min-height: 100vh;
+        margin: 0 auto;
+        background: var(--bg);
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
+      }
+
+      .tap-ripple {
+        position: absolute;
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        background: rgba(212, 160, 23, 0.22);
+        border: 2px solid rgba(212, 160, 23, 0.5);
+        transform: translate(-50%, -50%) scale(0.35);
+        opacity: 0;
+        pointer-events: none;
+        z-index: 100;
+      }
+
+      .tap-ripple.show {
+        animation: tapRipple 0.5s ease-out;
+      }
+
+      @keyframes tapRipple {
+        0% {
+          opacity: 0.95;
+          transform: translate(-50%, -50%) scale(0.35);
+        }
+        100% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(1.7);
+        }
+      }
+
+      .topbar {
+        height: 64px;
+        background: #fff;
+        border-bottom: 1px solid var(--line);
+        display: grid;
+        grid-template-columns: 200px 1fr auto;
+        align-items: center;
+        gap: 16px;
+        padding: 0 20px;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 700;
+        font-size: 18px;
+        letter-spacing: -0.02em;
+      }
+
+      .brand .mark {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: conic-gradient(
+          #d4a017,
+          #7aa87a,
+          #5b7c99,
+          #d96b5c,
+          #d4a017
+        );
+      }
+
+      .search {
+        max-width: 420px;
+        margin: 0 auto;
+        width: 100%;
+        height: 40px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: #faf8f3;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0 14px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .profile {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 12px;
+      }
+
+      .profile strong {
+        display: block;
+        font-size: 13px;
+      }
+
+      .profile span {
+        color: var(--muted);
+      }
+
+      .avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #c7b39a, #8a7a66);
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 210px 1fr;
+        min-height: calc(100vh - 64px);
+      }
+
+      .sidebar {
+        background: #fff;
+        border-right: 1px solid var(--line);
+        padding: 18px 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .nav-item {
+        border: 0;
+        background: transparent;
+        text-align: left;
+        padding: 11px 12px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #556174;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .nav-item.active {
+        background: #f7efd6;
+        color: #8a6a10;
+      }
+
+      .content {
+        padding: 18px;
+        display: grid;
+        grid-template-columns: 1.15fr 0.85fr 0.7fr;
+        grid-template-rows: auto auto auto auto;
+        gap: 14px;
+        align-content: start;
+      }
+
+      .card {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 16px;
+        box-shadow: 0 8px 24px rgba(40, 40, 20, 0.04);
+        opacity: 0;
+        transform: translateY(18px);
+        transition: opacity 0.45s ease, transform 0.45s ease;
+      }
+
+      .card.in {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .card h3 {
+        margin: 0 0 12px;
+        font-size: 15px;
+      }
+
+      .card-top {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: 1.1fr 1.2fr auto;
+        gap: 18px;
+        align-items: center;
+      }
+
+      .resources {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+
+      .donut {
+        width: 88px;
+        height: 88px;
+        position: relative;
+      }
+
+      .donut svg {
+        width: 88px;
+        height: 88px;
+        transform: rotate(-90deg);
+      }
+
+      .donut .track {
+        fill: none;
+        stroke: #eee8dc;
+        stroke-width: 10;
+      }
+
+      .donut .ring {
+        fill: none;
+        stroke-width: 10;
+        stroke-linecap: round;
+        stroke-dasharray: 220;
+        stroke-dashoffset: 220;
+        transition: stroke-dashoffset 1s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      .stats-text strong {
+        display: block;
+        font-size: 18px;
+        margin-bottom: 4px;
+      }
+
+      .stats-text div {
+        font-size: 13px;
+        color: var(--muted);
+        margin-bottom: 2px;
+      }
+
+      .pie-wrap {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        position: relative;
+      }
+
+      .pie {
+        width: 92px;
+        height: 92px;
+        border-radius: 50%;
+        background: conic-gradient(
+          var(--green) 0% 50%,
+          var(--gold) 50% 75%,
+          var(--red) 75% 100%
+        );
+        position: relative;
+        transform: scale(0.2);
+        opacity: 0;
+        transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+          opacity 0.5s ease;
+      }
+
+      .pie.in {
+        transform: scale(1);
+        opacity: 1;
+      }
+
+      .pie::after {
+        content: "";
+        position: absolute;
+        inset: 22px;
+        background: #fff;
+        border-radius: 50%;
+      }
+
+      .pie-tip {
+        position: absolute;
+        left: 34px;
+        top: -8px;
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 4px 8px;
+        font-size: 12px;
+        font-weight: 700;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+        opacity: 0;
+        transform: translateY(6px);
+        transition: opacity 0.25s ease, transform 0.25s ease;
+        z-index: 2;
+      }
+
+      .pie-tip.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .legend {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        font-size: 12px;
+        color: #556;
+      }
+
+      .legend li {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 6px;
+      }
+
+      .legend i {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+      }
+
+      .btn-navy {
+        border: 0;
+        background: var(--navy);
+        color: #fff;
+        border-radius: 10px;
+        padding: 12px 14px;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+
+      .engagement {
+        grid-column: 1 / 3;
+        min-height: 250px;
+      }
+
+      .head-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+
+      .toggle {
+        display: inline-flex;
+        background: #f3efe6;
+        border-radius: 999px;
+        padding: 3px;
+        gap: 2px;
+      }
+
+      .toggle button {
+        border: 0;
+        background: transparent;
+        border-radius: 999px;
+        padding: 6px 12px;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--muted);
+        cursor: pointer;
+      }
+
+      .toggle button.active {
+        background: var(--gold);
+        color: #fff;
+      }
+
+      .chart {
+        width: 100%;
+        height: 180px;
+        position: relative;
+      }
+
+      .chart svg {
+        width: 100%;
+        height: 100%;
+        overflow: visible;
+      }
+
+      .chart .grid line {
+        stroke: #ece7dc;
+        stroke-width: 1;
+      }
+
+      .chart .line {
+        fill: none;
+        stroke: var(--gold);
+        stroke-width: 3;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-dasharray: 1200;
+        stroke-dashoffset: 1200;
+        transition: stroke-dashoffset 1.4s ease;
+      }
+
+      .chart .line.drawn {
+        stroke-dashoffset: 0;
+      }
+
+      .chart .area {
+        fill: rgba(212, 160, 23, 0.12);
+        opacity: 0;
+        transition: opacity 0.6s ease 0.5s;
+      }
+
+      .chart .area.show {
+        opacity: 1;
+      }
+
+      .chart .guide {
+        stroke: #c9c2b2;
+        stroke-dasharray: 4 4;
+        opacity: 0;
+        transition: opacity 0.25s ease;
+      }
+
+      .chart .guide.show {
+        opacity: 1;
+      }
+
+      .chart .dot {
+        fill: var(--gold);
+        opacity: 0;
+        transition: opacity 0.25s ease;
+      }
+
+      .chart .dot.show {
+        opacity: 1;
+      }
+
+      .chart-tip {
+        position: absolute;
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 6px 10px;
+        font-size: 12px;
+        font-weight: 700;
+        box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+        opacity: 0;
+        transform: translate(-50%, -120%);
+        transition: opacity 0.25s ease, left 0.45s ease;
+        pointer-events: none;
+        white-space: nowrap;
+      }
+
+      .chart-tip.show {
+        opacity: 1;
+      }
+
+      .months {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 4px;
+        text-align: center;
+      }
+
+      .resources-list {
+        grid-row: 2 / 4;
+        grid-column: 3;
+      }
+
+      .resources-list ol {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .resources-list li {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 13px;
+        font-weight: 600;
+        opacity: 0;
+        transform: translateX(10px);
+        transition: opacity 0.35s ease, transform 0.35s ease;
+      }
+
+      .resources-list li.in {
+        opacity: 1;
+        transform: translateX(0);
+      }
+
+      .resources-list .num {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: #f1ece2;
+        color: var(--muted);
+        display: grid;
+        place-items: center;
+        font-size: 11px;
+        font-weight: 700;
+      }
+
+      .sleep-card {
+        grid-column: 1 / 2;
+      }
+
+      .sleep-bar-label {
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 8px;
+        line-height: 1.35;
+      }
+
+      .sleep-bar {
+        height: 12px;
+        background: #efe9dc;
+        border-radius: 999px;
+        overflow: hidden;
+        margin-bottom: 6px;
+      }
+
+      .sleep-bar > i {
+        display: block;
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, #e0b84a, var(--gold));
+        border-radius: 999px;
+        transition: width 1s ease;
+      }
+
+      .sleep-scale {
+        display: flex;
+        justify-content: space-between;
+        font-size: 11px;
+        color: var(--muted);
+        margin-bottom: 14px;
+      }
+
+      .sleep-bottom {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .spark {
+        width: 100%;
+        height: 54px;
+      }
+
+      .spark path {
+        fill: none;
+        stroke: var(--gold);
+        stroke-width: 2.5;
+        stroke-dasharray: 400;
+        stroke-dashoffset: 400;
+        transition: stroke-dashoffset 1s ease;
+      }
+
+      .spark path.drawn {
+        stroke-dashoffset: 0;
+      }
+
+      .goals {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .goals-donut {
+        width: 78px;
+        height: 78px;
+        border-radius: 50%;
+        background: conic-gradient(
+          var(--green) 0% 43%,
+          var(--gold) 43% 55%,
+          var(--red) 55% 62%,
+          #ece7dc 62% 100%
+        );
+        position: relative;
+        transform: scale(0.2);
+        opacity: 0;
+        transition: transform 0.7s ease, opacity 0.5s ease;
+      }
+
+      .goals-donut.in {
+        transform: scale(1);
+        opacity: 1;
+      }
+
+      .goals-donut::after {
+        content: "";
+        position: absolute;
+        inset: 18px;
+        background: #fff;
+        border-radius: 50%;
+      }
+
+      .goal-pcts {
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .goal-pcts div {
+        margin-bottom: 4px;
+      }
+
+      .wellbeing {
+        grid-column: 2 / 3;
+      }
+
+      .wb-row {
+        display: grid;
+        grid-template-columns: 120px 1fr 20px;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 10px;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .wb-bar {
+        height: 10px;
+        background: #efe9dc;
+        border-radius: 999px;
+        overflow: hidden;
+      }
+
+      .wb-bar > i {
+        display: block;
+        height: 100%;
+        width: 0%;
+        border-radius: 999px;
+        transition: width 0.9s ease;
+      }
+
+      .footer-cta {
+        grid-column: 1 / -1;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .footer-cta p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      body.is-embed {
+        margin: 0;
+        padding: 0;
+        min-height: 0;
+        width: 1280px;
+        height: 800px;
+        background: transparent;
+        display: block;
+        overflow: hidden;
+      }
+
+      body.is-embed .site {
+        width: 1280px;
+        min-height: 800px;
+        height: 800px;
+        margin: 0;
+        box-shadow: none;
+      }
+
+      body.is-still *,
+      body.is-still *::before,
+      body.is-still *::after {
+        transition: none !important;
+        animation: none !important;
+      }
+
+      @media (max-width: 980px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+        .sidebar {
+          display: none;
+        }
+        .content,
+        .card-top,
+        .sleep-bottom {
+          grid-template-columns: 1fr;
+        }
+        .engagement,
+        .resources-list,
+        .sleep-card,
+        .wellbeing,
+        .footer-cta {
+          grid-column: auto;
+          grid-row: auto;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .card,
+        .donut .ring,
+        .pie,
+        .chart .line,
+        .wb-bar > i,
+        .sleep-bar > i,
+        .tap-ripple {
+          transition: none !important;
+          animation: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="site" id="site">
+      <div class="tap-ripple" id="ripple" aria-hidden="true"></div>
+
+      <header class="topbar">
+        <div class="brand"><span class="mark"></span> betterspace</div>
+        <div class="search">⌕ Search wellbeing insights…</div>
+        <div class="profile">
+          <span>🔔</span>
+          <div>
+            <strong>Austin Robertson</strong>
+            <span>Marketing Administrator</span>
+          </div>
+          <div class="avatar"></div>
+        </div>
+      </header>
+
+      <div class="layout">
+        <aside class="sidebar">
+          <button class="nav-item active" type="button" id="navSummary">◆ Summary</button>
+          <button class="nav-item" type="button">☺ Employees</button>
+          <button class="nav-item" type="button">☰ Directory</button>
+          <button class="nav-item" type="button" id="navWellbeing">♡ Wellbeing</button>
+          <button class="nav-item" type="button" id="navEngagement">◎ Engagement</button>
+          <button class="nav-item" type="button">£ Financials</button>
+          <button class="nav-item" type="button">⚙ Settings</button>
+          <button class="nav-item" type="button">▤ Reports</button>
+          <button class="nav-item" type="button">? FAQ & Support</button>
+        </aside>
+
+        <main class="content">
+          <section class="card card-top" data-card>
+            <div class="resources">
+              <div class="donut">
+                <svg viewBox="0 0 88 88">
+                  <circle class="track" cx="44" cy="44" r="35"></circle>
+                  <circle
+                    class="ring"
+                    id="resRing"
+                    cx="44"
+                    cy="44"
+                    r="35"
+                    stroke="#d4a017"
+                  ></circle>
+                </svg>
+              </div>
+              <div class="stats-text">
+                <strong id="resTotal">0 Resources</strong>
+                <div><span id="resFree">0</span> Free</div>
+                <div><span id="resPaid">0</span> Paid</div>
+              </div>
+            </div>
+
+            <div class="pie-wrap">
+              <div class="pie" id="topPie"></div>
+              <div class="pie-tip" id="pieTip">50%</div>
+              <ul class="legend">
+                <li><i style="background: var(--green)"></i> Wake up feeling refreshed</li>
+                <li><i style="background: var(--gold)"></i> Get a regular routine</li>
+                <li><i style="background: var(--red)"></i> Uninterrupted sleep</li>
+              </ul>
+            </div>
+
+            <button class="btn-navy" type="button" id="downloadBtn">⬇ Download Data</button>
+          </section>
+
+          <section class="card engagement" data-card>
+            <div class="head-row">
+              <h3>Weekly Engagement</h3>
+              <div class="toggle">
+                <button type="button" id="togWeekly">Weekly</button>
+                <button type="button" class="active" id="togMonthly">Monthly</button>
+              </div>
+            </div>
+            <div class="chart">
+              <div class="chart-tip" id="chartTip">50% August</div>
+              <svg viewBox="0 0 640 180" preserveAspectRatio="none">
+                <g class="grid">
+                  <line x1="0" y1="30" x2="640" y2="30"></line>
+                  <line x1="0" y1="75" x2="640" y2="75"></line>
+                  <line x1="0" y1="120" x2="640" y2="120"></line>
+                  <line x1="0" y1="165" x2="640" y2="165"></line>
+                </g>
+                <path
+                  class="area"
+                  id="areaPath"
+                  d="M20,140 C70,120 110,40 160,70 C210,100 250,150 300,90 C350,30 390,50 450,95 C510,140 560,60 620,80 L620,165 L20,165 Z"
+                ></path>
+                <path
+                  class="line"
+                  id="linePath"
+                  d="M20,140 C70,120 110,40 160,70 C210,100 250,150 300,90 C350,30 390,50 450,95 C510,140 560,60 620,80"
+                ></path>
+                <line class="guide" id="guide" x1="450" y1="20" x2="450" y2="165"></line>
+                <circle class="dot" id="dot" cx="450" cy="95" r="5"></circle>
+              </svg>
+            </div>
+            <div class="months">
+              <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span>
+              <span>May</span><span>Jun</span><span>Jul</span><span>Aug</span>
+              <span>Sep</span><span>Oct</span><span>Nov</span><span>Dec</span>
+            </div>
+          </section>
+
+          <section class="card resources-list" data-card>
+            <h3>Top 10 Resources</h3>
+            <ol id="resourceOl">
+              <li><span class="num">1</span> Weighted blanket</li>
+              <li><span class="num">2</span> ClassPass</li>
+              <li><span class="num">3</span> Why we sleep</li>
+              <li><span class="num">4</span> Go Fund Me</li>
+              <li><span class="num">5</span> Urban massage</li>
+              <li><span class="num">6</span> Prince's Trust</li>
+              <li><span class="num">7</span> Candide</li>
+              <li><span class="num">8</span> Parkrun</li>
+              <li><span class="num">9</span> Auro</li>
+              <li><span class="num">10</span> Fitbit</li>
+            </ol>
+          </section>
+
+          <section class="card sleep-card" data-card>
+            <h3>Sleep & Goals</h3>
+            <div class="sleep-bar-label">
+              Employees expressed interest in improving their sleep.
+            </div>
+            <div class="sleep-bar"><i id="sleepFill"></i></div>
+            <div class="sleep-scale">
+              <span>Working on it</span>
+              <span>Doing okay</span>
+              <span>Fully satisfied</span>
+            </div>
+            <div class="sleep-bottom">
+              <div>
+                <div style="font-size: 12px; font-weight: 700; margin-bottom: 6px">
+                  Average sleep scores
+                </div>
+                <svg class="spark" viewBox="0 0 160 54">
+                  <path
+                    id="sparkPath"
+                    d="M4,40 C20,35 30,18 48,22 C66,26 78,44 98,28 C118,12 136,16 156,10"
+                  ></path>
+                </svg>
+              </div>
+              <div class="goals">
+                <div class="goals-donut" id="goalsDonut"></div>
+                <div class="goal-pcts">
+                  <div style="color: var(--green)">43%</div>
+                  <div style="color: var(--gold)">12%</div>
+                  <div style="color: var(--red)">7%</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="card wellbeing" data-card>
+            <div class="head-row">
+              <h3>Wellbeing Categories</h3>
+              <div class="toggle">
+                <button type="button" id="wbWeekly">Weekly</button>
+                <button type="button" class="active" id="wbMonthly">Monthly</button>
+              </div>
+            </div>
+            <div class="wb-row">
+              <span>Exercise</span>
+              <div class="wb-bar"><i data-w="72" style="background: var(--blue)"></i></div>
+              <span style="color: var(--red)">↓</span>
+            </div>
+            <div class="wb-row">
+              <span>Meaningful</span>
+              <div class="wb-bar"><i data-w="64" style="background: var(--purple)"></i></div>
+              <span style="color: var(--red)">↓</span>
+            </div>
+            <div class="wb-row">
+              <span>Social Connections</span>
+              <div class="wb-bar"><i data-w="78" style="background: #6a92b8"></i></div>
+              <span style="color: var(--green)">↑</span>
+            </div>
+            <div class="wb-row">
+              <span>Stress Management</span>
+              <div class="wb-bar"><i data-w="48" style="background: var(--red)"></i></div>
+              <span style="color: var(--red)">↓</span>
+            </div>
+            <div class="wb-row">
+              <span>Sleep</span>
+              <div class="wb-bar"><i data-w="81" style="background: var(--gold)"></i></div>
+              <span style="color: var(--green)">↑</span>
+            </div>
+            <div class="wb-row">
+              <span>Helping Others</span>
+              <div class="wb-bar"><i data-w="69" style="background: var(--green)"></i></div>
+              <span style="color: var(--green)">↑</span>
+            </div>
+          </section>
+
+          <section class="card footer-cta" data-card>
+            <p>Get in touch with the Betterspace team for a bespoke recommendation.</p>
+            <button class="btn-navy" type="button" id="contactBtn">Contact</button>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <script>
+      const params = new URLSearchParams(location.search);
+      const EMBED = params.has("embed");
+      const STILL = params.has("still");
+      if (EMBED) document.body.classList.add("is-embed");
+      if (STILL) document.body.classList.add("is-still");
+
+      const CIRC = 2 * Math.PI * 35;
+      const site = document.getElementById("site");
+      const ripple = document.getElementById("ripple");
+      const resRing = document.getElementById("resRing");
+      const linePath = document.getElementById("linePath");
+      const areaPath = document.getElementById("areaPath");
+      const guide = document.getElementById("guide");
+      const dot = document.getElementById("dot");
+      const chartTip = document.getElementById("chartTip");
+      const pieTip = document.getElementById("pieTip");
+      const topPie = document.getElementById("topPie");
+      const goalsDonut = document.getElementById("goalsDonut");
+      const sleepFill = document.getElementById("sleepFill");
+      const sparkPath = document.getElementById("sparkPath");
+
+      resRing.style.strokeDasharray = String(CIRC);
+
+      let generation = 0;
+      let paused = false;
+
+      function wait(ms, gen) {
+        return new Promise((resolve, reject) => {
+          setTimeout(() => {
+            if (gen !== generation) reject(new Error("cancelled"));
+            else resolve();
+          }, ms);
+        });
+      }
+
+      function showTapOn(el) {
+        const p = site.getBoundingClientRect();
+        const r = el.getBoundingClientRect();
+        ripple.style.left = `${r.left - p.left + r.width / 2}px`;
+        ripple.style.top = `${r.top - p.top + Math.min(r.height / 2, 40)}px`;
+        ripple.classList.remove("show");
+        void ripple.offsetWidth;
+        ripple.classList.add("show");
+      }
+
+      async function tap(el, gen) {
+        el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        await wait(350, gen);
+        showTapOn(el);
+        await wait(120, gen);
+        el.click();
+        await wait(280, gen);
+      }
+
+      function resetVisuals() {
+        document.querySelectorAll("[data-card]").forEach((c) => c.classList.remove("in"));
+        document.querySelectorAll("#resourceOl li").forEach((li) => li.classList.remove("in"));
+        resRing.style.strokeDashoffset = String(CIRC);
+        document.getElementById("resTotal").textContent = "0 Resources";
+        document.getElementById("resFree").textContent = "0";
+        document.getElementById("resPaid").textContent = "0";
+        topPie.classList.remove("in");
+        goalsDonut.classList.remove("in");
+        pieTip.classList.remove("show");
+        linePath.classList.remove("drawn");
+        areaPath.classList.remove("show");
+        guide.classList.remove("show");
+        dot.classList.remove("show");
+        chartTip.classList.remove("show");
+        sleepFill.style.width = "0%";
+        sparkPath.classList.remove("drawn");
+        document.querySelectorAll(".wb-bar > i").forEach((b) => (b.style.width = "0%"));
+      }
+
+      async function animateIn(gen) {
+        resetVisuals();
+        const cards = [...document.querySelectorAll("[data-card]")];
+        for (let i = 0; i < cards.length; i++) {
+          cards[i].classList.add("in");
+          await wait(120, gen);
+        }
+
+        // resources count up
+        for (let i = 0; i <= 20; i++) {
+          const t = i / 20;
+          document.getElementById("resTotal").textContent = `${Math.round(315 * t)} Resources`;
+          document.getElementById("resFree").textContent = String(Math.round(170 * t));
+          document.getElementById("resPaid").textContent = String(Math.round(145 * t));
+          resRing.style.strokeDashoffset = String(CIRC * (1 - 0.54 * t));
+          await wait(30, gen);
+        }
+
+        topPie.classList.add("in");
+        goalsDonut.classList.add("in");
+        await wait(400, gen);
+        pieTip.classList.add("show");
+
+        linePath.classList.add("drawn");
+        areaPath.classList.add("show");
+        await wait(900, gen);
+        guide.classList.add("show");
+        dot.classList.add("show");
+        chartTip.style.left = "70%";
+        chartTip.style.top = "48%";
+        chartTip.classList.add("show");
+
+        const items = [...document.querySelectorAll("#resourceOl li")];
+        for (const li of items) {
+          li.classList.add("in");
+          await wait(70, gen);
+        }
+
+        sleepFill.style.width = "68%";
+        sparkPath.classList.add("drawn");
+        document.querySelectorAll(".wb-bar > i").forEach((b, idx) => {
+          setTimeout(() => {
+            b.style.width = `${b.dataset.w}%`;
+          }, idx * 80);
+        });
+      }
+
+      async function moveChartPoint(gen) {
+        const points = [
+          { x: 25, y: 38, label: "42% March", guide: 160, dotY: 70 },
+          { x: 47, y: 28, label: "68% June", guide: 300, dotY: 90 },
+          { x: 70, y: 48, label: "50% August", guide: 450, dotY: 95 },
+          { x: 88, y: 30, label: "74% November", guide: 580, dotY: 70 },
+        ];
+        for (const p of points) {
+          guide.setAttribute("x1", p.guide);
+          guide.setAttribute("x2", p.guide);
+          dot.setAttribute("cx", p.guide);
+          dot.setAttribute("cy", p.dotY);
+          chartTip.style.left = `${p.x}%`;
+          chartTip.style.top = `${p.y}%`;
+          chartTip.textContent = p.label;
+          chartTip.classList.add("show");
+          await wait(900, gen);
+        }
+      }
+
+      function setToggle(weeklyBtn, monthlyBtn, monthly) {
+        weeklyBtn.classList.toggle("active", !monthly);
+        monthlyBtn.classList.toggle("active", monthly);
+      }
+
+      document.getElementById("togWeekly").onclick = () =>
+        setToggle(
+          document.getElementById("togWeekly"),
+          document.getElementById("togMonthly"),
+          false,
+        );
+      document.getElementById("togMonthly").onclick = () =>
+        setToggle(
+          document.getElementById("togWeekly"),
+          document.getElementById("togMonthly"),
+          true,
+        );
+      document.getElementById("wbWeekly").onclick = () =>
+        setToggle(
+          document.getElementById("wbWeekly"),
+          document.getElementById("wbMonthly"),
+          false,
+        );
+      document.getElementById("wbMonthly").onclick = () =>
+        setToggle(
+          document.getElementById("wbWeekly"),
+          document.getElementById("wbMonthly"),
+          true,
+        );
+
+      document.querySelectorAll(".nav-item").forEach((item) => {
+        item.onclick = () => {
+          document
+            .querySelectorAll(".nav-item")
+            .forEach((n) => n.classList.remove("active"));
+          item.classList.add("active");
+        };
+      });
+
+      document.getElementById("downloadBtn").onclick = () => {
+        pieTip.textContent = "Exported";
+        pieTip.classList.add("show");
+        setTimeout(() => (pieTip.textContent = "50%"), 900);
+      };
+      document.getElementById("contactBtn").onclick = () => {
+        chartTip.textContent = "Message sent";
+        chartTip.classList.add("show");
+      };
+
+      site.addEventListener(
+        "pointerdown",
+        (e) => {
+          if (e.target === ripple) return;
+          const p = site.getBoundingClientRect();
+          ripple.style.left = `${e.clientX - p.left}px`;
+          ripple.style.top = `${e.clientY - p.top}px`;
+          ripple.classList.remove("show");
+          void ripple.offsetWidth;
+          ripple.classList.add("show");
+        },
+        true,
+      );
+
+      async function runLoop() {
+        const gen = ++generation;
+        try {
+          while (gen === generation) {
+            await animateIn(gen);
+            await wait(700, gen);
+
+            await tap(document.getElementById("togWeekly"), gen);
+            await wait(600, gen);
+            await tap(document.getElementById("togMonthly"), gen);
+            await wait(500, gen);
+
+            await moveChartPoint(gen);
+
+            await tap(document.getElementById("navWellbeing"), gen);
+            await wait(500, gen);
+            await tap(document.getElementById("navEngagement"), gen);
+            await wait(500, gen);
+            await tap(document.getElementById("navSummary"), gen);
+            await wait(500, gen);
+
+            await tap(document.getElementById("wbWeekly"), gen);
+            await wait(500, gen);
+            document.querySelectorAll(".wb-bar > i").forEach((b) => (b.style.width = "0%"));
+            await wait(200, gen);
+            document.querySelectorAll(".wb-bar > i").forEach((b, idx) => {
+              setTimeout(() => {
+                b.style.width = `${Math.min(100, Number(b.dataset.w) + 8)}%`;
+              }, idx * 70);
+            });
+            await wait(900, gen);
+            await tap(document.getElementById("wbMonthly"), gen);
+            await wait(500, gen);
+
+            await tap(document.getElementById("downloadBtn"), gen);
+            await wait(800, gen);
+            await tap(document.getElementById("contactBtn"), gen);
+            await wait(1200, gen);
+          }
+        } catch (e) {
+          if (e.message !== "cancelled") console.error(e);
+        }
+      }
+
+      function settleFinal() {
+        document.querySelectorAll("[data-card]").forEach((c) => c.classList.add("in"));
+        document.querySelectorAll("#resourceOl li").forEach((li) => li.classList.add("in"));
+        resRing.style.strokeDashoffset = String(CIRC * (1 - 0.54));
+        document.getElementById("resTotal").textContent = "315 Resources";
+        document.getElementById("resFree").textContent = "170";
+        document.getElementById("resPaid").textContent = "145";
+        topPie.classList.add("in");
+        goalsDonut.classList.add("in");
+        pieTip.classList.add("show");
+        linePath.classList.add("drawn");
+        areaPath.classList.add("show");
+        guide.classList.add("show");
+        dot.classList.add("show");
+        chartTip.style.left = "70%";
+        chartTip.style.top = "48%";
+        chartTip.classList.add("show");
+        sleepFill.style.width = "68%";
+        sparkPath.classList.add("drawn");
+        document.querySelectorAll(".wb-bar > i").forEach((b) => {
+          b.style.width = `${b.dataset.w}%`;
+        });
+      }
+
+      function pauseDemo() {
+        generation++;
+        paused = true;
+        ripple.classList.remove("show");
+      }
+
+      function playDemo() {
+        if (!paused) return;
+        paused = false;
+        runLoop();
+      }
+
+      window.addEventListener("message", (e) => {
+        if (STILL) return;
+        if (e.data?.type === "betterspace-pause") pauseDemo();
+        if (e.data?.type === "betterspace-play") playDemo();
+      });
+      window.__betterspacePause = pauseDemo;
+      window.__betterspacePlay = playDemo;
+
+      if (STILL) {
+        paused = true;
+        generation++;
+        settleFinal();
+        try {
+          window.parent?.postMessage({ type: "betterspace-ready" }, "*");
+        } catch (_) {}
+      } else if (EMBED) {
+        paused = true;
+        try {
+          window.parent?.postMessage({ type: "betterspace-ready" }, "*");
+        } catch (_) {}
+      } else {
+        runLoop();
+      }
+    </script>
+  </body>
+</html>

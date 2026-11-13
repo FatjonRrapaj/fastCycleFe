@@ -1,0 +1,1939 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TakeIN App Preview — Live Demo</title>
+    <style>
+      :root {
+        --purple: #732fd8;
+        --purple-soft: #f3eefc;
+        --purple-border: #bc8fff;
+        --text: #181d27;
+        --muted: #717680;
+        --border: #e9eaeb;
+        --gray: #f5f5f5;
+        --green: #089c4c;
+        --green-soft: #ecfef4;
+        --blue-tag: #ebf9ff;
+        --blue-text: #0080b6;
+        --warning-bg: #fff8e6;
+        --warning-border: #fedf89;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 28px;
+        padding: 28px;
+        background: #ececef;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui,
+          sans-serif;
+        color: var(--text);
+      }
+
+      .phone-wrap {
+        position: relative;
+      }
+
+      .phone {
+        width: 375px;
+        height: 780px;
+        background: #fff;
+        border-radius: 36px;
+        border: 1px solid #d5d7da;
+        box-shadow: 0 18px 50px rgba(0, 0, 0, 0.12);
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .tap-ripple {
+        position: absolute;
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        background: rgba(115, 47, 216, 0.22);
+        border: 2px solid rgba(115, 47, 216, 0.45);
+        transform: translate(-50%, -50%) scale(0.35);
+        opacity: 0;
+        pointer-events: none;
+        z-index: 99;
+      }
+
+      .tap-ripple.show {
+        animation: tapRipple 0.5s ease-out;
+      }
+
+      @keyframes tapRipple {
+        0% {
+          opacity: 0.9;
+          transform: translate(-50%, -50%) scale(0.35);
+        }
+        100% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(1.7);
+        }
+      }
+
+      .status {
+        height: 44px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        padding: 0 22px 6px;
+        font-size: 13px;
+        font-weight: 600;
+        flex: 0 0 auto;
+        z-index: 5;
+        position: relative;
+      }
+
+      .status .icons {
+        font-size: 11px;
+        color: var(--muted);
+      }
+
+      .screen {
+        flex: 1;
+        min-height: 0;
+        position: relative;
+        display: none;
+        flex-direction: column;
+        background: #fff;
+      }
+
+      .screen.active {
+        display: flex;
+      }
+
+      .scroll {
+        flex: 1;
+        overflow-y: auto;
+        padding: 0 16px 90px;
+      }
+
+      .header {
+        display: grid;
+        grid-template-columns: 36px 1fr 36px;
+        align-items: center;
+        gap: 8px;
+        padding: 4px 16px 10px;
+      }
+
+      .icon-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        border: 0;
+        background: transparent;
+        display: grid;
+        place-items: center;
+        cursor: pointer;
+        position: relative;
+        font-size: 18px;
+        color: var(--text);
+      }
+
+      .cart-badge {
+        position: absolute;
+        top: 2px;
+        right: 0;
+        width: 16px;
+        height: 16px;
+        border-radius: 8px;
+        background: var(--green);
+        color: #fff;
+        font-size: 10px;
+        font-weight: 700;
+        display: grid;
+        place-items: center;
+      }
+
+      .deliver {
+        text-align: center;
+        cursor: pointer;
+      }
+
+      .deliver small {
+        display: block;
+        font-size: 11px;
+        color: var(--muted);
+      }
+
+      .deliver strong {
+        font-size: 14px;
+      }
+
+      .search {
+        height: 44px;
+        border-radius: 12px;
+        background: var(--gray);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0 14px;
+        color: var(--muted);
+        font-size: 14px;
+        margin-bottom: 14px;
+      }
+
+      .banner {
+        height: 140px;
+        border-radius: 16px;
+        margin-bottom: 14px;
+        position: relative;
+        overflow: hidden;
+        background: #1ea7ff;
+      }
+
+      .banner img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .banner .overlay-label {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          90deg,
+          rgba(20, 40, 80, 0.55),
+          rgba(30, 167, 255, 0.25)
+        );
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        padding: 14px;
+        color: #fff;
+      }
+
+      .banner .overlay-label strong {
+        font-size: 22px;
+        font-weight: 700;
+      }
+
+      .banner .overlay-label span {
+        font-size: 12px;
+        opacity: 0.92;
+      }
+
+      .deals-row {
+        display: flex;
+        gap: 10px;
+        overflow-x: auto;
+        margin-bottom: 16px;
+        scrollbar-width: none;
+      }
+
+      .deals-row::-webkit-scrollbar {
+        display: none;
+      }
+
+      .deal-card {
+        width: 148px;
+        flex: 0 0 auto;
+      }
+
+      .deal-card img {
+        width: 148px;
+        height: 92px;
+        object-fit: cover;
+        border-radius: 12px;
+        display: block;
+        background: var(--gray);
+      }
+
+      .deal-card strong {
+        display: block;
+        margin-top: 6px;
+        font-size: 13px;
+      }
+
+      .deal-card span {
+        font-size: 11px;
+        color: var(--muted);
+      }
+
+      .meals {
+        display: flex;
+        gap: 12px;
+        overflow-x: auto;
+        padding-bottom: 6px;
+        margin-bottom: 18px;
+        scrollbar-width: none;
+      }
+
+      .meals::-webkit-scrollbar {
+        display: none;
+      }
+
+      .meal {
+        width: 64px;
+        flex: 0 0 auto;
+        text-align: center;
+        font-size: 11px;
+      }
+
+      .meal-img {
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        margin: 0 auto 6px;
+        border: 1px solid var(--border);
+        overflow: hidden;
+        background: var(--gray);
+      }
+
+      .meal-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .nearby-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 10px;
+      }
+
+      .nearby-head h2 {
+        margin: 0;
+        font-size: 18px;
+      }
+
+      .nearby-head p {
+        margin: 2px 0 0;
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .filter-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: #fff;
+        cursor: pointer;
+      }
+
+      .chips {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        margin-bottom: 8px;
+        scrollbar-width: none;
+      }
+
+      .chip {
+        flex: 0 0 auto;
+        border: 1px solid var(--border);
+        background: #fff;
+        border-radius: 999px;
+        padding: 8px 12px;
+        font-size: 12px;
+        white-space: nowrap;
+      }
+
+      .rest {
+        display: grid;
+        grid-template-columns: 56px 1fr auto;
+        gap: 12px;
+        align-items: center;
+        padding: 14px 0;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .rest-logo {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        border: 1px solid var(--border);
+        overflow: hidden;
+        background: var(--gray);
+      }
+
+      .rest-logo img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .rest strong {
+        display: block;
+        font-size: 15px;
+        margin-bottom: 2px;
+      }
+
+      .rest .meta {
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 6px;
+      }
+
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 11px;
+        font-weight: 600;
+        padding: 3px 8px;
+        border-radius: 999px;
+      }
+
+      .tag.green {
+        color: var(--green);
+        background: var(--green-soft);
+      }
+
+      .tag.blue {
+        color: var(--blue-text);
+        background: var(--blue-tag);
+      }
+
+      .tag.gray {
+        color: var(--muted);
+        background: var(--gray);
+      }
+
+      .rating {
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .tabs {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 72px;
+        border-top: 1px solid var(--border);
+        background: #fff;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        padding-bottom: 10px;
+        z-index: 6;
+      }
+
+      .tab {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        font-size: 11px;
+        color: var(--muted);
+        background: none;
+        border: 0;
+      }
+
+      .tab.active {
+        color: var(--purple);
+        font-weight: 600;
+      }
+
+      .tab svg {
+        width: 22px;
+        height: 22px;
+      }
+
+      .shimmer {
+        background: linear-gradient(90deg, #ececec 25%, #f7f7f7 37%, #ececec 63%);
+        background-size: 400% 100%;
+        animation: shimmer 1.2s ease-in-out infinite;
+        border-radius: 12px;
+      }
+
+      @keyframes shimmer {
+        0% {
+          background-position: 100% 0;
+        }
+        100% {
+          background-position: 0 0;
+        }
+      }
+
+      .loading-block {
+        display: none;
+        flex-direction: column;
+        gap: 12px;
+        padding: 0 16px;
+      }
+
+      .loading-block.show {
+        display: flex;
+      }
+
+      .home-content.hide {
+        display: none;
+      }
+
+      .shimmer.banner-s {
+        height: 140px;
+      }
+      .shimmer.line {
+        height: 14px;
+        width: 60%;
+      }
+      .shimmer.line.short {
+        width: 40%;
+      }
+      .shimmer.row {
+        height: 72px;
+      }
+      .shimmer.meal-s {
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        flex: 0 0 auto;
+      }
+
+      .page-header {
+        display: grid;
+        grid-template-columns: 36px 1fr 36px;
+        align-items: center;
+        padding: 4px 12px 12px;
+      }
+
+      .page-header h2 {
+        margin: 0;
+        text-align: center;
+        font-size: 17px;
+      }
+
+      .page-header .sub {
+        display: block;
+        text-align: center;
+        font-size: 12px;
+        color: var(--muted);
+        font-weight: 400;
+      }
+
+      .card {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 14px;
+        margin-bottom: 12px;
+      }
+
+      .store-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+      }
+
+      .store-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 600;
+      }
+
+      .store-left .logo {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--gray);
+      }
+
+      .ghost-btn {
+        border: 1px solid var(--purple-border);
+        color: var(--purple);
+        background: #fff;
+        border-radius: 999px;
+        padding: 8px 12px;
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .section-label {
+        display: flex;
+        justify-content: space-between;
+        font-size: 13px;
+        margin-bottom: 10px;
+      }
+
+      .section-label span:last-child {
+        color: var(--muted);
+      }
+
+      .item-row {
+        display: grid;
+        grid-template-columns: 56px 1fr auto;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .item-img {
+        width: 56px;
+        height: 56px;
+        border-radius: 10px;
+        overflow: hidden;
+        background: var(--gray);
+      }
+
+      .item-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .store-left .logo {
+        overflow: hidden;
+      }
+
+      .store-left .logo img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .price {
+        color: var(--purple);
+        font-weight: 700;
+      }
+
+      .old {
+        color: var(--muted);
+        text-decoration: line-through;
+        margin-left: 6px;
+        font-size: 12px;
+      }
+
+      .qty {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--gray);
+        border-radius: 10px;
+        padding: 6px 8px;
+        font-size: 13px;
+      }
+
+      .field {
+        width: 100%;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 12px 14px;
+        font-size: 14px;
+        background: #fff;
+        color: var(--text);
+      }
+
+      .field::placeholder {
+        color: #a4a7ae;
+      }
+
+      label.field-label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        margin: 12px 0 6px;
+      }
+
+      label.field-label .req {
+        color: #f04438;
+      }
+
+      .row-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .muted {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .summary-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 14px;
+        margin-top: 14px;
+      }
+
+      .checkout-bg {
+        background: #fafafa;
+      }
+
+      .note-pills {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        scrollbar-width: none;
+        margin-top: 10px;
+      }
+
+      .note-pills::-webkit-scrollbar {
+        display: none;
+      }
+
+      .pill {
+        flex: 0 0 auto;
+        border: 1px solid var(--border);
+        background: #fff;
+        border-radius: 999px;
+        padding: 8px 12px;
+        font-size: 12px;
+        white-space: nowrap;
+      }
+
+      .eta {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 8px;
+        color: var(--green);
+        background: var(--green-soft);
+        border-radius: 999px;
+        padding: 4px 10px;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .eta::before {
+        content: "";
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--green);
+      }
+
+      .linkish {
+        color: var(--purple);
+        font-weight: 600;
+        font-size: 13px;
+        background: none;
+        border: 0;
+        cursor: pointer;
+      }
+
+      .overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(16, 24, 40, 0.45);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.28s ease;
+        z-index: 20;
+      }
+
+      .overlay.open {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .sheet {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: #fff;
+        border-radius: 24px 24px 0 0;
+        z-index: 30;
+        transform: translateY(110%);
+        transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+        padding: 16px 16px 22px;
+        max-height: 88%;
+        overflow-y: auto;
+        box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.12);
+      }
+
+      .sheet.open {
+        transform: translateY(0);
+      }
+
+      .sheet-close {
+        position: absolute;
+        top: 14px;
+        right: 14px;
+        width: 32px;
+        height: 32px;
+        border: 0;
+        background: transparent;
+        font-size: 20px;
+        cursor: pointer;
+      }
+
+      .sheet h3 {
+        margin: 8px 0 6px;
+        font-size: 22px;
+        padding-right: 28px;
+      }
+
+      .sheet .sub {
+        margin: 0 0 16px;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.4;
+      }
+
+      .phone-row {
+        display: grid;
+        grid-template-columns: 92px 1fr;
+        gap: 8px;
+      }
+
+      .country {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        font-size: 14px;
+      }
+
+      .primary-btn {
+        width: 100%;
+        margin-top: 18px;
+        border: 0;
+        border-radius: 14px;
+        padding: 15px;
+        font-size: 15px;
+        font-weight: 600;
+        background: #e9eaeb;
+        color: #a4a7ae;
+        cursor: pointer;
+      }
+
+      .primary-btn.enabled {
+        background: var(--purple);
+        color: #fff;
+      }
+
+      .legal {
+        margin-top: 14px;
+        text-align: center;
+        font-size: 11px;
+        color: var(--muted);
+        line-height: 1.4;
+      }
+
+      .legal u {
+        color: var(--text);
+      }
+
+      .loc-card {
+        display: grid;
+        grid-template-columns: 28px 1fr auto;
+        gap: 10px;
+        align-items: start;
+        background: var(--gray);
+        border-radius: 12px;
+        padding: 12px;
+        margin-bottom: 8px;
+      }
+
+      .loc-card strong {
+        display: block;
+        font-size: 14px;
+      }
+
+      .loc-card span {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .type-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin: 8px 0 4px;
+      }
+
+      .type {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 12px 8px;
+        text-align: center;
+        font-size: 13px;
+        background: #fff;
+        cursor: pointer;
+      }
+
+      .type.active {
+        background: var(--purple-soft);
+        border-color: var(--purple);
+        color: var(--purple);
+        font-weight: 600;
+      }
+
+      .progress {
+        height: 4px;
+        background: #ececef;
+        border-radius: 999px;
+        overflow: hidden;
+        margin: 4px 0 18px;
+      }
+
+      .progress > i {
+        display: block;
+        height: 100%;
+        width: 0%;
+        background: var(--purple);
+        border-radius: 999px;
+        transition: width 0.2s linear;
+      }
+
+      .warn {
+        background: var(--warning-bg);
+        border: 1px solid var(--warning-border);
+        border-radius: 12px;
+        padding: 12px;
+        font-size: 13px;
+        margin: 12px 0 16px;
+      }
+
+      .outline-btn {
+        width: 100%;
+        border: 1.5px solid var(--purple);
+        color: var(--purple);
+        background: #fff;
+        border-radius: 14px;
+        padding: 14px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .text-btn {
+        width: 100%;
+        border: 0;
+        background: transparent;
+        color: var(--muted);
+        font-size: 14px;
+        font-weight: 500;
+        padding: 14px;
+        cursor: pointer;
+        margin-top: 4px;
+      }
+
+      /* MAP SCREEN */
+      .map-screen {
+        background: #e8eef3;
+      }
+
+      .map-top {
+        position: absolute;
+        top: 8px;
+        left: 12px;
+        right: 12px;
+        z-index: 8;
+        display: grid;
+        grid-template-columns: 40px 1fr;
+        gap: 8px;
+      }
+
+      .map-back,
+      .map-search,
+      .map-recenter {
+        background: #fff;
+        border: 0;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+      }
+
+      .map-back {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        font-size: 18px;
+        cursor: pointer;
+      }
+
+      .map-search {
+        height: 40px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0 12px;
+        font-size: 13px;
+        color: var(--text);
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+
+      .map-canvas {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+      }
+
+      .map-world {
+        position: absolute;
+        inset: -40px;
+        background:
+          linear-gradient(#dfe8ef, #dfe8ef) 0 0 / 100% 100%,
+          repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 39px,
+            #c9d5e0 39px,
+            #c9d5e0 40px
+          ),
+          repeating-linear-gradient(
+            90deg,
+            transparent,
+            transparent 39px,
+            #c9d5e0 39px,
+            #c9d5e0 40px
+          );
+        transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      .map-world.drag {
+        transform: translate(-28px, 18px) scale(1.04);
+      }
+
+      .road {
+        position: absolute;
+        background: #f7fafc;
+        border: 1px solid #c5d0db;
+      }
+
+      .road.h {
+        height: 18px;
+        left: 0;
+        right: 0;
+      }
+
+      .road.v {
+        width: 18px;
+        top: 0;
+        bottom: 0;
+      }
+
+      .road.wide {
+        height: 28px;
+      }
+
+      .road.wide-v {
+        width: 28px;
+      }
+
+      .block {
+        position: absolute;
+        background: #edf2f6;
+        border: 1px solid #d3dde6;
+        border-radius: 4px;
+      }
+
+      .roundabout {
+        position: absolute;
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        border: 14px solid #f7fafc;
+        box-shadow: 0 0 0 1px #c5d0db;
+        background: #d9e4ee;
+        left: 48%;
+        top: 36%;
+        transform: translate(-50%, -50%);
+      }
+
+      .poi {
+        position: absolute;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        font-size: 10px;
+        color: #444;
+        font-weight: 600;
+      }
+
+      .poi .dot {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: #ff7a1a;
+        color: #fff;
+        display: grid;
+        place-items: center;
+        font-size: 13px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      }
+
+      .map-tip {
+        position: absolute;
+        left: 50%;
+        top: 28%;
+        transform: translateX(-50%);
+        background: #1b2430;
+        color: #fff;
+        font-size: 12px;
+        font-weight: 600;
+        padding: 10px 14px;
+        border-radius: 12px;
+        white-space: nowrap;
+        z-index: 7;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+      }
+
+      .map-tip::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        bottom: -6px;
+        transform: translateX(-50%);
+        border: 6px solid transparent;
+        border-top-color: #1b2430;
+      }
+
+      .map-pin {
+        position: absolute;
+        left: 50%;
+        top: 36%;
+        transform: translate(-50%, -100%);
+        z-index: 7;
+        transition: transform 0.35s ease;
+      }
+
+      .map-pin.bounce {
+        animation: pinBounce 0.55s ease;
+      }
+
+      @keyframes pinBounce {
+        0%,
+        100% {
+          transform: translate(-50%, -100%);
+        }
+        40% {
+          transform: translate(-50%, -118%);
+        }
+        70% {
+          transform: translate(-50%, -96%);
+        }
+      }
+
+      .map-pin svg {
+        width: 34px;
+        height: 44px;
+        filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.35));
+      }
+
+      .map-recenter {
+        position: absolute;
+        right: 16px;
+        bottom: 250px;
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        display: grid;
+        place-items: center;
+        color: var(--purple);
+        font-size: 18px;
+        z-index: 8;
+        cursor: pointer;
+      }
+
+      .map-sheet {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: #fff;
+        border-radius: 24px 24px 0 0;
+        padding: 18px 16px 22px;
+        z-index: 9;
+        box-shadow: 0 -8px 28px rgba(0, 0, 0, 0.12);
+        transform: translateY(0);
+      }
+
+      .map-sheet h3 {
+        margin: 0 0 6px;
+        font-size: 20px;
+      }
+
+      .map-sheet .sub {
+        margin: 0 0 14px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .google-badge {
+        position: absolute;
+        left: 10px;
+        bottom: 250px;
+        font-size: 11px;
+        color: #555;
+        background: rgba(255, 255, 255, 0.75);
+        padding: 2px 6px;
+        border-radius: 4px;
+        z-index: 7;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .sheet,
+        .overlay,
+        .shimmer,
+        .map-world,
+        .map-pin,
+        .progress > i {
+          transition: none !important;
+          animation: none !important;
+        }
+      }
+
+      /* Embed mode (iframe inside portfolio) */
+      body.is-embed {
+        margin: 0;
+        padding: 0;
+        min-height: 0;
+        width: 375px;
+        height: 780px;
+        background: transparent;
+        display: block;
+        overflow: hidden;
+      }
+
+      body.is-embed .phone-wrap {
+        margin: 0;
+        width: 375px;
+        height: 780px;
+      }
+
+      body.is-embed .phone {
+        box-shadow: none;
+        border-color: #c8cad0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="phone-wrap">
+      <div class="phone" id="phone">
+        <div class="tap-ripple" id="ripple" aria-hidden="true"></div>
+        <div class="status">
+          <span>2:43</span>
+          <div class="icons">●●● ▮</div>
+        </div>
+
+        <!-- HOME -->
+        <section class="screen active" id="screen-home">
+          <div class="header">
+            <button class="icon-btn" type="button" aria-label="Menu">☰</button>
+            <div class="deliver" id="openAddressFromHome" data-tap="address">
+              <small>Deliver to</small>
+              <strong>Home ▾</strong>
+            </div>
+            <button class="icon-btn" type="button" id="openCart" data-tap="cart" aria-label="Cart">
+              🛒
+              <span class="cart-badge">2</span>
+            </button>
+          </div>
+
+          <div class="loading-block" id="homeLoading">
+            <div class="shimmer banner-s"></div>
+            <div style="display: flex; gap: 12px">
+              <div class="shimmer meal-s"></div>
+              <div class="shimmer meal-s"></div>
+              <div class="shimmer meal-s"></div>
+              <div class="shimmer meal-s"></div>
+              <div class="shimmer meal-s"></div>
+            </div>
+            <div class="shimmer line"></div>
+            <div class="shimmer line short"></div>
+            <div class="shimmer row"></div>
+            <div class="shimmer row"></div>
+            <div class="shimmer row"></div>
+          </div>
+
+          <div class="scroll home-content" id="homeContent">
+            <div class="search">🔍 Search for food or restaurant</div>
+            <div class="banner">
+              <img
+                src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80"
+                alt="Food deals banner"
+              />
+              <div class="overlay-label">
+                <strong>Up to 50% off</strong>
+                <span>Deals near you this week</span>
+              </div>
+            </div>
+            <div class="meals">
+              <div class="meal">
+                <div class="meal-img">
+                  <img src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=200&q=80" alt="Dessert" />
+                </div>
+                Dessert
+              </div>
+              <div class="meal">
+                <div class="meal-img">
+                  <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=200&q=80" alt="Burgers" />
+                </div>
+                Burgers
+              </div>
+              <div class="meal">
+                <div class="meal-img">
+                  <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=200&q=80" alt="Healthy" />
+                </div>
+                Healthy
+              </div>
+              <div class="meal">
+                <div class="meal-img">
+                  <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=200&q=80" alt="Pizza" />
+                </div>
+                Pizza
+              </div>
+              <div class="meal">
+                <div class="meal-img">
+                  <img src="https://images.unsplash.com/photo-1541592106381-b31e9677c0e5?auto=format&fit=crop&w=200&q=80" alt="Chips" />
+                </div>
+                Chips
+              </div>
+            </div>
+
+            <div class="nearby-head" style="margin-bottom: 8px">
+              <div>
+                <h2>Deals for you</h2>
+                <p>Hand-picked offers</p>
+              </div>
+              <span class="linkish">See all</span>
+            </div>
+            <div class="deals-row">
+              <div class="deal-card">
+                <img src="https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=400&q=80" alt="Burger deal" />
+                <strong>Burger Bundle</strong>
+                <span>30% off · Free delivery</span>
+              </div>
+              <div class="deal-card">
+                <img src="https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=400&q=80" alt="Taco deal" />
+                <strong>Taco Tuesday</strong>
+                <span>Buy 1 Get 1</span>
+              </div>
+              <div class="deal-card">
+                <img src="https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&w=400&q=80" alt="Pancake deal" />
+                <strong>Brunch Special</strong>
+                <span>From $12</span>
+              </div>
+            </div>
+
+            <div class="nearby-head">
+              <div>
+                <h2>Nearby Restaurants</h2>
+                <p>8 Restaurants Near You</p>
+              </div>
+              <button class="filter-btn" type="button" id="openFilter" data-tap="filter">☰</button>
+            </div>
+            <div class="chips">
+              <span class="chip">Top Rated</span>
+              <span class="chip">Offers</span>
+              <span class="chip">Pickup Available</span>
+            </div>
+            <div class="rest">
+              <div class="rest-logo">
+                <img src="https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=200&q=80" alt="Alex's Grill" />
+              </div>
+              <div>
+                <strong>Alex's Grill</strong>
+                <div class="meta">Chinese · French · Japanese</div>
+                <span class="tag green">🛵 Free Delivery</span>
+              </div>
+              <div class="rating">★ 4.2</div>
+            </div>
+            <div class="rest">
+              <div class="rest-logo">
+                <img src="https://images.unsplash.com/photo-1600891964092-4316c288032e?auto=format&fit=crop&w=200&q=80" alt="Harbor Kitchen" />
+              </div>
+              <div>
+                <strong>Harbor Kitchen</strong>
+                <div class="meta">Caribbean</div>
+                <span class="tag gray">5</span>
+                <span class="tag blue">Delivery Only</span>
+              </div>
+              <div></div>
+            </div>
+            <div class="rest">
+              <div class="rest-logo">
+                <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=200&q=80" alt="Bella Italia" />
+              </div>
+              <div>
+                <strong>Bella Italia</strong>
+                <div class="meta">Italian · Fast Food</div>
+                <span class="tag green">🛵 Free Delivery</span>
+              </div>
+              <div class="rating">★ 4.8</div>
+            </div>
+          </div>
+
+          <nav class="tabs">
+            <button class="tab active" type="button">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3 3 10h2v10h5v-6h4v6h5V10h2z" /></svg>
+              Home
+            </button>
+            <button class="tab" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 8h16l-2 12H6L4 8zm4-4h8l1 4H7l1-4z" /></svg>
+              Deals
+            </button>
+            <button class="tab" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 7h12l1 14H5L6 7zm3-3h6v3H9V4z" /></svg>
+              Orders
+            </button>
+            <button class="tab" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3" /><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4m11.4-11.4 1.4-1.4" /></svg>
+              Settings
+            </button>
+          </nav>
+        </section>
+
+        <!-- MAP -->
+        <section class="screen map-screen" id="screen-map">
+          <div class="map-canvas">
+            <div class="map-world" id="mapWorld">
+              <div class="road h wide" style="top: 34%"></div>
+              <div class="road h" style="top: 58%"></div>
+              <div class="road h" style="top: 72%"></div>
+              <div class="road v wide-v" style="left: 46%"></div>
+              <div class="road v" style="left: 22%"></div>
+              <div class="road v" style="left: 74%"></div>
+              <div class="block" style="left: 8%; top: 12%; width: 70px; height: 50px"></div>
+              <div class="block" style="left: 58%; top: 14%; width: 90px; height: 40px"></div>
+              <div class="block" style="left: 10%; top: 46%; width: 80px; height: 55px"></div>
+              <div class="block" style="left: 62%; top: 48%; width: 70px; height: 60px"></div>
+              <div class="block" style="left: 28%; top: 78%; width: 100px; height: 45px"></div>
+              <div class="roundabout"></div>
+              <div class="poi" style="left: 18%; top: 24%">
+                <div class="dot">🍴</div>
+                Burger Site
+              </div>
+              <div class="poi" style="left: 68%; top: 42%">
+                <div class="dot">🍴</div>
+                Ember Grill
+              </div>
+              <div class="poi" style="left: 30%; top: 62%">
+                <div class="dot">🍴</div>
+                Cafe
+              </div>
+            </div>
+            <div class="map-tip">Move the pin to find & select your location</div>
+            <div class="map-pin" id="mapPin">
+              <svg viewBox="0 0 24 32">
+                <path
+                  fill="#111"
+                  d="M12 0C6.5 0 2 4.5 2 10c0 7.5 10 22 10 22s10-14.5 10-22C22 4.5 17.5 0 12 0zm0 14a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"
+                />
+              </svg>
+            </div>
+            <div class="google-badge">Google</div>
+            <button class="map-recenter" type="button" id="mapRecenter" data-tap="recenter">➤</button>
+          </div>
+
+          <div class="map-top">
+            <button class="map-back" type="button" id="mapBack" data-tap="mapBack">‹</button>
+            <div class="map-search">🔍 120 King Street, Downtown...</div>
+          </div>
+
+          <div class="map-sheet">
+            <h3>Select a Delivery Address</h3>
+            <p class="sub">You will enter the address details in the next step.</p>
+            <div class="loc-card">
+              <div>📍</div>
+              <div>
+                <strong>East Shore District</strong>
+                <span>120 King Street</span>
+              </div>
+              <span></span>
+            </div>
+            <button class="primary-btn enabled" type="button" id="confirmLocation" data-tap="confirmLoc">
+              Confirm Location
+            </button>
+          </div>
+        </section>
+
+        <!-- CART -->
+        <section class="screen" id="screen-cart">
+          <div class="page-header">
+            <button class="icon-btn" type="button" data-back-home>‹</button>
+            <h2>Cart</h2>
+            <span></span>
+          </div>
+          <div class="scroll">
+            <div class="store-row">
+              <div class="store-left">
+                <div class="logo">
+                  <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=200&q=80" alt="Sunrise Kitchen" />
+                </div>
+                Sunrise Kitchen
+              </div>
+              <button class="ghost-btn" type="button">+ Add Item</button>
+            </div>
+            <div class="section-label"><span>Items</span><span>Clear Cart</span></div>
+            <div class="item-row">
+              <div class="item-img">
+                <img src="https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=200&q=80" alt="Pizza2" />
+              </div>
+              <div>
+                <strong>Pizza2</strong>
+                <div><span class="price">80.00</span><span class="old">100.00</span></div>
+              </div>
+              <div class="qty">🗑 1 +</div>
+            </div>
+            <div style="margin-top: 18px">
+              <strong style="font-size: 14px">Special Request (optional)</strong>
+              <textarea class="field" rows="3" placeholder="Anything else we should know?" style="margin-top: 8px; resize: none"></textarea>
+            </div>
+            <div class="summary-row"><span>Sub Total</span><strong>100.00</strong></div>
+            <button class="primary-btn enabled" type="button" id="checkoutFromCart" data-tap="checkout">
+              Go to checkout
+            </button>
+          </div>
+        </section>
+
+        <!-- CHECKOUT -->
+        <section class="screen checkout-bg" id="screen-checkout">
+          <div class="page-header">
+            <button class="icon-btn" type="button" id="backToCart">‹</button>
+            <div>
+              <h2>Checkout</h2>
+              <span class="sub">Sunrise Kitchen</span>
+            </div>
+            <span></span>
+          </div>
+          <div class="scroll">
+            <div class="card">
+              <div class="section-label" style="margin: 0">
+                <strong>Delivering to</strong>
+                <button class="linkish" type="button" id="openAddressFromCheckout" data-tap="changeAddr">Change</button>
+              </div>
+              <div style="margin-top: 8px; display: flex; gap: 8px; align-items: flex-start">
+                <span>🏠</span>
+                <div>
+                  <strong>Home</strong>
+                  <div class="muted">47 Oak Street</div>
+                  <div class="eta">Delivery in 10 - 25 min</div>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <strong style="font-size: 14px">Note for the courier</strong>
+              <div class="note-pills">
+                <span class="pill">🔕 Don't ring bell</span>
+                <span class="pill"># Add number</span>
+                <span class="pill">✎ Add note</span>
+                <span class="pill">🚪 Leave at door</span>
+              </div>
+            </div>
+            <div class="card">
+              <div class="section-label" style="margin: 0">
+                <div>
+                  <strong>Pay with</strong>
+                  <div class="muted" style="margin-top: 4px">💳 Credit Card · XXXX1111</div>
+                </div>
+                <button class="linkish" type="button">Change</button>
+              </div>
+            </div>
+            <button class="primary-btn enabled" type="button" id="placeOrderBtn" data-tap="place">Place order</button>
+          </div>
+        </section>
+
+        <div class="overlay" id="overlay"></div>
+
+        <div class="sheet" id="sheet-phone" role="dialog">
+          <button class="sheet-close" type="button" data-close>×</button>
+          <h3>What's your number?</h3>
+          <p class="sub">We'll send a 4-digit code to verify your number</p>
+          <label class="field-label">Phone Number</label>
+          <div class="phone-row">
+            <div class="country">🇺🇸 +1 ▾</div>
+            <input class="field" id="phoneInput" placeholder="555 123 4567" />
+          </div>
+          <button class="primary-btn" type="button" id="sendCodeBtn" data-tap="sendCode">Send code</button>
+          <p class="legal">By continuing, you agree to our <u>Terms of Service</u> & <u>Privacy Policy</u></p>
+        </div>
+
+        <div class="sheet" id="sheet-address" role="dialog">
+          <button class="sheet-close" type="button" data-close>×</button>
+          <h3>Delivery Details</h3>
+          <div class="loc-card">
+            <div>📍</div>
+            <div>
+              <strong>East Shore District</strong>
+              <span>47 Oak Street</span>
+            </div>
+            <button class="linkish" type="button" id="editOnMap" data-tap="editMap">Edit</button>
+          </div>
+          <label class="field-label">Building Name <span class="req">*</span></label>
+          <input class="field" placeholder="Building name" />
+          <div class="row-2">
+            <div>
+              <label class="field-label">Building Number <span class="req">*</span></label>
+              <input class="field" placeholder="No." />
+            </div>
+            <div>
+              <label class="field-label">Floor <span class="req">*</span></label>
+              <input class="field" placeholder="Floor" />
+            </div>
+          </div>
+          <label class="field-label">Address Details</label>
+          <div class="type-row">
+            <button class="type active" type="button">🏠 Home</button>
+            <button class="type" type="button">🏢 Work</button>
+            <button class="type" type="button">📍 Other</button>
+          </div>
+          <label class="field-label">Address Name (e.g. Mom's House) <span class="req">*</span></label>
+          <input class="field" placeholder="Address name" />
+          <label class="field-label">Delivery Instructions</label>
+          <input class="field" placeholder="e.g. Call on arrival, side entrance" />
+          <button class="primary-btn enabled" type="button" data-close data-tap="saveAddr">Save & Continue</button>
+        </div>
+
+        <div class="sheet" id="sheet-place" role="dialog">
+          <div class="progress"><i id="placeProgress"></i></div>
+          <h3>Placing your order...</h3>
+          <p class="sub">Review before we send to Sunrise Kitchen.</p>
+          <div class="loc-card">
+            <div>🏠</div>
+            <div>
+              <strong>Home</strong>
+              <span>47 Oak Street</span>
+            </div>
+            <span></span>
+          </div>
+          <div class="warn">⚠️ You seem to be away from this selected address.</div>
+          <button class="outline-btn" type="button" id="changeLocationBtn">Change Location (0:05)</button>
+          <button class="text-btn" type="button" data-close data-tap="looksGood">Looks Good</button>
+        </div>
+
+        <div class="sheet" id="sheet-filter" role="dialog">
+          <button class="sheet-close" type="button" data-close>×</button>
+          <h3>Filters</h3>
+          <p class="sub">Quick filters for nearby restaurants</p>
+          <div class="chips" style="flex-wrap: wrap">
+            <span class="chip">Top Rated</span>
+            <span class="chip">Offers</span>
+            <span class="chip">Pickup Available</span>
+            <span class="chip">Free Delivery</span>
+          </div>
+          <button class="primary-btn enabled" type="button" data-close data-tap="applyFilter">Apply filters</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const params = new URLSearchParams(location.search);
+      const EMBED = params.has("embed");
+      const STILL = params.has("still");
+      if (EMBED) document.body.classList.add("is-embed");
+      if (STILL) document.body.classList.add("is-still");
+
+      const phone = document.getElementById("phone");
+      const ripple = document.getElementById("ripple");
+      const overlay = document.getElementById("overlay");
+      const mapWorld = document.getElementById("mapWorld");
+      const mapPin = document.getElementById("mapPin");
+      const phoneInput = document.getElementById("phoneInput");
+      const sendCodeBtn = document.getElementById("sendCodeBtn");
+      const placeProgress = document.getElementById("placeProgress");
+      const changeLocationBtn = document.getElementById("changeLocationBtn");
+      const homeLoading = document.getElementById("homeLoading");
+      const homeContent = document.getElementById("homeContent");
+
+      const screens = {
+        home: document.getElementById("screen-home"),
+        map: document.getElementById("screen-map"),
+        cart: document.getElementById("screen-cart"),
+        checkout: document.getElementById("screen-checkout"),
+      };
+
+      const sheets = {
+        phone: document.getElementById("sheet-phone"),
+        address: document.getElementById("sheet-address"),
+        place: document.getElementById("sheet-place"),
+        filter: document.getElementById("sheet-filter"),
+      };
+
+      let generation = 0;
+      let paused = false;
+      let placeTimer = null;
+
+      function showScreen(name) {
+        Object.values(screens).forEach((el) => el.classList.remove("active"));
+        screens[name].classList.add("active");
+      }
+
+      function closeSheets() {
+        Object.values(sheets).forEach((el) => el.classList.remove("open"));
+        overlay.classList.remove("open");
+        if (placeTimer) {
+          clearInterval(placeTimer);
+          placeTimer = null;
+        }
+      }
+
+      function openSheet(name) {
+        Object.values(sheets).forEach((el) => el.classList.remove("open"));
+        sheets[name].classList.add("open");
+        overlay.classList.add("open");
+        if (name === "place") startPlaceCountdown();
+      }
+
+      function wait(ms, gen) {
+        return new Promise((resolve, reject) => {
+          setTimeout(() => {
+            if (paused || gen !== generation) reject(new Error("cancelled"));
+            else resolve();
+          }, ms);
+        });
+      }
+
+      function showTapOn(el) {
+        const p = phone.getBoundingClientRect();
+        const r = el.getBoundingClientRect();
+        const x = r.left - p.left + r.width / 2;
+        const y = r.top - p.top + r.height / 2;
+        ripple.style.left = `${x}px`;
+        ripple.style.top = `${y}px`;
+        ripple.classList.remove("show");
+        void ripple.offsetWidth;
+        ripple.classList.add("show");
+      }
+
+      async function tap(el, gen) {
+        await wait(280, gen);
+        showTapOn(el);
+        await wait(120, gen);
+        el.click();
+        await wait(280, gen);
+      }
+
+      function playLoading(ms = 1400) {
+        closeSheets();
+        showScreen("home");
+        homeContent.classList.add("hide");
+        homeLoading.classList.add("show");
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            homeLoading.classList.remove("show");
+            homeContent.classList.remove("hide");
+            resolve();
+          }, ms);
+        });
+      }
+
+      function startPlaceCountdown() {
+        let seconds = 5;
+        placeProgress.style.width = "70%";
+        changeLocationBtn.textContent = `Change Location (0:0${seconds})`;
+        if (placeTimer) clearInterval(placeTimer);
+        placeTimer = setInterval(() => {
+          seconds -= 1;
+          placeProgress.style.width = `${Math.min(70 + (5 - seconds) * 6, 100)}%`;
+          changeLocationBtn.textContent =
+            seconds > 0 ? `Change Location (0:0${seconds})` : "Change Location";
+          if (seconds <= 0) {
+            clearInterval(placeTimer);
+            placeTimer = null;
+          }
+        }, 1000);
+      }
+
+      async function typePhone(gen) {
+        const value = "5551234567";
+        phoneInput.value = "";
+        sendCodeBtn.classList.remove("enabled");
+        showTapOn(phoneInput);
+        await wait(300, gen);
+        for (let i = 0; i < value.length; i++) {
+          if (gen !== generation) return;
+          phoneInput.value = value.slice(0, i + 1);
+          sendCodeBtn.classList.toggle("enabled", phoneInput.value.length >= 8);
+          await wait(55, gen);
+        }
+      }
+
+      async function animateMapPin(gen) {
+        showTapOn(mapPin);
+        mapWorld.classList.add("drag");
+        mapPin.classList.remove("bounce");
+        void mapPin.offsetWidth;
+        mapPin.classList.add("bounce");
+        await wait(900, gen);
+        showTapOn(mapPin);
+        mapWorld.classList.remove("drag");
+        mapPin.classList.remove("bounce");
+        void mapPin.offsetWidth;
+        mapPin.classList.add("bounce");
+        await wait(700, gen);
+      }
+
+      // Wire clicks for auto + manual
+      document.getElementById("openCart").onclick = () => {
+        closeSheets();
+        showScreen("cart");
+      };
+      document.getElementById("openAddressFromHome").onclick = () => openSheet("address");
+      document.getElementById("openFilter").onclick = () => openSheet("filter");
+      document.getElementById("checkoutFromCart").onclick = () => {
+        showScreen("checkout");
+        openSheet("phone");
+      };
+      document.getElementById("openAddressFromCheckout").onclick = () => openSheet("address");
+      document.getElementById("placeOrderBtn").onclick = () => openSheet("place");
+      document.getElementById("backToCart").onclick = () => {
+        closeSheets();
+        showScreen("cart");
+      };
+      document.getElementById("editOnMap").onclick = () => {
+        closeSheets();
+        showScreen("map");
+      };
+      document.getElementById("mapBack").onclick = () => {
+        showScreen("home");
+      };
+      document.getElementById("confirmLocation").onclick = () => {
+        showScreen("home");
+        openSheet("address");
+      };
+      document.getElementById("mapRecenter").onclick = () => {
+        mapWorld.classList.remove("drag");
+        mapPin.classList.remove("bounce");
+        void mapPin.offsetWidth;
+        mapPin.classList.add("bounce");
+      };
+
+      document.querySelectorAll("[data-back-home]").forEach((btn) => {
+        btn.onclick = () => {
+          closeSheets();
+          showScreen("home");
+        };
+      });
+      overlay.onclick = closeSheets;
+      document.querySelectorAll("[data-close]").forEach((btn) => {
+        btn.onclick = closeSheets;
+      });
+      document.querySelectorAll(".type").forEach((btn) => {
+        btn.onclick = () => {
+          document.querySelectorAll(".type").forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+        };
+      });
+
+      async function runLoop() {
+        const gen = ++generation;
+        try {
+          while (gen === generation && !paused) {
+            if (paused) break;
+            await playLoading(1500);
+            if (gen !== generation) break;
+
+            await tap(document.getElementById("openFilter"), gen);
+            await wait(1400, gen);
+            await tap(document.querySelector('#sheet-filter [data-tap="applyFilter"]'), gen);
+            await wait(700, gen);
+
+            await tap(document.getElementById("openAddressFromHome"), gen);
+            await wait(1200, gen);
+
+            await tap(document.getElementById("editOnMap"), gen);
+            await wait(800, gen);
+
+            await animateMapPin(gen);
+
+            await tap(document.getElementById("mapRecenter"), gen);
+            await wait(700, gen);
+
+            await tap(document.getElementById("confirmLocation"), gen);
+            await wait(1200, gen);
+
+            await tap(document.querySelector('#sheet-address [data-tap="saveAddr"]'), gen);
+            await wait(700, gen);
+
+            await tap(document.getElementById("openCart"), gen);
+            await wait(1000, gen);
+
+            await tap(document.getElementById("checkoutFromCart"), gen);
+            await wait(900, gen);
+
+            await typePhone(gen);
+            await wait(400, gen);
+            await tap(document.getElementById("sendCodeBtn"), gen);
+            closeSheets();
+            await wait(700, gen);
+
+            showScreen("checkout");
+            await wait(800, gen);
+
+            await tap(document.getElementById("placeOrderBtn"), gen);
+            await wait(2200, gen);
+            await tap(document.querySelector('#sheet-place [data-tap="looksGood"]'), gen);
+            await wait(900, gen);
+
+            closeSheets();
+            showScreen("home");
+            await wait(900, gen);
+          }
+        } catch (e) {
+          if (e.message !== "cancelled") console.error(e);
+        }
+      }
+
+      phone.addEventListener(
+        "pointerdown",
+        (e) => {
+          if (e.target === ripple) return;
+          const p = phone.getBoundingClientRect();
+          ripple.style.left = `${e.clientX - p.left}px`;
+          ripple.style.top = `${e.clientY - p.top}px`;
+          ripple.classList.remove("show");
+          void ripple.offsetWidth;
+          ripple.classList.add("show");
+        },
+        true,
+      );
+
+      function pauseDemo() {
+        generation++;
+        paused = true;
+        closeSheets();
+      }
+
+      function playDemo() {
+        if (!paused) return;
+        paused = false;
+        runLoop();
+      }
+
+      window.addEventListener("message", (e) => {
+        if (STILL) return;
+        if (e.data?.type === "takein-pause") pauseDemo();
+        if (e.data?.type === "takein-play") playDemo();
+      });
+      window.__takeinPause = pauseDemo;
+      window.__takeinPlay = playDemo;
+
+      if (STILL) {
+        paused = true;
+        try {
+          window.parent?.postMessage({ type: "takein-ready" }, "*");
+        } catch (_) {}
+      } else if (EMBED) {
+        paused = true;
+        try {
+          window.parent?.postMessage({ type: "takein-ready" }, "*");
+        } catch (_) {}
+      } else {
+        runLoop();
+      }
+    </script>
+  </body>
+</html>

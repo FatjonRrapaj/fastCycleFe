@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stalmarck Homecare — Mathematics for Mankind</title>
+    <style>
+      :root {
+        --navy: #0b1628;
+        --navy-2: #122038;
+        --teal: #2dffe0;
+        --teal-dim: #1ad4bb;
+        --text: #e8eef7;
+        --muted: #9aa8bc;
+        --white: #ffffff;
+        --line: #e6ebf2;
+        --ink: #152033;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: #050b14;
+        font-family: "Avenir Next", "Segoe UI", system-ui, sans-serif;
+        color: var(--text);
+      }
+
+      .site {
+        width: min(1280px, 100%);
+        min-height: 100vh;
+        margin: 0 auto;
+        position: relative;
+        overflow: hidden;
+        background: var(--navy);
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04);
+      }
+
+      .tap-ripple {
+        position: absolute;
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        background: rgba(45, 255, 224, 0.22);
+        border: 2px solid rgba(45, 255, 224, 0.55);
+        transform: translate(-50%, -50%) scale(0.35);
+        opacity: 0;
+        pointer-events: none;
+        z-index: 200;
+      }
+
+      .tap-ripple.show {
+        animation: tapRipple 0.5s ease-out;
+      }
+
+      @keyframes tapRipple {
+        0% {
+          opacity: 0.95;
+          transform: translate(-50%, -50%) scale(0.35);
+        }
+        100% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(1.7);
+        }
+      }
+
+      .nav {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 20;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 18px 28px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--teal);
+        font-weight: 700;
+        font-size: 15px;
+      }
+
+      .brand .mark {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background:
+          radial-gradient(circle at 30% 30%, var(--teal), transparent 40%),
+          radial-gradient(circle at 70% 35%, #7cf6ff, transparent 35%),
+          radial-gradient(circle at 40% 70%, #1ad4bb, transparent 40%),
+          #0a2030;
+        box-shadow: inset 0 0 0 1px rgba(45, 255, 224, 0.35);
+      }
+
+      .brand small {
+        display: block;
+        color: var(--muted);
+        font-size: 10px;
+        font-weight: 500;
+        margin-top: 2px;
+      }
+
+      .links {
+        display: flex;
+        gap: 18px;
+        font-size: 13px;
+        color: #fff;
+      }
+
+      .links button {
+        border: 0;
+        background: transparent;
+        color: inherit;
+        font: inherit;
+        cursor: pointer;
+        padding: 0;
+      }
+
+      .links button.active {
+        color: var(--teal);
+      }
+
+      .nav-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .btn-outline {
+        border: 1.5px solid var(--teal);
+        background: transparent;
+        color: var(--teal);
+        border-radius: 999px;
+        padding: 8px 14px;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .lang {
+        display: flex;
+        gap: 4px;
+        align-items: center;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .lang span {
+        opacity: 0.7;
+        cursor: pointer;
+      }
+
+      .lang .on {
+        background: var(--teal);
+        color: #062018;
+        padding: 4px 7px;
+        border-radius: 4px;
+        opacity: 1;
+      }
+
+      .screen {
+        display: none;
+        min-height: 100vh;
+      }
+
+      .screen.active {
+        display: block;
+      }
+
+      /* LANDING */
+      .hero {
+        min-height: 100vh;
+        position: relative;
+        display: flex;
+        align-items: flex-end;
+        padding: 120px 48px 56px;
+        background:
+          linear-gradient(
+            90deg,
+            rgba(8, 16, 30, 0.82),
+            rgba(8, 16, 30, 0.55) 45%,
+            rgba(8, 16, 30, 0.75)
+          ),
+          url("https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?auto=format&fit=crop&w=1600&q=80")
+            center / cover;
+      }
+
+      .hero-copy {
+        max-width: 720px;
+      }
+
+      .hero h1 {
+        margin: 0 0 18px;
+        font-size: clamp(28px, 4vw, 44px);
+        line-height: 1.2;
+        font-weight: 700;
+        color: #fff;
+      }
+
+      .hero .goal {
+        color: var(--teal);
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .about {
+        min-height: 100vh;
+        display: grid;
+        grid-template-columns: 0.95fr 1.05fr;
+        background: var(--navy);
+      }
+
+      .about-visual {
+        background:
+          linear-gradient(90deg, transparent, rgba(11, 22, 40, 0.55)),
+          url("https://images.unsplash.com/photo-1566616213894-2d4e1baee5d8?auto=format&fit=crop&w=1200&q=80")
+            center / cover;
+        filter: grayscale(0.35) contrast(1.05);
+        opacity: 0.85;
+      }
+
+      .about-copy {
+        padding: 120px 48px 56px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .about-copy h2 {
+        margin: 0 0 16px;
+        font-size: 34px;
+        color: #fff;
+      }
+
+      .about-copy p {
+        margin: 0 0 14px;
+        color: var(--teal);
+        font-size: 16px;
+        line-height: 1.5;
+        max-width: 460px;
+      }
+
+      .cta-row {
+        display: flex;
+        gap: 12px;
+        margin-top: 18px;
+      }
+
+      .btn-solid {
+        border: 0;
+        background: var(--teal);
+        color: #062018;
+        border-radius: 999px;
+        padding: 12px 18px;
+        font-size: 14px;
+        font-weight: 800;
+        cursor: pointer;
+      }
+
+      /* DASHBOARD */
+      .dashboard {
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at 20% 0%, #16304f, transparent 40%),
+          var(--navy-2);
+        padding: 96px 28px 40px;
+      }
+
+      .dash-shell {
+        background: #fff;
+        color: var(--ink);
+        border-radius: 18px;
+        padding: 28px;
+        max-width: 920px;
+        margin: 0 auto;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+        min-height: 520px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .dash-shell h1 {
+        margin: 0 0 16px;
+        font-size: 28px;
+      }
+
+      .dash-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 18px;
+        flex-wrap: wrap;
+      }
+
+      .seg {
+        display: inline-flex;
+        gap: 8px;
+      }
+
+      .seg button {
+        border: 1px solid #d7dee8;
+        background: #fff;
+        border-radius: 999px;
+        padding: 10px 18px;
+        font-size: 14px;
+        font-weight: 700;
+        color: #445;
+        cursor: pointer;
+      }
+
+      .seg button.active {
+        background: var(--teal);
+        border-color: var(--teal);
+        color: #062018;
+      }
+
+      .staff-list {
+        border-top: 1px solid var(--line);
+        margin-bottom: 24px;
+      }
+
+      .staff-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 4px;
+        border-bottom: 1px solid var(--line);
+        font-size: 15px;
+        font-weight: 700;
+      }
+
+      .staff-row.added {
+        animation: rowIn 0.35s ease;
+      }
+
+      @keyframes rowIn {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .edit {
+        border: 1px solid #d7dee8;
+        background: #fff;
+        border-radius: 999px;
+        padding: 8px 14px;
+        font-size: 13px;
+        font-weight: 700;
+        color: #445;
+        cursor: pointer;
+      }
+
+      .create-wrap {
+        display: flex;
+        justify-content: center;
+        padding-top: 10px;
+      }
+
+      .create-wrap .btn-solid {
+        min-width: 220px;
+        padding: 14px 22px;
+        font-size: 15px;
+      }
+
+      .panel {
+        display: none;
+      }
+
+      .panel.active {
+        display: block;
+      }
+
+      .result {
+        display: none;
+      }
+
+      .result.show {
+        display: block;
+        animation: rowIn 0.4s ease;
+      }
+
+      .metrics {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin: 18px 0;
+      }
+
+      .metric {
+        background: #f4f8fb;
+        border-radius: 14px;
+        padding: 14px;
+      }
+
+      .metric span {
+        display: block;
+        color: #6a778a;
+        font-size: 12px;
+        margin-bottom: 6px;
+      }
+
+      .metric strong {
+        font-size: 24px;
+        color: #0d2b3a;
+      }
+
+      .metric strong em {
+        font-style: normal;
+        color: var(--teal-dim);
+        font-size: 14px;
+        margin-left: 4px;
+      }
+
+      .route {
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        overflow: hidden;
+      }
+
+      .route-row {
+        display: grid;
+        grid-template-columns: 70px 1fr 90px;
+        gap: 10px;
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--line);
+        font-size: 13px;
+        align-items: center;
+      }
+
+      .route-row:last-child {
+        border-bottom: 0;
+      }
+
+      .route-row .time {
+        color: var(--teal-dim);
+        font-weight: 800;
+      }
+
+      .badge {
+        justify-self: end;
+        background: #e8fffa;
+        color: #0d6b5c;
+        border-radius: 999px;
+        padding: 4px 8px;
+        font-size: 11px;
+        font-weight: 800;
+      }
+
+      .opt-bar {
+        margin-top: 16px;
+      }
+
+      .opt-bar label {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        color: #6a778a;
+        margin-bottom: 6px;
+        font-weight: 700;
+      }
+
+      .bar {
+        height: 10px;
+        background: #e8eef5;
+        border-radius: 999px;
+        overflow: hidden;
+      }
+
+      .bar > i {
+        display: block;
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, #1ad4bb, var(--teal));
+        border-radius: 999px;
+        transition: width 1s ease;
+      }
+
+      .drawer {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: min(340px, 92%);
+        height: 100%;
+        background: #fff;
+        border-left: 1px solid var(--line);
+        box-shadow: -16px 0 40px rgba(0, 0, 0, 0.12);
+        transform: translateX(105%);
+        transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+        padding: 22px;
+        z-index: 5;
+      }
+
+      .drawer.open {
+        transform: translateX(0);
+      }
+
+      .drawer h3 {
+        margin: 0 0 8px;
+        font-size: 18px;
+      }
+
+      .drawer p {
+        margin: 0 0 14px;
+        color: #6a778a;
+        font-size: 13px;
+        line-height: 1.4;
+      }
+
+      .field {
+        width: 100%;
+        border: 1px solid #d7dee8;
+        border-radius: 10px;
+        padding: 10px 12px;
+        margin-bottom: 10px;
+        font-size: 14px;
+      }
+
+      .toast {
+        position: absolute;
+        left: 50%;
+        bottom: 24px;
+        transform: translateX(-50%) translateY(12px);
+        background: #0d1b2d;
+        color: #fff;
+        border: 1px solid rgba(45, 255, 224, 0.35);
+        padding: 10px 14px;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 600;
+        opacity: 0;
+        transition: opacity 0.25s ease, transform 0.25s ease;
+        z-index: 30;
+        pointer-events: none;
+      }
+
+      .toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+
+      @media (max-width: 860px) {
+        .about {
+          grid-template-columns: 1fr;
+        }
+        .about-visual {
+          min-height: 220px;
+        }
+        .hero,
+        .about-copy,
+        .nav {
+          padding-left: 18px;
+          padding-right: 18px;
+        }
+        .links {
+          display: none;
+        }
+        .metrics {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .tap-ripple,
+        .drawer,
+        .bar > i,
+        .toast {
+          transition: none !important;
+          animation: none !important;
+        }
+      }
+
+      body.is-embed {
+        margin: 0;
+        padding: 0;
+        min-height: 0;
+        width: 1280px;
+        height: 800px;
+        background: transparent;
+        display: block;
+        overflow: hidden;
+      }
+
+      body.is-embed .site {
+        width: 1280px;
+        min-height: 800px;
+        height: 800px;
+        margin: 0;
+        box-shadow: none;
+      }
+
+      body.is-still .tap-ripple,
+      body.is-still .drawer,
+      body.is-still .bar > i,
+      body.is-still .toast {
+        transition: none !important;
+        animation: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="site" id="site">
+      <div class="tap-ripple" id="ripple" aria-hidden="true"></div>
+      <div class="toast" id="toast"></div>
+
+      <header class="nav">
+        <div class="brand">
+          <span class="mark"></span>
+          <div>
+            Mathematics for Mankind
+            <small id="brandNote">UN agenda 2030 — goal 3 of 17</small>
+          </div>
+        </div>
+        <nav class="links">
+          <button type="button">News</button>
+          <button type="button">Collaborations</button>
+          <button type="button" id="navAbout">About us</button>
+          <button type="button" class="active" id="navSchedule">
+            Scheduling for home care
+          </button>
+        </nav>
+        <div class="nav-actions">
+          <button class="btn-outline" type="button" id="contactBtn">Contact us</button>
+          <div class="lang"><span>SV</span><span class="on">EN</span></div>
+        </div>
+      </header>
+
+      <!-- LANDING HERO -->
+      <section class="screen active" id="screen-hero">
+        <div class="hero">
+          <div class="hero-copy">
+            <h1>
+              The global trend is that people live longer lives. Despite this
+              there is a lack of support systems for elderly people.
+            </h1>
+            <div class="goal">UN agenda 2030 — goal 3 of 17.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ABOUT -->
+      <section class="screen" id="screen-about">
+        <div class="about">
+          <div class="about-visual"></div>
+          <div class="about-copy">
+            <h2>Mathematics for Mankind.</h2>
+            <p>
+              We are a high-tech company that focuses on improved utilization of
+              resources through use of smart algorithms.
+            </p>
+            <p>
+              By doing this, we contribute to improve quality within home care,
+              and reduce costs and waste of resources.
+            </p>
+            <div class="cta-row">
+              <button class="btn-solid" type="button" id="openDash">
+                Open scheduling
+              </button>
+              <button class="btn-outline" type="button" id="learnMore">
+                Learn more
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- DASHBOARD -->
+      <section class="screen" id="screen-dash">
+        <div class="dashboard">
+          <div class="dash-shell" id="dashShell">
+            <div class="panel active" id="panelSetup">
+              <h1>Create new schedule</h1>
+              <div class="dash-top">
+                <div class="seg">
+                  <button type="button" class="active" id="tabStaff">Staff</button>
+                  <button type="button" id="tabClients">Clients</button>
+                </div>
+                <button class="btn-solid" type="button" id="addStaff">
+                  Add extra staff +
+                </button>
+              </div>
+
+              <div class="staff-list" id="staffList">
+                <div class="staff-row">
+                  <span>Staff 1</span>
+                  <button class="edit" type="button" data-edit>Edit</button>
+                </div>
+                <div class="staff-row">
+                  <span>Staff 2</span>
+                  <button class="edit" type="button" data-edit>Edit</button>
+                </div>
+                <div class="staff-row">
+                  <span>Staff 3</span>
+                  <button class="edit" type="button" data-edit>Edit</button>
+                </div>
+                <div class="staff-row">
+                  <span>Staff 4</span>
+                  <button class="edit" type="button" data-edit id="edit4">Edit</button>
+                </div>
+              </div>
+
+              <div class="create-wrap">
+                <button class="btn-solid" type="button" id="createSchedule">
+                  Create schedule
+                </button>
+              </div>
+            </div>
+
+            <div class="result" id="panelResult">
+              <h1>Optimized home-care schedule</h1>
+              <p style="margin: 0; color: #6a778a; font-size: 14px">
+                Algorithm balanced travel time, staff capacity, and client
+                preference windows.
+              </p>
+              <div class="metrics">
+                <div class="metric">
+                  <span>Travel saved</span>
+                  <strong id="mTravel">0<em>%</em></strong>
+                </div>
+                <div class="metric">
+                  <span>Visits covered</span>
+                  <strong id="mVisits">0<em>/28</em></strong>
+                </div>
+                <div class="metric">
+                  <span>Staff utilized</span>
+                  <strong id="mStaff">0<em>%</em></strong>
+                </div>
+              </div>
+              <div class="route" id="routeList">
+                <div class="route-row">
+                  <div class="time">08:00</div>
+                  <div>Anna → Client Elm Street</div>
+                  <div class="badge">On time</div>
+                </div>
+                <div class="route-row">
+                  <div class="time">09:20</div>
+                  <div>Erik → Client Harbor View</div>
+                  <div class="badge">Optimized</div>
+                </div>
+                <div class="route-row">
+                  <div class="time">10:45</div>
+                  <div>Maria → Client Pine Court</div>
+                  <div class="badge">On time</div>
+                </div>
+                <div class="route-row">
+                  <div class="time">12:15</div>
+                  <div>Lars → Client Lake Road</div>
+                  <div class="badge">Optimized</div>
+                </div>
+              </div>
+              <div class="opt-bar">
+                <label><span>Resource efficiency</span><span id="effLabel">0%</span></label>
+                <div class="bar"><i id="effBar"></i></div>
+              </div>
+              <div class="create-wrap" style="margin-top: 18px">
+                <button class="btn-outline" type="button" id="backSetup" style="color: #0d6b5c; border-color: #1ad4bb">
+                  Back to setup
+                </button>
+              </div>
+            </div>
+
+            <div class="drawer" id="drawer">
+              <h3 id="drawerTitle">Edit staff</h3>
+              <p>Adjust availability and skills for better route optimization.</p>
+              <input class="field" value="Staff member" id="drawerName" />
+              <input class="field" value="Shift 08:00–16:00" />
+              <input class="field" value="Skills: medication, mobility" />
+              <button class="btn-solid" type="button" id="saveEdit" style="width: 100%">
+                Save changes
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      const params = new URLSearchParams(location.search);
+      const EMBED = params.has("embed");
+      const STILL = params.has("still");
+      if (EMBED) document.body.classList.add("is-embed");
+      if (STILL) document.body.classList.add("is-still");
+
+      const site = document.getElementById("site");
+      const ripple = document.getElementById("ripple");
+      const toast = document.getElementById("toast");
+      const screens = {
+        hero: document.getElementById("screen-hero"),
+        about: document.getElementById("screen-about"),
+        dash: document.getElementById("screen-dash"),
+      };
+      const panelSetup = document.getElementById("panelSetup");
+      const panelResult = document.getElementById("panelResult");
+      const staffList = document.getElementById("staffList");
+      const drawer = document.getElementById("drawer");
+      const brandNote = document.getElementById("brandNote");
+
+      let generation = 0;
+      let paused = false;
+      let toastTimer = null;
+      let staffCount = 4;
+      let clientMode = false;
+
+      function wait(ms, gen) {
+        return new Promise((resolve, reject) => {
+          setTimeout(() => {
+            if (gen !== generation) reject(new Error("cancelled"));
+            else resolve();
+          }, ms);
+        });
+      }
+
+      function showToast(text) {
+        toast.textContent = text;
+        toast.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove("show"), 1400);
+      }
+
+      function showTapOn(el) {
+        const p = site.getBoundingClientRect();
+        const r = el.getBoundingClientRect();
+        ripple.style.left = `${r.left - p.left + r.width / 2}px`;
+        ripple.style.top = `${r.top - p.top + Math.min(r.height / 2, 36)}px`;
+        ripple.classList.remove("show");
+        void ripple.offsetWidth;
+        ripple.classList.add("show");
+      }
+
+      async function tap(el, gen) {
+        el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        await wait(320, gen);
+        showTapOn(el);
+        await wait(120, gen);
+        el.click();
+        await wait(280, gen);
+      }
+
+      function showScreen(name) {
+        Object.values(screens).forEach((s) => s.classList.remove("active"));
+        screens[name].classList.add("active");
+        document
+          .querySelectorAll(".links button")
+          .forEach((b) => b.classList.remove("active"));
+        if (name === "dash") {
+          document.getElementById("navSchedule").classList.add("active");
+          brandNote.textContent = "Example of staff selection";
+        } else if (name === "about") {
+          document.getElementById("navAbout").classList.add("active");
+          brandNote.textContent = "UN agenda 2030 — goal 3 of 17";
+        } else {
+          document.getElementById("navSchedule").classList.add("active");
+          brandNote.textContent = "UN agenda 2030 — goal 3 of 17";
+        }
+        closeDrawer();
+      }
+
+      function setMode(clients) {
+        clientMode = clients;
+        document.getElementById("tabStaff").classList.toggle("active", !clients);
+        document.getElementById("tabClients").classList.toggle("active", clients);
+        const rows = [...staffList.querySelectorAll(".staff-row span:first-child")];
+        rows.forEach((span, i) => {
+          span.textContent = clients ? `Client ${i + 1}` : `Staff ${i + 1}`;
+        });
+        document.getElementById("addStaff").textContent = clients
+          ? "Add extra client +"
+          : "Add extra staff +";
+      }
+
+      function closeDrawer() {
+        drawer.classList.remove("open");
+      }
+
+      function openDrawer(label) {
+        document.getElementById("drawerTitle").textContent = `Edit ${label}`;
+        document.getElementById("drawerName").value = label;
+        drawer.classList.add("open");
+      }
+
+      function showSetup() {
+        panelResult.classList.remove("show");
+        panelSetup.style.display = "block";
+        closeDrawer();
+      }
+
+      async function showResult(gen) {
+        panelSetup.style.display = "none";
+        panelResult.classList.add("show");
+        closeDrawer();
+        document.getElementById("mTravel").innerHTML = `0<em>%</em>`;
+        document.getElementById("mVisits").innerHTML = `0<em>/28</em>`;
+        document.getElementById("mStaff").innerHTML = `0<em>%</em>`;
+        document.getElementById("effBar").style.width = "0%";
+        document.getElementById("effLabel").textContent = "0%";
+
+        for (let i = 0; i <= 24; i++) {
+          if (gen !== generation) return;
+          const t = i / 24;
+          document.getElementById("mTravel").innerHTML = `${Math.round(32 * t)}<em>%</em>`;
+          document.getElementById("mVisits").innerHTML = `${Math.round(28 * t)}<em>/28</em>`;
+          document.getElementById("mStaff").innerHTML = `${Math.round(91 * t)}<em>%</em>`;
+          document.getElementById("effBar").style.width = `${Math.round(86 * t)}%`;
+          document.getElementById("effLabel").textContent = `${Math.round(86 * t)}%`;
+          await wait(35, gen);
+        }
+      }
+
+      document.getElementById("navAbout").onclick = () => showScreen("about");
+      document.getElementById("navSchedule").onclick = () => showScreen("dash");
+      document.getElementById("openDash").onclick = () => showScreen("dash");
+      document.getElementById("learnMore").onclick = () =>
+        showToast("Smart algorithms for home-care routing");
+      document.getElementById("contactBtn").onclick = () =>
+        showToast("Contact form opened");
+
+      document.getElementById("tabStaff").onclick = () => setMode(false);
+      document.getElementById("tabClients").onclick = () => setMode(true);
+
+      document.getElementById("addStaff").onclick = () => {
+        staffCount += 1;
+        const label = clientMode ? `Client ${staffCount}` : `Staff ${staffCount}`;
+        const row = document.createElement("div");
+        row.className = "staff-row added";
+        row.innerHTML = `<span>${label}</span><button class="edit" type="button" data-edit>Edit</button>`;
+        row.querySelector("[data-edit]").onclick = () => openDrawer(label);
+        staffList.appendChild(row);
+        showToast(`${label} added`);
+      };
+
+      document.querySelectorAll("[data-edit]").forEach((btn) => {
+        btn.onclick = (e) => {
+          const label = e.currentTarget.parentElement.querySelector("span").textContent;
+          openDrawer(label);
+        };
+      });
+
+      document.getElementById("saveEdit").onclick = () => {
+        closeDrawer();
+        showToast("Staff preferences saved");
+      };
+
+      document.getElementById("createSchedule").onclick = () => {
+        showToast("Running optimization…");
+        showResult(generation);
+      };
+
+      document.getElementById("backSetup").onclick = showSetup;
+
+      site.addEventListener(
+        "pointerdown",
+        (e) => {
+          if (e.target === ripple) return;
+          const p = site.getBoundingClientRect();
+          ripple.style.left = `${e.clientX - p.left}px`;
+          ripple.style.top = `${e.clientY - p.top}px`;
+          ripple.classList.remove("show");
+          void ripple.offsetWidth;
+          ripple.classList.add("show");
+        },
+        true,
+      );
+
+      async function runLoop() {
+        const gen = ++generation;
+        try {
+          while (gen === generation) {
+            // reset list extras
+            while (staffList.children.length > 4) {
+              staffList.removeChild(staffList.lastChild);
+            }
+            staffCount = 4;
+            setMode(false);
+            showSetup();
+
+            showScreen("hero");
+            await wait(2200, gen);
+
+            await tap(document.getElementById("navAbout"), gen);
+            await wait(1800, gen);
+
+            await tap(document.getElementById("openDash"), gen);
+            await wait(1000, gen);
+
+            await tap(document.getElementById("tabClients"), gen);
+            await wait(800, gen);
+            await tap(document.getElementById("tabStaff"), gen);
+            await wait(700, gen);
+
+            await tap(document.getElementById("addStaff"), gen);
+            await wait(800, gen);
+
+            await tap(document.getElementById("edit4"), gen);
+            await wait(1000, gen);
+            await tap(document.getElementById("saveEdit"), gen);
+            await wait(700, gen);
+
+            await tap(document.getElementById("createSchedule"), gen);
+            await wait(2800, gen);
+
+            await tap(document.getElementById("backSetup"), gen);
+            await wait(900, gen);
+
+            await tap(document.getElementById("navSchedule"), gen);
+            await wait(700, gen);
+          }
+        } catch (e) {
+          if (e.message !== "cancelled") console.error(e);
+        }
+      }
+
+      function pauseDemo() {
+        generation++;
+        paused = true;
+        clearTimeout(toastTimer);
+        toast.classList.remove("show");
+        ripple.classList.remove("show");
+      }
+
+      function playDemo() {
+        if (!paused) return;
+        paused = false;
+        runLoop();
+      }
+
+      window.addEventListener("message", (e) => {
+        if (STILL) return;
+        if (e.data?.type === "stalmarck-pause") pauseDemo();
+        if (e.data?.type === "stalmarck-play") playDemo();
+      });
+
+      window.__stalmarckPause = pauseDemo;
+      window.__stalmarckPlay = playDemo;
+
+      function settleFinal() {
+        // Hero landing frame
+        while (staffList.children.length > 4) {
+          staffList.removeChild(staffList.lastChild);
+        }
+        staffCount = 4;
+        setMode(false);
+        showSetup();
+        showScreen("hero");
+      }
+
+      if (STILL) {
+        paused = true;
+        generation++;
+        settleFinal();
+        try {
+          window.parent?.postMessage({ type: "stalmarck-ready" }, "*");
+        } catch (_) {}
+      } else if (EMBED) {
+        paused = true;
+        try {
+          window.parent?.postMessage({ type: "stalmarck-ready" }, "*");
+        } catch (_) {}
+      } else {
+        runLoop();
+      }
+    </script>
+  </body>
+</html>

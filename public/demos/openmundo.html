@@ -1,0 +1,1350 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Open Mundo Preview</title>
+    <style>
+      :root {
+        --blue: #1f6fe5;
+        --blue-deep: #1557c0;
+        --blue-soft: #e8f1ff;
+        --orange: #ff6a00;
+        --teal: #20b8a8;
+        --text: #222;
+        --muted: #7a8494;
+        --line: #e6ebf2;
+        --bg: #f3f6fa;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 20px;
+        background: #cfd7e2;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui,
+          sans-serif;
+        color: var(--text);
+      }
+
+      .tablet {
+        width: 1020px;
+        height: 700px;
+        max-width: calc(100vw - 28px);
+        max-height: calc(100vh - 28px);
+        background: #1b1f24;
+        border-radius: 28px;
+        padding: 14px;
+        box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+        position: relative;
+      }
+
+      .bezel {
+        width: 100%;
+        height: 100%;
+        background: var(--bg);
+        border-radius: 18px;
+        overflow: hidden;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .camera {
+        position: absolute;
+        top: 6px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #0f1114;
+        z-index: 6;
+      }
+
+      .tap-ripple {
+        position: absolute;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: rgba(31, 111, 229, 0.2);
+        border: 2px solid rgba(31, 111, 229, 0.5);
+        transform: translate(-50%, -50%) scale(0.35);
+        opacity: 0;
+        pointer-events: none;
+        z-index: 100;
+      }
+
+      .tap-ripple.show {
+        animation: tapRipple 0.5s ease-out;
+      }
+
+      @keyframes tapRipple {
+        0% {
+          opacity: 0.95;
+          transform: translate(-50%, -50%) scale(0.35);
+        }
+        100% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(1.7);
+        }
+      }
+
+      .topnav {
+        height: 54px;
+        background: #fff;
+        border-bottom: 1px solid var(--line);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 20px;
+        flex: 0 0 auto;
+        z-index: 5;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 800;
+        font-size: 15px;
+        color: var(--blue);
+      }
+
+      .logo i {
+        width: 18px;
+        height: 18px;
+        border-radius: 5px;
+        background: var(--blue);
+        display: block;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 16px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #556;
+      }
+
+      .nav-links button {
+        border: 0;
+        background: transparent;
+        color: inherit;
+        font: inherit;
+        cursor: pointer;
+        padding: 6px 2px;
+      }
+
+      .nav-links button.active {
+        color: var(--blue);
+        border-bottom: 2px solid var(--blue);
+      }
+
+      .nav-icons {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        color: #667;
+        font-size: 16px;
+      }
+
+      .avatar {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: #d7dde6;
+      }
+
+      .main {
+        flex: 1;
+        min-height: 0;
+        overflow: auto;
+        padding: 16px 18px 18px;
+        position: relative;
+      }
+
+      .screen {
+        display: none;
+      }
+
+      .screen.active {
+        display: block;
+      }
+
+      /* LEARNING PATH */
+      .hero {
+        position: relative;
+        border-radius: 18px;
+        overflow: hidden;
+        margin-bottom: 14px;
+        min-height: 118px;
+        background:
+          linear-gradient(90deg, rgba(20, 70, 170, 0.92), rgba(31, 111, 229, 0.88)),
+          url("https://images.unsplash.com/photo-1552832230-c0197dd311b5?auto=format&fit=crop&w=1200&q=80")
+            center / cover;
+        color: #fff;
+        display: grid;
+        grid-template-columns: 1.3fr 0.9fr;
+        gap: 12px;
+        padding: 18px 20px;
+        align-items: center;
+      }
+
+      .hero h2 {
+        margin: 0 0 8px;
+        font-size: 22px;
+      }
+
+      .hero p {
+        margin: 0;
+        font-size: 13px;
+        line-height: 1.4;
+        opacity: 0.95;
+        max-width: 420px;
+      }
+
+      .hero-right {
+        text-align: right;
+      }
+
+      .hero-right .label {
+        font-size: 12px;
+        opacity: 0.9;
+        margin-bottom: 4px;
+      }
+
+      .countdown {
+        font-size: 34px;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        margin-bottom: 10px;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .btn-orange {
+        border: 0;
+        background: var(--orange);
+        color: #fff;
+        font-weight: 800;
+        font-size: 13px;
+        border-radius: 999px;
+        padding: 10px 16px;
+        cursor: pointer;
+      }
+
+      .path-grid {
+        display: grid;
+        grid-template-columns: 1.45fr 0.8fr;
+        gap: 14px;
+      }
+
+      .card {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 16px;
+      }
+
+      .card h3 {
+        margin: 0 0 12px;
+        text-align: center;
+        font-size: 16px;
+      }
+
+      .level-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .level-row button {
+        border: 1px solid var(--line);
+        background: #fff;
+        border-radius: 8px;
+        padding: 6px 10px;
+        font-size: 12px;
+        cursor: pointer;
+      }
+
+      .unit-title {
+        text-align: center;
+        font-weight: 800;
+        margin: 6px 0 14px;
+        color: var(--blue);
+      }
+
+      .path-body {
+        display: grid;
+        grid-template-columns: 160px 1fr;
+        gap: 16px;
+        align-items: start;
+      }
+
+      .gauge-wrap {
+        text-align: center;
+      }
+
+      .gauge {
+        width: 140px;
+        height: 140px;
+        margin: 0 auto 8px;
+        position: relative;
+      }
+
+      .gauge svg {
+        width: 140px;
+        height: 140px;
+        transform: rotate(-90deg);
+      }
+
+      .gauge .track {
+        fill: none;
+        stroke: #e8eef6;
+        stroke-width: 10;
+      }
+
+      .gauge .value {
+        fill: none;
+        stroke: var(--blue);
+        stroke-width: 10;
+        stroke-linecap: round;
+        stroke-dasharray: 377;
+        stroke-dashoffset: 377;
+        transition: stroke-dashoffset 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      .gauge .center {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        transform: none;
+      }
+
+      .gauge .center strong {
+        font-size: 28px;
+        display: block;
+        line-height: 1;
+      }
+
+      .gauge .center span {
+        font-size: 18px;
+      }
+
+      .flag {
+        font-size: 16px;
+        margin-bottom: 2px;
+      }
+
+      .lessons-meta {
+        font-size: 12px;
+        color: var(--muted);
+        font-weight: 700;
+      }
+
+      .lessons {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .lesson {
+        display: grid;
+        grid-template-columns: 14px 1fr;
+        gap: 10px;
+        align-items: start;
+      }
+
+      .lesson .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--blue);
+        margin-top: 5px;
+        box-shadow: 0 0 0 3px rgba(31, 111, 229, 0.15);
+      }
+
+      .lesson strong {
+        display: block;
+        font-size: 13px;
+        margin-bottom: 6px;
+      }
+
+      .btn-soft {
+        border: 1px solid #cfd8e4;
+        background: #fff;
+        color: #556;
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-size: 11px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .welcome {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-height: 280px;
+        text-align: center;
+      }
+
+      .welcome h2 {
+        margin: 0 0 8px;
+        font-size: 22px;
+      }
+
+      .welcome p {
+        margin: 0 0 18px;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.4;
+      }
+
+      .welcome .btn-orange {
+        align-self: center;
+        padding: 12px 22px;
+        font-size: 14px;
+      }
+
+      /* PROGRESS / GAUGES DASHBOARD */
+      .passport {
+        background: #fff;
+        border-radius: 18px;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        margin-bottom: 14px;
+        display: grid;
+        grid-template-columns: 1.2fr 0.9fr;
+        min-height: 280px;
+      }
+
+      .passport-left {
+        padding: 16px 18px;
+        border-right: 2px dashed #dbe3ee;
+        background:
+          radial-gradient(circle at 10% 20%, rgba(31, 111, 229, 0.05), transparent 40%),
+          #fff;
+      }
+
+      .levels {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin: 8px 0 18px;
+        position: relative;
+        padding-top: 28px;
+      }
+
+      .levels::before {
+        content: "";
+        position: absolute;
+        left: 8px;
+        right: 8px;
+        bottom: 10px;
+        height: 3px;
+        background: #e6ebf2;
+        border-radius: 999px;
+      }
+
+      .lvl {
+        position: relative;
+        z-index: 1;
+        text-align: center;
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--muted);
+        width: 12%;
+      }
+
+      .lvl.active {
+        color: var(--blue);
+      }
+
+      .plane {
+        position: absolute;
+        top: 0;
+        left: 4%;
+        transform: translateX(-50%);
+        background: var(--blue);
+        color: #fff;
+        font-size: 10px;
+        font-weight: 800;
+        padding: 4px 8px;
+        border-radius: 8px;
+        white-space: nowrap;
+        transition: left 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      .plane::after {
+        content: "✈";
+        display: block;
+        text-align: center;
+        margin-top: 2px;
+      }
+
+      .gauges-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+      }
+
+      .mini-gauge {
+        text-align: center;
+      }
+
+      .mini-gauge .g {
+        width: 96px;
+        height: 96px;
+        margin: 0 auto 6px;
+        position: relative;
+      }
+
+      .mini-gauge svg {
+        width: 96px;
+        height: 96px;
+        transform: rotate(-90deg);
+      }
+
+      .mini-gauge .track {
+        fill: none;
+        stroke: #e8eef6;
+        stroke-width: 8;
+      }
+
+      .mini-gauge .value {
+        fill: none;
+        stroke-width: 8;
+        stroke-linecap: round;
+        stroke-dasharray: 251;
+        stroke-dashoffset: 251;
+        transition: stroke-dashoffset 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      .mini-gauge .value.blue {
+        stroke: var(--blue);
+      }
+      .mini-gauge .value.teal {
+        stroke: var(--teal);
+      }
+      .mini-gauge .value.orange {
+        stroke: var(--orange);
+      }
+
+      .mini-gauge .center {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-content: center;
+        font-size: 11px;
+        font-weight: 800;
+        line-height: 1.2;
+      }
+
+      .mini-gauge .label {
+        font-size: 12px;
+        font-weight: 700;
+        margin-bottom: 2px;
+      }
+
+      .mini-gauge .link {
+        border: 0;
+        background: transparent;
+        color: var(--blue);
+        font-size: 11px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .mini-gauge.teal .link {
+        color: var(--teal);
+      }
+      .mini-gauge.orange .link {
+        color: var(--orange);
+      }
+
+      .passport-right {
+        padding: 22px 20px;
+        background: linear-gradient(180deg, #f7faff, #fff);
+      }
+
+      .passport-right h2 {
+        margin: 0 0 12px;
+        font-size: 20px;
+      }
+
+      .rank {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .rank-badge {
+        background: var(--blue);
+        color: #fff;
+        font-size: 10px;
+        font-weight: 800;
+        writing-mode: vertical-rl;
+        transform: rotate(180deg);
+        padding: 10px 6px;
+        border-radius: 8px;
+        letter-spacing: 0.04em;
+      }
+
+      .rank strong {
+        color: var(--blue);
+        display: block;
+        margin-bottom: 4px;
+      }
+
+      .rank p,
+      .passport-right > p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.4;
+      }
+
+      .passport-right > p {
+        margin: 10px 0 14px;
+      }
+
+      .live-head {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+        flex-wrap: wrap;
+      }
+
+      .live-head h3 {
+        margin: 0;
+        font-size: 16px;
+      }
+
+      .live-progress {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex: 1;
+        min-width: 180px;
+      }
+
+      .live-progress .track {
+        flex: 1;
+        height: 8px;
+        background: #e6ebf2;
+        border-radius: 999px;
+        position: relative;
+        overflow: visible;
+      }
+
+      .live-progress .fill {
+        height: 100%;
+        width: 20%;
+        background: var(--blue);
+        border-radius: 999px;
+        transition: width 0.8s ease;
+      }
+
+      .live-progress .bubble {
+        position: absolute;
+        top: -28px;
+        left: 20%;
+        transform: translateX(-50%);
+        background: var(--blue);
+        color: #fff;
+        font-size: 11px;
+        font-weight: 800;
+        padding: 3px 7px;
+        border-radius: 8px;
+        transition: left 0.8s ease;
+      }
+
+      .live-meta {
+        margin-left: auto;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--orange);
+      }
+
+      .miles {
+        display: inline-block;
+        background: #fff7ed;
+        color: var(--orange);
+        border-radius: 999px;
+        padding: 4px 8px;
+        font-size: 11px;
+        font-weight: 800;
+        margin-left: 8px;
+      }
+
+      .class-cards {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+      }
+
+      .class-card {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        overflow: hidden;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .class-card:hover,
+      .class-card.active {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 24px rgba(31, 111, 229, 0.15);
+      }
+
+      .class-card img {
+        width: 100%;
+        height: 90px;
+        object-fit: cover;
+        display: block;
+        background: #dde5ee;
+      }
+
+      .class-card .tag {
+        background: var(--orange);
+        color: #fff;
+        font-size: 11px;
+        font-weight: 800;
+        padding: 6px 10px;
+      }
+
+      .class-card .body {
+        padding: 10px;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .toast {
+        position: absolute;
+        left: 50%;
+        bottom: 18px;
+        transform: translateX(-50%) translateY(16px);
+        background: #111827;
+        color: #fff;
+        padding: 10px 14px;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 600;
+        opacity: 0;
+        transition: opacity 0.25s ease, transform 0.25s ease;
+        z-index: 50;
+        pointer-events: none;
+      }
+
+      .toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+
+      @media (max-width: 920px) {
+        .tablet {
+          width: 100%;
+          height: auto;
+          aspect-ratio: 10 / 7;
+        }
+        .path-grid,
+        .passport,
+        .hero,
+        .class-cards {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .tap-ripple,
+        .gauge .value,
+        .mini-gauge .value,
+        .plane,
+        .live-progress .fill,
+        .toast {
+          transition: none !important;
+          animation: none !important;
+        }
+      }
+      /* Embed mode (iframe inside portfolio) */
+      body.is-embed {
+        margin: 0;
+        padding: 0;
+        min-height: 0;
+        width: 1020px;
+        height: 700px;
+        background: transparent;
+        display: block;
+        overflow: hidden;
+      }
+
+      body.is-embed .tablet {
+        max-width: none;
+        max-height: none;
+        width: 1020px;
+        height: 700px;
+        box-shadow: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="tablet">
+      <div class="camera"></div>
+      <div class="bezel" id="bezel">
+        <div class="tap-ripple" id="ripple" aria-hidden="true"></div>
+        <div class="toast" id="toast"></div>
+
+        <header class="topnav">
+          <div class="logo"><i></i> Open Mundo</div>
+          <nav class="nav-links">
+            <button type="button" class="active" id="tabPath">Inicio</button>
+            <button type="button" id="tabProgress">Progreso</button>
+            <button type="button" id="tabLearn">Aprender</button>
+          </nav>
+          <div class="nav-icons">
+            <span>📢</span><span>💬</span><span>🔔</span>
+            <div class="avatar"></div>
+          </div>
+        </header>
+
+        <div class="main">
+          <!-- LEARNING PATH -->
+          <section class="screen active" id="screen-path">
+            <div class="hero">
+              <div>
+                <h2>Recorrido por la plataforma</h2>
+                <p>
+                  Únete a una sesión en vivo con un agente académico y conoce
+                  cómo sacar el máximo de tu curso de italiano.
+                </p>
+              </div>
+              <div class="hero-right">
+                <div class="label">El próximo recorrido comienza en:</div>
+                <div class="countdown" id="countdown">01:07:55</div>
+                <button class="btn-orange" type="button" id="startCourse">
+                  Comienza tu curso
+                </button>
+              </div>
+            </div>
+
+            <div class="path-grid">
+              <div class="card">
+                <h3>Tu ruta de aprendizaje</h3>
+                <div class="level-row">
+                  <span>Nivel - A1</span>
+                  <button type="button" id="changeLevel">Cambiar nivel</button>
+                </div>
+                <div class="unit-title">Unidad 1 - Ciao! ›</div>
+                <div class="path-body">
+                  <div class="gauge-wrap">
+                    <div class="gauge">
+                      <svg viewBox="0 0 140 140">
+                        <circle class="track" cx="70" cy="70" r="60"></circle>
+                        <circle
+                          class="value"
+                          id="mainGauge"
+                          cx="70"
+                          cy="70"
+                          r="60"
+                        ></circle>
+                      </svg>
+                      <div class="center">
+                        <div class="flag">🇮🇹</div>
+                        <strong><span id="mainPct">0</span>%</strong>
+                      </div>
+                    </div>
+                    <div class="lessons-meta">
+                      <span id="mainLessons">0</span>/10 Lecciones
+                    </div>
+                  </div>
+                  <div class="lessons">
+                    <div class="lesson">
+                      <div class="dot"></div>
+                      <div>
+                        <strong>Lección 1 - Vocabolario: Presentazioni</strong>
+                        <button class="btn-soft" type="button" data-book>Agendar sesión</button>
+                      </div>
+                    </div>
+                    <div class="lesson">
+                      <div class="dot"></div>
+                      <div>
+                        <strong>Lección 2 - Grammatica: Presentazioni</strong>
+                        <button class="btn-soft" type="button" data-book>Agendar sesión</button>
+                      </div>
+                    </div>
+                    <div class="lesson">
+                      <div class="dot"></div>
+                      <div>
+                        <strong>Lección 3 - Conversazione: Ciao!</strong>
+                        <button class="btn-soft" type="button" data-book id="bookLesson3">
+                          Agendar sesión
+                        </button>
+                      </div>
+                    </div>
+                    <div class="lesson">
+                      <div class="dot"></div>
+                      <div>
+                        <strong>Lección 4 - Ascolto: In aeroporto</strong>
+                        <button class="btn-soft" type="button" data-book>Agendar sesión</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card welcome">
+                <h2>¡Te damos la bienvenida, Da!</h2>
+                <p>Reserva una nueva sesión para continuar aprendiendo</p>
+                <button class="btn-orange" type="button" id="bookSession">
+                  Agendar sesión
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <!-- PROGRESS -->
+          <section class="screen" id="screen-progress">
+            <div class="passport">
+              <div class="passport-left">
+                <div class="levels">
+                  <div class="plane" id="plane">9%</div>
+                  <div class="lvl active">Level 1</div>
+                  <div class="lvl">2</div>
+                  <div class="lvl">3</div>
+                  <div class="lvl">4</div>
+                  <div class="lvl">5</div>
+                  <div class="lvl">6</div>
+                  <div class="lvl">7</div>
+                  <div class="lvl">8</div>
+                </div>
+                <div class="gauges-row">
+                  <div class="mini-gauge">
+                    <div class="g">
+                      <svg viewBox="0 0 96 96">
+                        <circle class="track" cx="48" cy="48" r="40"></circle>
+                        <circle class="value blue" id="gLive" cx="48" cy="48" r="40"></circle>
+                      </svg>
+                      <div class="center">
+                        <div id="liveNum">7</div>
+                        <div>OF 10</div>
+                      </div>
+                    </div>
+                    <div class="label">Live Classes</div>
+                    <button class="link" type="button">Continue Module »</button>
+                  </div>
+                  <div class="mini-gauge teal">
+                    <div class="g">
+                      <svg viewBox="0 0 96 96">
+                        <circle class="track" cx="48" cy="48" r="40"></circle>
+                        <circle class="value teal" id="gUnits" cx="48" cy="48" r="40"></circle>
+                      </svg>
+                      <div class="center">
+                        <div id="unitsNum">4</div>
+                        <div>OF 12</div>
+                      </div>
+                    </div>
+                    <div class="label">Units</div>
+                    <button class="link" type="button">Continue Module »</button>
+                  </div>
+                  <div class="mini-gauge orange">
+                    <div class="g">
+                      <svg viewBox="0 0 96 96">
+                        <circle class="track" cx="48" cy="48" r="40"></circle>
+                        <circle class="value orange" id="gPractice" cx="48" cy="48" r="40"></circle>
+                      </svg>
+                      <div class="center">
+                        <div id="practiceNum">4.5</div>
+                        <div>OF 7</div>
+                      </div>
+                    </div>
+                    <div class="label">Practice</div>
+                    <button class="link" type="button">Continue Module »</button>
+                  </div>
+                </div>
+              </div>
+              <div class="passport-right">
+                <h2>Travel the world learning languages.</h2>
+                <div class="rank">
+                  <div class="rank-badge">ROOKIE TRAVELER</div>
+                  <div>
+                    <strong>You are: Rookie Traveler</strong>
+                    <p>Study, advance, and earn miles and badges.</p>
+                  </div>
+                </div>
+                <p>Unlock cities as you complete units and live classes.</p>
+                <button class="btn-orange" type="button" id="leaguesBtn">
+                  What are the leagues?
+                </button>
+              </div>
+            </div>
+
+            <div class="live-head">
+              <h3>Live Classes</h3>
+              <div class="live-progress">
+                <span style="font-size: 12px; font-weight: 700">2 / 10</span>
+                <div class="track">
+                  <div class="fill" id="liveFill"></div>
+                  <div class="bubble" id="liveBubble">20%</div>
+                </div>
+              </div>
+              <div class="live-meta">
+                Book your next class in: <span id="bookTimer">13:33</span>
+                <span class="miles">10 MILES</span>
+              </div>
+            </div>
+
+            <div class="class-cards">
+              <div class="class-card" id="card1">
+                <img
+                  src="https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=500&q=80"
+                  alt="Travel"
+                />
+                <div class="tag">Traditional Class</div>
+                <div class="body">Travel & Living</div>
+              </div>
+              <div class="class-card" id="card2">
+                <img
+                  src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=500&q=80"
+                  alt="Dinner"
+                />
+                <div class="tag">Casual Conversation</div>
+                <div class="body">Family Dinner</div>
+              </div>
+              <div class="class-card" id="card3">
+                <img
+                  src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=500&q=80"
+                  alt="Office"
+                />
+                <div class="tag">Casual Conversation</div>
+                <div class="body">The Office</div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const params = new URLSearchParams(location.search);
+      const EMBED = params.has("embed");
+      const STILL = params.has("still");
+      if (EMBED) document.body.classList.add("is-embed");
+      if (STILL) document.body.classList.add("is-still");
+
+      const CIRC_MAIN = 2 * Math.PI * 60;
+      const CIRC_MINI = 2 * Math.PI * 40;
+
+      const bezel = document.getElementById("bezel");
+      const ripple = document.getElementById("ripple");
+      const toast = document.getElementById("toast");
+      const pathScreen = document.getElementById("screen-path");
+      const progressScreen = document.getElementById("screen-progress");
+      const tabPath = document.getElementById("tabPath");
+      const tabProgress = document.getElementById("tabProgress");
+      const mainGauge = document.getElementById("mainGauge");
+      const mainPct = document.getElementById("mainPct");
+      const mainLessons = document.getElementById("mainLessons");
+      const plane = document.getElementById("plane");
+      const liveFill = document.getElementById("liveFill");
+      const liveBubble = document.getElementById("liveBubble");
+
+      let generation = 0;
+      let paused = false;
+      let toastTimer = null;
+      let countdownSec = 1 * 3600 + 7 * 60 + 55;
+      let bookSec = 13 * 60 + 33;
+
+      mainGauge.style.strokeDasharray = String(CIRC_MAIN);
+      ["gLive", "gUnits", "gPractice"].forEach((id) => {
+        document.getElementById(id).style.strokeDasharray = String(CIRC_MINI);
+      });
+
+      function wait(ms, gen) {
+        return new Promise((resolve, reject) => {
+          setTimeout(() => {
+            if (paused || gen !== generation) reject(new Error("cancelled"));
+            else resolve();
+          }, ms);
+        });
+      }
+
+      function showToast(text) {
+        toast.textContent = text;
+        toast.classList.add("show");
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove("show"), 1400);
+      }
+
+      function showTapOn(el) {
+        const p = bezel.getBoundingClientRect();
+        const r = el.getBoundingClientRect();
+        ripple.style.left = `${r.left - p.left + r.width / 2}px`;
+        ripple.style.top = `${r.top - p.top + r.height / 2}px`;
+        ripple.classList.remove("show");
+        void ripple.offsetWidth;
+        ripple.classList.add("show");
+      }
+
+      async function tap(el, gen) {
+        await wait(280, gen);
+        showTapOn(el);
+        await wait(120, gen);
+        el.click();
+        await wait(280, gen);
+      }
+
+      function showScreen(name) {
+        pathScreen.classList.toggle("active", name === "path");
+        progressScreen.classList.toggle("active", name === "progress");
+        tabPath.classList.toggle("active", name === "path");
+        tabProgress.classList.toggle("active", name === "progress");
+        if (name === "progress") animateProgressGauges();
+      }
+
+      function setMainProgress(pct, lessons) {
+        const offset = CIRC_MAIN * (1 - pct / 100);
+        mainGauge.style.strokeDashoffset = String(offset);
+        mainPct.textContent = String(Math.round(pct));
+        mainLessons.textContent = String(lessons);
+      }
+
+      function setMini(id, pct) {
+        const el = document.getElementById(id);
+        el.style.strokeDashoffset = String(CIRC_MINI * (1 - pct / 100));
+      }
+
+      function animateMain(from, to, lessonsFrom, lessonsTo, gen) {
+        return new Promise(async (resolve, reject) => {
+          const steps = 24;
+          for (let i = 0; i <= steps; i++) {
+            if (gen !== generation) return reject(new Error("cancelled"));
+            const t = i / steps;
+            const pct = from + (to - from) * t;
+            const lessons = Math.round(
+              lessonsFrom + (lessonsTo - lessonsFrom) * t,
+            );
+            setMainProgress(pct, lessons);
+            await wait(40, gen);
+          }
+          resolve();
+        });
+      }
+
+      function animateProgressGauges() {
+        // reset then animate in
+        setMini("gLive", 0);
+        setMini("gUnits", 0);
+        setMini("gPractice", 0);
+        plane.style.left = "4%";
+        plane.textContent = "0%";
+        liveFill.style.width = "0%";
+        liveBubble.style.left = "0%";
+        liveBubble.textContent = "0%";
+
+        requestAnimationFrame(() => {
+          setTimeout(() => {
+            setMini("gLive", 70);
+            setMini("gUnits", 33);
+            setMini("gPractice", 64);
+            document.getElementById("liveNum").textContent = "7";
+            document.getElementById("unitsNum").textContent = "4";
+            document.getElementById("practiceNum").textContent = "4.5";
+            plane.style.left = "12%";
+            plane.textContent = "9%";
+            liveFill.style.width = "20%";
+            liveBubble.style.left = "20%";
+            liveBubble.textContent = "20%";
+          }, 50);
+        });
+      }
+
+      async function pulseGauges(gen) {
+        const seq = [
+          { live: 70, units: 33, practice: 64, plane: 9, bar: 20 },
+          { live: 80, units: 50, practice: 78, plane: 18, bar: 40 },
+          { live: 90, units: 66, practice: 90, plane: 28, bar: 55 },
+          { live: 70, units: 33, practice: 64, plane: 9, bar: 20 },
+        ];
+        for (const s of seq) {
+          setMini("gLive", s.live);
+          setMini("gUnits", s.units);
+          setMini("gPractice", s.practice);
+          document.getElementById("liveNum").textContent = String(
+            Math.round((s.live / 100) * 10),
+          );
+          document.getElementById("unitsNum").textContent = String(
+            Math.round((s.units / 100) * 12),
+          );
+          document.getElementById("practiceNum").textContent = (
+            (s.practice / 100) *
+            7
+          ).toFixed(1);
+          plane.style.left = `${Math.max(4, s.plane)}%`;
+          plane.textContent = `${s.plane}%`;
+          liveFill.style.width = `${s.bar}%`;
+          liveBubble.style.left = `${s.bar}%`;
+          liveBubble.textContent = `${s.bar}%`;
+          await wait(900, gen);
+        }
+      }
+
+      function fmtHMS(total) {
+        const h = Math.floor(total / 3600);
+        const m = Math.floor((total % 3600) / 60);
+        const s = total % 60;
+        return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+      }
+
+      function fmtMS(total) {
+        const m = Math.floor(total / 60);
+        const s = total % 60;
+        return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+      }
+
+      setInterval(() => {
+        countdownSec = Math.max(0, countdownSec - 1);
+        bookSec = Math.max(0, bookSec - 1);
+        document.getElementById("countdown").textContent = fmtHMS(countdownSec);
+        document.getElementById("bookTimer").textContent = fmtMS(bookSec);
+      }, 1000);
+
+      tabPath.onclick = () => showScreen("path");
+      tabProgress.onclick = () => showScreen("progress");
+      document.getElementById("tabLearn").onclick = () => showScreen("path");
+
+      document.getElementById("startCourse").onclick = () => {
+        showToast("Curso iniciado");
+        setMainProgress(10, 1);
+      };
+      document.getElementById("bookSession").onclick = () =>
+        showToast("Sesión agendada");
+      document.getElementById("bookLesson3").onclick = () =>
+        showToast("Lección 3 agendada");
+      document.getElementById("changeLevel").onclick = () =>
+        showToast("Cambiar nivel");
+      document.getElementById("leaguesBtn").onclick = () =>
+        showToast("Leagues unlocked");
+      document.querySelectorAll("[data-book]").forEach((btn) => {
+        btn.onclick = () => showToast("Sesión agendada");
+      });
+      ["card1", "card2", "card3"].forEach((id) => {
+        document.getElementById(id).onclick = (e) => {
+          document
+            .querySelectorAll(".class-card")
+            .forEach((c) => c.classList.remove("active"));
+          e.currentTarget.classList.add("active");
+          showToast(`Booked: ${e.currentTarget.querySelector(".body").textContent}`);
+        };
+      });
+
+      bezel.addEventListener(
+        "pointerdown",
+        (e) => {
+          if (e.target === ripple) return;
+          const p = bezel.getBoundingClientRect();
+          ripple.style.left = `${e.clientX - p.left}px`;
+          ripple.style.top = `${e.clientY - p.top}px`;
+          ripple.classList.remove("show");
+          void ripple.offsetWidth;
+          ripple.classList.add("show");
+        },
+        true,
+      );
+
+      async function runLoop() {
+        const gen = ++generation;
+        try {
+          while (gen === generation) {
+            showScreen("path");
+            setMainProgress(0, 0);
+            await wait(900, gen);
+
+            await animateMain(0, 35, 0, 3, gen);
+            await wait(500, gen);
+            await tap(document.getElementById("startCourse"), gen);
+            await wait(700, gen);
+            await animateMain(35, 60, 3, 6, gen);
+            await wait(500, gen);
+
+            await tap(document.getElementById("bookSession"), gen);
+            await wait(800, gen);
+            await tap(document.getElementById("bookLesson3"), gen);
+            await wait(900, gen);
+
+            await tap(tabProgress, gen);
+            await wait(1100, gen);
+            await pulseGauges(gen);
+
+            await tap(document.getElementById("card1"), gen);
+            await wait(700, gen);
+            await tap(document.getElementById("card2"), gen);
+            await wait(700, gen);
+            await tap(document.getElementById("leaguesBtn"), gen);
+            await wait(900, gen);
+
+            await tap(tabPath, gen);
+            await animateMain(60, 0, 6, 0, gen);
+            await wait(800, gen);
+          }
+        } catch (e) {
+          if (e.message !== "cancelled") console.error(e);
+        }
+      }
+
+      function pauseDemo() {
+        generation++;
+        paused = true;
+        toast.classList.remove("show");
+        if (toastTimer) {
+          clearTimeout(toastTimer);
+          toastTimer = null;
+        }
+      }
+
+      function playDemo() {
+        if (!paused) return;
+        paused = false;
+        runLoop();
+      }
+
+      window.addEventListener("message", (e) => {
+        if (STILL) return;
+        if (e.data?.type === "openmundo-pause") pauseDemo();
+        if (e.data?.type === "openmundo-play") playDemo();
+      });
+      window.__openmundoPause = pauseDemo;
+      window.__openmundoPlay = playDemo;
+
+      setMainProgress(0, 0);
+
+      if (STILL) {
+        paused = true;
+        setMainProgress(60, 6);
+        try {
+          window.parent?.postMessage({ type: "openmundo-ready" }, "*");
+        } catch (_) {}
+      } else if (EMBED) {
+        paused = true;
+        try {
+          window.parent?.postMessage({ type: "openmundo-ready" }, "*");
+        } catch (_) {}
+      } else {
+        runLoop();
+      }
+    </script>
+  </body>
+</html>

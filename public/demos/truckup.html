@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TruckUp Pro Preview</title>
+    <style>
+      :root {
+        --bg: #0b0f12;
+        --sheet: #000000;
+        --card: #121719;
+        --card-2: #1c2022;
+        --text: #ffffff;
+        --muted: #9aa3a8;
+        --green: #39ff88;
+        --green-dim: #1aff6e;
+        --yellow: #d6ff4b;
+        --red: #ff5a5a;
+        --grad: linear-gradient(90deg, #1aff6e 0%, #b6ff3c 55%, #e8ff57 100%);
+        --border: rgba(255, 255, 255, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        background: #1a1d20;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui,
+          sans-serif;
+        color: var(--text);
+      }
+
+      .phone {
+        width: 375px;
+        height: 780px;
+        border-radius: 36px;
+        overflow: hidden;
+        position: relative;
+        background: var(--bg);
+        border: 1px solid #2a3036;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+        display: flex;
+        flex-direction: column;
+      }
+
+      .tap-ripple {
+        position: absolute;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: rgba(57, 255, 136, 0.22);
+        border: 2px solid rgba(57, 255, 136, 0.5);
+        transform: translate(-50%, -50%) scale(0.35);
+        opacity: 0;
+        pointer-events: none;
+        z-index: 100;
+      }
+
+      .tap-ripple.show {
+        animation: tapRipple 0.5s ease-out;
+      }
+
+      @keyframes tapRipple {
+        0% {
+          opacity: 0.95;
+          transform: translate(-50%, -50%) scale(0.35);
+        }
+        100% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(1.75);
+        }
+      }
+
+      .status {
+        height: 44px;
+        padding: 0 20px 6px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        font-size: 13px;
+        font-weight: 600;
+        position: relative;
+        z-index: 5;
+      }
+
+      .status .icons {
+        font-size: 11px;
+        color: var(--muted);
+      }
+
+      .screen {
+        flex: 1;
+        min-height: 0;
+        position: relative;
+        display: none;
+      }
+
+      .screen.active {
+        display: block;
+      }
+
+      /* MAP */
+      .map {
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(circle at 30% 40%, rgba(40, 80, 70, 0.35), transparent 40%),
+          radial-gradient(circle at 70% 55%, rgba(30, 50, 70, 0.4), transparent 45%),
+          linear-gradient(160deg, #152028, #0c1218 50%, #101820);
+        overflow: hidden;
+      }
+
+      .map-grid {
+        position: absolute;
+        inset: -20%;
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+        background-size: 42px 42px;
+        transform: rotate(-8deg) scale(1.2);
+        opacity: 0.7;
+      }
+
+      .water {
+        position: absolute;
+        left: 18%;
+        top: 22%;
+        width: 46%;
+        height: 34%;
+        border-radius: 40% 60% 55% 45%;
+        background: rgba(40, 90, 120, 0.28);
+        filter: blur(1px);
+      }
+
+      .road {
+        position: absolute;
+        background: rgba(180, 200, 210, 0.18);
+      }
+
+      .road.h {
+        height: 3px;
+        left: 0;
+        right: 0;
+      }
+
+      .road.v {
+        width: 3px;
+        top: 0;
+        bottom: 0;
+      }
+
+      .hwy {
+        position: absolute;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        font-size: 10px;
+        font-weight: 800;
+        color: #fff;
+      }
+
+      .hwy.g {
+        background: #1f8f4e;
+      }
+
+      .hwy.b {
+        background: #2f6fbf;
+      }
+
+      .city {
+        position: absolute;
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.55);
+        font-weight: 600;
+      }
+
+      .hex {
+        position: absolute;
+        width: 120px;
+        height: 120px;
+        left: 52%;
+        top: 18%;
+        transform: translateX(-50%);
+        background: rgba(26, 255, 110, 0.12);
+        clip-path: polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
+        border: 1px solid rgba(57, 255, 136, 0.35);
+        box-shadow: inset 0 0 30px rgba(57, 255, 136, 0.15);
+      }
+
+      .top-bar {
+        position: absolute;
+        top: 10px;
+        left: 14px;
+        right: 14px;
+        z-index: 8;
+        display: grid;
+        grid-template-columns: 42px 1fr 42px;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .round-btn {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        border: 0;
+        background: rgba(18, 23, 25, 0.92);
+        color: #fff;
+        font-size: 16px;
+        display: grid;
+        place-items: center;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+      }
+
+      .job-banner {
+        height: 42px;
+        border-radius: 999px;
+        background: var(--grad);
+        color: #111;
+        font-weight: 800;
+        font-size: 12px;
+        letter-spacing: 0.02em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        box-shadow: 0 8px 24px rgba(26, 255, 110, 0.25);
+        animation: pulseSoft 2.2s ease-in-out infinite;
+      }
+
+      @keyframes pulseSoft {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.015);
+        }
+      }
+
+      .map-tools {
+        position: absolute;
+        right: 14px;
+        top: 42%;
+        z-index: 8;
+        background: rgba(18, 23, 25, 0.95);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+      }
+
+      .map-tools button {
+        width: 44px;
+        height: 44px;
+        border: 0;
+        background: transparent;
+        color: #fff;
+        display: grid;
+        place-items: center;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      .map-tools button:last-child {
+        border-bottom: 0;
+      }
+
+      .marker {
+        position: absolute;
+        z-index: 7;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        transform: translate(-50%, -100%);
+      }
+
+      .marker .label {
+        background: #fff;
+        color: #111;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 5px 8px;
+        border-radius: 8px;
+        white-space: nowrap;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      }
+
+      .marker .pill {
+        background: #0e1214;
+        color: #fff;
+        border: 1.5px solid var(--green);
+        border-radius: 999px;
+        padding: 7px 12px;
+        font-size: 11px;
+        font-weight: 800;
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .marker .pill.grad-border {
+        border: 0;
+        background:
+          linear-gradient(#0e1214, #0e1214) padding-box,
+          var(--grad) border-box;
+        border: 2px solid transparent;
+      }
+
+      .marker.request .pill {
+        border-color: var(--green);
+        color: var(--green);
+      }
+
+      .home-sheet {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 9;
+        background: var(--sheet);
+        border-radius: 22px 22px 0 0;
+        padding: 14px 14px 18px;
+        box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.45);
+      }
+
+      .sheet-tabs {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 14px;
+      }
+
+      .sheet-tabs .tab {
+        border: 0;
+        background: transparent;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        padding: 8px 12px;
+        border-radius: 999px;
+      }
+
+      .sheet-tabs .tab.active {
+        background: #fff;
+        color: #111;
+      }
+
+      .avail {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        background: #161a1c;
+        border-radius: 999px;
+        padding: 8px 12px;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.03em;
+      }
+
+      .avail i {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--green);
+        display: block;
+        box-shadow: 0 0 10px var(--green);
+      }
+
+      .bottom-nav {
+        background: #1a1f22;
+        border-radius: 999px;
+        padding: 6px;
+        display: grid;
+        grid-template-columns: 1.2fr 1fr 1fr;
+        gap: 4px;
+      }
+
+      .bottom-nav button {
+        border: 0;
+        background: transparent;
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        padding: 12px 8px;
+        border-radius: 999px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+      }
+
+      .bottom-nav button.active {
+        background: #fff;
+        color: #111;
+      }
+
+      /* OVERLAY SHEETS */
+      .overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.45);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.28s ease;
+        z-index: 20;
+      }
+
+      .overlay.open {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .sheet {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: var(--sheet);
+        border-radius: 24px 24px 0 0;
+        z-index: 30;
+        transform: translateY(110%);
+        transition: transform 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+        max-height: 92%;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.5);
+      }
+
+      .sheet.open {
+        transform: translateY(0);
+      }
+
+      .sheet-body {
+        overflow-y: auto;
+        padding: 16px 16px 20px;
+        flex: 1;
+      }
+
+      .sheet-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+
+      .sheet-head h2 {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 800;
+        letter-spacing: 0.02em;
+      }
+
+      .sheet-head h2.grad {
+        background: var(--grad);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+
+      .close-x {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: 0;
+        background: #1c2022;
+        color: #fff;
+        font-size: 16px;
+        flex: 0 0 auto;
+      }
+
+      .deadline {
+        background: rgba(26, 255, 110, 0.12);
+        color: var(--green);
+        font-weight: 800;
+        font-size: 13px;
+        letter-spacing: 0.03em;
+        padding: 12px 14px;
+        border-radius: 12px;
+        margin-bottom: 12px;
+      }
+
+      .tech {
+        display: grid;
+        grid-template-columns: 44px 1fr;
+        gap: 12px;
+        align-items: center;
+        background: var(--card);
+        border-radius: 16px;
+        padding: 12px;
+        margin-bottom: 10px;
+        border: 1px solid transparent;
+        transition: border-color 0.2s ease, background 0.2s ease;
+      }
+
+      .tech.selected {
+        border-color: rgba(57, 255, 136, 0.55);
+        background: #141a16;
+      }
+
+      .avatar {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: #2a3136;
+        display: grid;
+        place-items: center;
+        font-weight: 800;
+        font-size: 13px;
+      }
+
+      .tech strong {
+        display: block;
+        font-size: 15px;
+        margin-bottom: 3px;
+      }
+
+      .tech .sub {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .tech .sub.bad {
+        color: var(--red);
+      }
+
+      .badge {
+        display: inline-block;
+        margin-left: 6px;
+        font-size: 10px;
+        font-weight: 800;
+        color: var(--green);
+        letter-spacing: 0.04em;
+      }
+
+      .add-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 700;
+        padding: 12px 4px 18px;
+      }
+
+      .add-row span {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        display: grid;
+        place-items: center;
+      }
+
+      .cta {
+        width: 100%;
+        border: 0;
+        border-radius: 999px;
+        padding: 16px;
+        font-size: 15px;
+        font-weight: 900;
+        letter-spacing: 0.04em;
+        background: var(--grad);
+        color: #111;
+        box-shadow: 0 10px 30px rgba(26, 255, 110, 0.2);
+      }
+
+      .sheet-footer {
+        padding: 0 16px 18px;
+      }
+
+      .tech-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+
+      .tech-row .avatar {
+        width: 36px;
+        height: 36px;
+        font-size: 12px;
+      }
+
+      .tech-row strong {
+        font-size: 14px;
+      }
+
+      .menu-dots {
+        margin-left: auto;
+        background: transparent;
+        border: 0;
+        color: var(--muted);
+        font-size: 20px;
+      }
+
+      .job-card {
+        background: var(--card);
+        border: 1px solid rgba(57, 255, 136, 0.25);
+        border-radius: 18px;
+        padding: 14px;
+        margin-bottom: 16px;
+      }
+
+      .job-card .top {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 6px;
+      }
+
+      .job-card .green {
+        color: var(--green);
+        font-weight: 800;
+        font-size: 13px;
+      }
+
+      .job-card .loc {
+        font-size: 18px;
+        font-weight: 700;
+        margin: 4px 0;
+      }
+
+      .job-card .meta {
+        color: var(--muted);
+        font-size: 12px;
+        margin-bottom: 12px;
+      }
+
+      .actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .actions button {
+        border: 0;
+        border-radius: 14px;
+        padding: 14px 10px;
+        font-weight: 800;
+        font-size: 12px;
+        letter-spacing: 0.03em;
+      }
+
+      .actions .nav {
+        background: #fff;
+        color: #111;
+      }
+
+      .actions .contacts {
+        background: #2a3034;
+        color: #fff;
+      }
+
+      .section-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 8px 0 12px;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        color: var(--muted);
+      }
+
+      .section-row button {
+        border: 0;
+        background: transparent;
+        color: #fff;
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .vehicle {
+        display: grid;
+        grid-template-columns: 1fr 84px;
+        gap: 12px;
+        background: var(--card);
+        border-radius: 16px;
+        padding: 14px;
+        margin-bottom: 14px;
+      }
+
+      .vehicle .brand {
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+        margin-bottom: 4px;
+      }
+
+      .vehicle strong {
+        display: block;
+        font-size: 16px;
+        margin-bottom: 4px;
+      }
+
+      .vehicle .sub {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .vehicle-imgs {
+        display: flex;
+        gap: 6px;
+        justify-content: flex-end;
+      }
+
+      .vehicle-imgs img,
+      .vehicle-imgs .add {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        object-fit: cover;
+        background: #2a3034;
+      }
+
+      .vehicle-imgs .add {
+        display: grid;
+        place-items: center;
+        color: var(--muted);
+        font-size: 18px;
+        border: 1px dashed rgba(255, 255, 255, 0.2);
+      }
+
+      .service {
+        background: var(--card);
+        border-radius: 16px;
+        padding: 14px;
+        margin-bottom: 12px;
+      }
+
+      .service-top {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+
+      .start-btn {
+        border: 0;
+        background: #e8ff57;
+        color: #111;
+        font-weight: 900;
+        font-size: 11px;
+        letter-spacing: 0.03em;
+        border-radius: 999px;
+        padding: 8px 10px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .service strong {
+        display: block;
+        font-size: 15px;
+      }
+
+      .service .sub {
+        color: var(--muted);
+        font-size: 12px;
+        margin-top: 2px;
+      }
+
+      .service-icons {
+        display: flex;
+        gap: 8px;
+        color: var(--muted);
+        font-size: 16px;
+      }
+
+      .parts {
+        background: var(--card-2);
+        border-radius: 12px;
+        padding: 12px;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .map-mini-pin {
+        position: absolute;
+        left: 58%;
+        top: 28%;
+        transform: translate(-50%, -100%);
+        z-index: 7;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .map-mini-pin .label {
+        background: #fff;
+        color: #111;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 5px 8px;
+        border-radius: 8px;
+      }
+
+      .map-mini-pin .dot {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: var(--green);
+        box-shadow: 0 0 0 8px rgba(57, 255, 136, 0.18);
+      }
+
+      .shimmer-map {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0.02),
+          rgba(255, 255, 255, 0.08),
+          rgba(255, 255, 255, 0.02)
+        );
+        background-size: 200% 100%;
+        animation: shimmer 1.1s linear infinite;
+        opacity: 0;
+        pointer-events: none;
+        z-index: 15;
+      }
+
+      .shimmer-map.show {
+        opacity: 1;
+      }
+
+      @keyframes shimmer {
+        0% {
+          background-position: 100% 0;
+        }
+        100% {
+          background-position: -100% 0;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .sheet,
+        .overlay,
+        .job-banner,
+        .shimmer-map,
+        .tap-ripple {
+          transition: none !important;
+          animation: none !important;
+        }
+      }
+
+      /* Embed mode (iframe inside portfolio) */
+      body.is-embed {
+        margin: 0;
+        padding: 0;
+        min-height: 0;
+        width: 375px;
+        height: 780px;
+        background: transparent;
+        display: block;
+        overflow: hidden;
+      }
+
+      body.is-embed .phone {
+        box-shadow: none;
+        border-color: #2a3036;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="phone" id="phone">
+      <div class="tap-ripple" id="ripple" aria-hidden="true"></div>
+      <div class="status">
+        <span>11:08</span>
+        <div class="icons">●●● ▮</div>
+      </div>
+
+      <section class="screen active" id="screen-home">
+        <div class="map">
+          <div class="map-grid"></div>
+          <div class="water"></div>
+          <div class="road h" style="top: 32%"></div>
+          <div class="road h" style="top: 48%"></div>
+          <div class="road h" style="top: 63%"></div>
+          <div class="road v" style="left: 28%"></div>
+          <div class="road v" style="left: 52%"></div>
+          <div class="road v" style="left: 74%"></div>
+          <div class="hwy g" style="left: 22%; top: 28%">101</div>
+          <div class="hwy b" style="left: 64%; top: 36%">280</div>
+          <div class="hwy g" style="left: 40%; top: 58%">84</div>
+          <div class="city" style="left: 12%; top: 18%">Bay Area</div>
+          <div class="city" style="left: 58%; top: 52%">Palo Alto</div>
+          <div class="city" style="left: 18%; top: 70%">Sunnyvale</div>
+          <div class="hex"></div>
+
+          <div class="top-bar">
+            <button class="round-btn" type="button">⌕</button>
+            <button class="job-banner" type="button" id="jobRequestBanner">
+              ⚡ NEW JOB REQUEST · T-3:08:45
+            </button>
+            <button class="round-btn" type="button">⚙</button>
+          </div>
+
+          <div class="map-tools">
+            <button type="button">▦</button>
+            <button type="button">➤</button>
+          </div>
+
+          <div class="marker request" style="left: 54%; top: 26%">
+            <div class="pill">⚡ T-3:08:45</div>
+          </div>
+
+          <div class="marker" style="left: 36%; top: 44%" id="assignMarker">
+            <div class="label">Northside Logistics</div>
+            <button class="pill grad-border" type="button" id="openAssign">
+              ASSIGN A TECH
+            </button>
+          </div>
+
+          <div class="marker" style="left: 62%; top: 58%" id="arriveMarker">
+            <div class="label">Harbor Freight Yard</div>
+            <button class="pill" type="button" id="openJobFromMap">
+              ARRIVE BY T-1:53:55
+            </button>
+          </div>
+        </div>
+
+        <div class="home-sheet">
+          <div class="sheet-tabs">
+            <button class="tab active" type="button">JOBS</button>
+            <button class="tab" type="button">TEAM</button>
+            <div class="avail"><i></i> AVAILABLE</div>
+          </div>
+          <div class="bottom-nav">
+            <button class="active" type="button">💼 WORK</button>
+            <button type="button">EARN</button>
+            <button type="button">RANK</button>
+          </div>
+        </div>
+      </section>
+
+      <div class="shimmer-map" id="shimmer"></div>
+      <div class="overlay" id="overlay"></div>
+
+      <!-- ASSIGN TECH -->
+      <div class="sheet" id="sheet-assign">
+        <div class="sheet-body">
+          <div class="sheet-head">
+            <h2>ASSIGN A TECH</h2>
+            <button class="close-x" type="button" data-close>×</button>
+          </div>
+          <div class="deadline">ARRIVE BY T-26:22</div>
+
+          <div class="tech" id="tech1">
+            <div class="avatar">AN</div>
+            <div>
+              <strong>Alex North <span class="badge">MANAGER</span></strong>
+              <div class="sub bad">Location disabled</div>
+            </div>
+          </div>
+          <div class="tech selected" id="tech2">
+            <div class="avatar">CR</div>
+            <div>
+              <strong>Chris Roberts</strong>
+              <div class="sub">Mountain View, CA for 5 days</div>
+            </div>
+          </div>
+          <div class="tech" id="tech3">
+            <div class="avatar">DC</div>
+            <div>
+              <strong>Drake Cutter (Me) <span class="badge">MANAGER</span></strong>
+              <div class="sub">Nearby · 4 min</div>
+            </div>
+          </div>
+
+          <div class="add-row"><span>+</span> ADD A TEAM MEMBER</div>
+        </div>
+        <div class="sheet-footer">
+          <button class="cta" type="button" id="assignTechBtn">ASSIGN TECH</button>
+        </div>
+      </div>
+
+      <!-- JOB DETAILS -->
+      <div class="sheet" id="sheet-job">
+        <div class="sheet-body" id="jobScroll">
+          <div class="sheet-head">
+            <h2 class="grad">WESTSIDE DEPOT</h2>
+            <button class="close-x" type="button" data-close>×</button>
+          </div>
+
+          <div class="tech-row">
+            <div class="avatar">DC</div>
+            <strong>Drake Cutter (Me)</strong>
+            <button class="menu-dots" type="button">⋯</button>
+          </div>
+
+          <div class="job-card">
+            <div class="top">
+              <div class="green">ARRIVE BY T-28:12</div>
+              <div class="green">Job #182872</div>
+            </div>
+            <div class="loc">Palo Alto, CA</div>
+            <div class="meta">On-ramp · 21 min · 6.3 mi</div>
+            <div class="actions">
+              <button class="nav" type="button" id="navigateBtn">🧭 NAVIGATE</button>
+              <button class="contacts" type="button">📒 CONTACTS</button>
+            </div>
+          </div>
+
+          <div class="section-row">
+            <span>1 VEHICLE</span>
+            <button type="button">+ ADD A VEHICLE</button>
+          </div>
+
+          <div class="vehicle">
+            <div>
+              <div class="brand">FREIGHTLINER</div>
+              <strong>Freightliner Cascadia</strong>
+              <div class="sub">Semi truck · White</div>
+            </div>
+            <div class="vehicle-imgs">
+              <img
+                src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=200&q=80"
+                alt="Truck"
+              />
+              <div class="add">+</div>
+            </div>
+          </div>
+
+          <div class="service">
+            <div class="service-top">
+              <button class="start-btn" type="button" id="startService1">▶ START</button>
+              <div>
+                <strong>Air Compressor Repair</strong>
+                <div class="sub">Air is leaking.</div>
+              </div>
+              <div class="service-icons"><span>○</span><span>☰</span></div>
+            </div>
+            <div class="parts">+ &nbsp; ADD A PART</div>
+          </div>
+
+          <div class="service">
+            <div class="service-top">
+              <button class="start-btn" type="button" id="startService2">▶ START</button>
+              <div>
+                <strong>Tire Replacement</strong>
+                <div class="sub">Puncture in front left tire.</div>
+              </div>
+              <div class="service-icons"><span>○</span><span>☰</span></div>
+            </div>
+            <div class="parts">+ &nbsp; ADD A PART</div>
+          </div>
+        </div>
+        <div class="sheet-footer">
+          <button class="cta" type="button" id="arrivedBtn">I'VE ARRIVED</button>
+        </div>
+      </div>
+
+      <!-- JOB REQUEST mini sheet -->
+      <div class="sheet" id="sheet-request">
+        <div class="sheet-body">
+          <div class="sheet-head">
+            <h2 class="grad">NEW JOB REQUEST</h2>
+            <button class="close-x" type="button" data-close>×</button>
+          </div>
+          <div class="deadline">ACCEPT WITHIN T-3:08:45</div>
+          <div class="job-card">
+            <div class="loc">Northside Logistics</div>
+            <div class="meta">Mountain View, CA · 12 min · 4.1 mi</div>
+            <div class="green" style="margin-bottom: 10px">2 services · 1 vehicle</div>
+          </div>
+          <div class="actions">
+            <button class="contacts" type="button" data-close>DECLINE</button>
+            <button class="nav" type="button" id="acceptJob">ACCEPT</button>
+          </div>
+        </div>
+        <div class="sheet-footer">
+          <button class="cta" type="button" id="acceptJobCta">ACCEPT JOB</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const params = new URLSearchParams(location.search);
+      const EMBED = params.has("embed");
+      const STILL = params.has("still");
+      if (EMBED) document.body.classList.add("is-embed");
+      if (STILL) document.body.classList.add("is-still");
+
+      const phone = document.getElementById("phone");
+      const ripple = document.getElementById("ripple");
+      const overlay = document.getElementById("overlay");
+      const shimmer = document.getElementById("shimmer");
+      const sheets = {
+        assign: document.getElementById("sheet-assign"),
+        job: document.getElementById("sheet-job"),
+        request: document.getElementById("sheet-request"),
+      };
+      const jobScroll = document.getElementById("jobScroll");
+
+      let generation = 0;
+      let paused = false;
+
+      function wait(ms, gen) {
+        return new Promise((resolve, reject) => {
+          setTimeout(() => {
+            if (gen !== generation) reject(new Error("cancelled"));
+            else resolve();
+          }, ms);
+        });
+      }
+
+      function closeSheets() {
+        Object.values(sheets).forEach((s) => s.classList.remove("open"));
+        overlay.classList.remove("open");
+      }
+
+      function openSheet(name) {
+        Object.values(sheets).forEach((s) => s.classList.remove("open"));
+        sheets[name].classList.add("open");
+        overlay.classList.add("open");
+      }
+
+      function showTapOn(el) {
+        const p = phone.getBoundingClientRect();
+        const r = el.getBoundingClientRect();
+        ripple.style.left = `${r.left - p.left + r.width / 2}px`;
+        ripple.style.top = `${r.top - p.top + r.height / 2}px`;
+        ripple.classList.remove("show");
+        void ripple.offsetWidth;
+        ripple.classList.add("show");
+      }
+
+      async function tap(el, gen) {
+        await wait(280, gen);
+        showTapOn(el);
+        await wait(120, gen);
+        el.click();
+        await wait(280, gen);
+      }
+
+      async function flashLoading(gen) {
+        shimmer.classList.add("show");
+        await wait(900, gen);
+        shimmer.classList.remove("show");
+      }
+
+      document.getElementById("openAssign").onclick = () => openSheet("assign");
+      document.getElementById("openJobFromMap").onclick = () => {
+        openSheet("job");
+        jobScroll.scrollTop = 0;
+      };
+      document.getElementById("jobRequestBanner").onclick = () =>
+        openSheet("request");
+      document.getElementById("assignTechBtn").onclick = () => {
+        closeSheets();
+        openSheet("job");
+        jobScroll.scrollTop = 0;
+      };
+      document.getElementById("acceptJob").onclick = () => {
+        closeSheets();
+        openSheet("assign");
+      };
+      document.getElementById("acceptJobCta").onclick = () => {
+        closeSheets();
+        openSheet("assign");
+      };
+      document.getElementById("arrivedBtn").onclick = () => closeSheets();
+      document.getElementById("navigateBtn").onclick = () => {};
+      document.querySelectorAll("[data-close]").forEach((btn) => {
+        btn.onclick = closeSheets;
+      });
+      overlay.onclick = closeSheets;
+
+      document.querySelectorAll(".tech").forEach((tech) => {
+        tech.onclick = () => {
+          document
+            .querySelectorAll(".tech")
+            .forEach((t) => t.classList.remove("selected"));
+          tech.classList.add("selected");
+        };
+      });
+
+      phone.addEventListener(
+        "pointerdown",
+        (e) => {
+          if (e.target === ripple) return;
+          const p = phone.getBoundingClientRect();
+          ripple.style.left = `${e.clientX - p.left}px`;
+          ripple.style.top = `${e.clientY - p.top}px`;
+          ripple.classList.remove("show");
+          void ripple.offsetWidth;
+          ripple.classList.add("show");
+        },
+        true,
+      );
+
+      async function runLoop() {
+        const gen = ++generation;
+        try {
+          while (gen === generation) {
+            closeSheets();
+            await flashLoading(gen);
+            await wait(700, gen);
+
+            await tap(document.getElementById("jobRequestBanner"), gen);
+            await wait(1400, gen);
+
+            await tap(document.getElementById("acceptJobCta"), gen);
+            await wait(1000, gen);
+
+            await tap(document.getElementById("tech3"), gen);
+            await wait(700, gen);
+            await tap(document.getElementById("assignTechBtn"), gen);
+            await wait(1200, gen);
+
+            await tap(document.getElementById("navigateBtn"), gen);
+            await wait(800, gen);
+
+            jobScroll.scrollTo({ top: 220, behavior: "smooth" });
+            await wait(900, gen);
+
+            await tap(document.getElementById("startService1"), gen);
+            await wait(700, gen);
+            await tap(document.getElementById("startService2"), gen);
+            await wait(800, gen);
+
+            jobScroll.scrollTo({ top: 9999, behavior: "smooth" });
+            await wait(700, gen);
+            await tap(document.getElementById("arrivedBtn"), gen);
+            await wait(900, gen);
+
+            await tap(document.getElementById("openAssign"), gen);
+            await wait(1100, gen);
+            closeSheets();
+            await wait(500, gen);
+
+            await tap(document.getElementById("openJobFromMap"), gen);
+            await wait(1500, gen);
+            closeSheets();
+            await wait(1000, gen);
+          }
+        } catch (e) {
+          if (e.message !== "cancelled") console.error(e);
+        }
+      }
+
+      function pauseDemo() {
+        generation++;
+        paused = true;
+        closeSheets();
+        shimmer.classList.remove("show");
+      }
+
+      function playDemo() {
+        if (!paused) return;
+        paused = false;
+        runLoop();
+      }
+
+      window.addEventListener("message", (e) => {
+        if (STILL) return;
+        if (e.data?.type === "truckup-pause") pauseDemo();
+        if (e.data?.type === "truckup-play") playDemo();
+      });
+      window.__truckupPause = pauseDemo;
+      window.__truckupPlay = playDemo;
+
+      if (STILL) {
+        paused = true;
+        try {
+          window.parent?.postMessage({ type: "truckup-ready" }, "*");
+        } catch (_) {}
+      } else if (EMBED) {
+        paused = true;
+        try {
+          window.parent?.postMessage({ type: "truckup-ready" }, "*");
+        } catch (_) {}
+      } else {
+        runLoop();
+      }
+    </script>
+  </body>
+</html>

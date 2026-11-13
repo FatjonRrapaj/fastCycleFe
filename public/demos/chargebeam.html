@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chargebeam Preview</title>
+    <style>
+      :root {
+        --teal: #2eb8a8;
+        --teal-deep: #249e90;
+        --text: #2b2b2b;
+        --muted: #8a8a8a;
+        --field: #f2f2f2;
+        --white: #ffffff;
+        --card: #f2f2f2;
+        --purple: #6b4eff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        background: #e8e8ea;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui,
+          sans-serif;
+        color: var(--text);
+      }
+
+      .phone {
+        width: 375px;
+        height: 780px;
+        border-radius: 36px;
+        overflow: hidden;
+        position: relative;
+        background: #111;
+        border: 1px solid #d0d0d4;
+        box-shadow: 0 18px 50px rgba(0, 0, 0, 0.18);
+      }
+
+      .tap-ripple {
+        position: absolute;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: rgba(46, 184, 168, 0.25);
+        border: 2px solid rgba(46, 184, 168, 0.55);
+        transform: translate(-50%, -50%) scale(0.35);
+        opacity: 0;
+        pointer-events: none;
+        z-index: 100;
+      }
+
+      .tap-ripple.show {
+        animation: tapRipple 0.5s ease-out;
+      }
+
+      @keyframes tapRipple {
+        0% {
+          opacity: 0.95;
+          transform: translate(-50%, -50%) scale(0.35);
+        }
+        100% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(1.7);
+        }
+      }
+
+      .status {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 44px;
+        padding: 0 20px 6px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        font-size: 13px;
+        font-weight: 600;
+        z-index: 20;
+        color: #fff;
+        mix-blend-mode: normal;
+      }
+
+      .status.dark {
+        color: #111;
+      }
+
+      .status .icons {
+        font-size: 11px;
+        opacity: 0.9;
+      }
+
+      .screen {
+        position: absolute;
+        inset: 0;
+        display: none;
+      }
+
+      .screen.active {
+        display: block;
+      }
+
+      /* SPLASH */
+      .splash {
+        background: #111;
+      }
+
+      .splash-bg {
+        position: absolute;
+        inset: 0;
+        background:
+          linear-gradient(
+            180deg,
+            rgba(0, 0, 0, 0.15) 0%,
+            rgba(0, 0, 0, 0.25) 40%,
+            rgba(0, 0, 0, 0.72) 100%
+          ),
+          url("https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&w=900&q=80")
+            center / cover no-repeat;
+      }
+
+      .splash-content {
+        position: absolute;
+        left: 20px;
+        right: 20px;
+        bottom: 54px;
+        z-index: 2;
+      }
+
+      .splash-content h1 {
+        margin: 0 0 30px;
+        color: #fff;
+        font-size: 28px;
+        line-height: 1.25;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+      }
+
+      .btn-primary {
+        width: 100%;
+        border: 0;
+        border-radius: 14px;
+        padding: 16px;
+        font-size: 16px;
+        font-weight: 600;
+        background: linear-gradient(180deg, #3cc9b8, var(--teal));
+        color: #fff;
+        cursor: pointer;
+      }
+
+      .btn-primary:disabled,
+      .btn-primary.disabled {
+        background: #d9d9d9;
+        color: #9a9a9a;
+      }
+
+      .btn-outline {
+        width: 100%;
+        border: 1.5px solid var(--teal);
+        border-radius: 14px;
+        padding: 15px;
+        font-size: 16px;
+        font-weight: 600;
+        background: #fff;
+        color: var(--teal);
+        cursor: pointer;
+      }
+
+      .home-indicator {
+        position: absolute;
+        left: 50%;
+        bottom: 10px;
+        transform: translateX(-50%);
+        width: 120px;
+        height: 5px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.85);
+        z-index: 30;
+      }
+
+      .home-indicator.dark {
+        background: #111;
+      }
+
+      /* AUTH SHEET */
+      .auth-bg {
+        position: absolute;
+        inset: 0;
+        background:
+          url("https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&w=900&q=80")
+            center 20% / cover no-repeat;
+        filter: brightness(0.92);
+      }
+
+      .sheet {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: #fff;
+        border-radius: 28px 28px 0 0;
+        z-index: 10;
+        transform: translateY(110%);
+        transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+        padding: 28px 20px 34px;
+        box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.18);
+      }
+
+      .sheet.open {
+        transform: translateY(0);
+      }
+
+      .sheet h2 {
+        margin: 0 0 22px;
+        text-align: center;
+        font-size: 22px;
+        font-weight: 700;
+      }
+
+      .field {
+        width: 100%;
+        border: 1.5px solid transparent;
+        background: var(--field);
+        border-radius: 12px;
+        padding: 14px 14px;
+        font-size: 15px;
+        margin-bottom: 12px;
+        color: var(--text);
+        outline: none;
+      }
+
+      .field.active,
+      .field:focus {
+        border-color: var(--teal);
+        background: #fff;
+      }
+
+      .password-wrap {
+        position: relative;
+      }
+
+      .password-wrap .field {
+        padding-right: 44px;
+      }
+
+      .eye {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-58%);
+        border: 0;
+        background: transparent;
+        color: var(--muted);
+        font-size: 16px;
+        cursor: pointer;
+      }
+
+      .forgot {
+        display: block;
+        text-align: right;
+        color: var(--teal);
+        font-size: 13px;
+        text-decoration: underline;
+        margin: -2px 0 18px;
+      }
+
+      .sheet .btn-primary {
+        margin-bottom: 12px;
+      }
+
+      /* VEHICLE */
+      .vehicle {
+        background: #fff;
+      }
+
+      .vehicle-top {
+        position: relative;
+        height: 310px;
+        background:
+          linear-gradient(
+            90deg,
+            #fff 0%,
+            rgba(255, 255, 255, 0.85) 28%,
+            rgba(255, 255, 255, 0.15) 55%,
+            transparent 70%
+          ),
+          url("https://images.unsplash.com/photo-1560958089-b8a1929cea89?auto=format&fit=crop&w=900&q=80")
+            70% 45% / cover no-repeat;
+        padding: 58px 20px 0;
+      }
+
+      .back {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border: 0;
+        background: transparent;
+        color: #333;
+        font-size: 15px;
+        font-weight: 500;
+        padding: 0;
+        cursor: pointer;
+      }
+
+      .vehicle-title {
+        margin-top: 18px;
+      }
+
+      .vehicle-title h1 {
+        margin: 0;
+        font-size: 34px;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+      }
+
+      .vehicle-title p {
+        margin: 4px 0 0;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .battery-block {
+        margin-top: 28px;
+        width: 150px;
+      }
+
+      .battery-block label {
+        display: block;
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 8px;
+      }
+
+      .battery-pill {
+        height: 44px;
+        border-radius: 999px;
+        background: #ececec;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        padding: 0 14px;
+        gap: 8px;
+        font-weight: 700;
+        font-size: 16px;
+      }
+
+      .battery-fill {
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 16%;
+        background: var(--teal);
+        border-radius: 999px 0 0 999px;
+      }
+
+      .battery-pill span,
+      .battery-pill strong {
+        position: relative;
+        z-index: 1;
+      }
+
+      .avatar-fab {
+        position: absolute;
+        right: 20px;
+        bottom: -22px;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: var(--purple);
+        color: #fff;
+        display: grid;
+        place-items: center;
+        font-weight: 700;
+        font-size: 18px;
+        box-shadow: 0 8px 20px rgba(107, 78, 255, 0.35);
+        z-index: 5;
+      }
+
+      .vehicle-body {
+        padding: 36px 20px 110px;
+      }
+
+      .stat {
+        background: var(--card);
+        border-radius: 14px;
+        padding: 16px 18px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        font-size: 15px;
+      }
+
+      .stat strong {
+        font-size: 16px;
+      }
+
+      .stat .timer {
+        display: flex;
+        gap: 8px;
+        align-items: baseline;
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .stat .timer b {
+        color: var(--text);
+        font-size: 16px;
+      }
+
+      .plug {
+        width: 28px;
+        height: 28px;
+        border: 2px solid #555;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        font-size: 12px;
+      }
+
+      .book-wrap {
+        position: absolute;
+        left: 20px;
+        right: 20px;
+        bottom: 34px;
+      }
+
+      .fade-in {
+        animation: fadeIn 0.35s ease;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .sheet,
+        .tap-ripple,
+        .fade-in {
+          transition: none !important;
+          animation: none !important;
+        }
+      }
+
+      /* Embed mode (iframe inside portfolio) */
+      body.is-embed {
+        margin: 0;
+        padding: 0;
+        min-height: 0;
+        width: 375px;
+        height: 780px;
+        background: transparent;
+        display: block;
+        overflow: hidden;
+      }
+
+      body.is-embed .phone {
+        box-shadow: none;
+        border-color: #d0d0d4;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="phone" id="phone">
+      <div class="tap-ripple" id="ripple" aria-hidden="true"></div>
+      <div class="status" id="statusBar">
+        <span>9:41</span>
+        <div class="icons">●●● ▮</div>
+      </div>
+      <div class="home-indicator" id="homeIndicator"></div>
+
+      <!-- SPLASH -->
+      <section class="screen splash active" id="screen-splash">
+        <div class="splash-bg"></div>
+        <div class="splash-content">
+          <h1>We charge your electric car.<br />Wherever you are.</h1>
+          <button class="btn-primary" type="button" id="startBtn">Start now</button>
+        </div>
+      </section>
+
+      <!-- AUTH -->
+      <section class="screen" id="screen-auth">
+        <div class="auth-bg"></div>
+        <div class="sheet open" id="authSheet">
+          <h2>Sign in to Beam!</h2>
+          <input
+            class="field"
+            id="emailField"
+            type="email"
+            placeholder="Email address"
+            autocomplete="off"
+          />
+          <div class="password-wrap">
+            <input
+              class="field"
+              id="passwordField"
+              type="password"
+              placeholder="Password"
+              autocomplete="off"
+            />
+            <button class="eye" type="button" id="eyeBtn" aria-label="Show password">👁</button>
+          </div>
+          <a class="forgot" href="#" id="forgotLink">Forgot password?</a>
+          <button class="btn-primary disabled" type="button" id="loginBtn" disabled>
+            Login to Beam
+          </button>
+          <button class="btn-outline" type="button" id="registerBtn">Register</button>
+        </div>
+      </section>
+
+      <!-- VEHICLE -->
+      <section class="screen vehicle" id="screen-vehicle">
+        <div class="vehicle-top">
+          <button class="back" type="button" id="backBtn">‹ My vehicles</button>
+          <div class="vehicle-title">
+            <h1>RUT</h1>
+            <p>Model S (2012)</p>
+          </div>
+          <div class="battery-block">
+            <label>Battery</label>
+            <div class="battery-pill">
+              <div class="battery-fill" id="batteryFill"></div>
+              <span>⚡</span>
+              <strong>16%</strong>
+            </div>
+          </div>
+          <div class="avatar-fab">V</div>
+        </div>
+        <div class="vehicle-body">
+          <div class="stat">
+            <span>Mileage</span>
+            <strong>13 km</strong>
+          </div>
+          <div class="stat">
+            <span>Full charge in</span>
+            <div class="timer">
+              <span><b id="h">03</b> Hours</span>
+              <span><b id="m">12</b> Minutes</span>
+              <span><b id="s">50</b> Seconds</span>
+            </div>
+          </div>
+          <div class="stat">
+            <span>CHAdeMO</span>
+            <div class="plug">⚡</div>
+          </div>
+        </div>
+        <div class="book-wrap">
+          <button class="btn-primary" type="button" id="bookBtn">Book charging</button>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      const params = new URLSearchParams(location.search);
+      const EMBED = params.has("embed");
+      const STILL = params.has("still");
+      if (EMBED) document.body.classList.add("is-embed");
+      if (STILL) document.body.classList.add("is-still");
+
+      const phone = document.getElementById("phone");
+      const ripple = document.getElementById("ripple");
+      const statusBar = document.getElementById("statusBar");
+      const homeIndicator = document.getElementById("homeIndicator");
+      const screens = {
+        splash: document.getElementById("screen-splash"),
+        auth: document.getElementById("screen-auth"),
+        vehicle: document.getElementById("screen-vehicle"),
+      };
+      const emailField = document.getElementById("emailField");
+      const passwordField = document.getElementById("passwordField");
+      const loginBtn = document.getElementById("loginBtn");
+      const batteryFill = document.getElementById("batteryFill");
+
+      let generation = 0;
+      let paused = false;
+      let timerId = null;
+      let bookTimer = null;
+
+      function wait(ms, gen) {
+        return new Promise((resolve, reject) => {
+          setTimeout(() => {
+            if (gen !== generation) reject(new Error("cancelled"));
+            else resolve();
+          }, ms);
+        });
+      }
+
+      function showScreen(name) {
+        Object.values(screens).forEach((s) => s.classList.remove("active"));
+        screens[name].classList.add("active");
+        const light = name === "vehicle";
+        statusBar.classList.toggle("dark", light);
+        homeIndicator.classList.toggle("dark", light);
+      }
+
+      function showTapOn(el) {
+        const p = phone.getBoundingClientRect();
+        const r = el.getBoundingClientRect();
+        ripple.style.left = `${r.left - p.left + r.width / 2}px`;
+        ripple.style.top = `${r.top - p.top + r.height / 2}px`;
+        ripple.classList.remove("show");
+        void ripple.offsetWidth;
+        ripple.classList.add("show");
+      }
+
+      async function tap(el, gen) {
+        await wait(280, gen);
+        showTapOn(el);
+        await wait(120, gen);
+        el.click();
+        await wait(280, gen);
+      }
+
+      function updateLoginState() {
+        const ok = emailField.value.includes("@") && passwordField.value.length >= 4;
+        loginBtn.disabled = !ok;
+        loginBtn.classList.toggle("disabled", !ok);
+        emailField.classList.toggle("active", !!emailField.value);
+        passwordField.classList.toggle("active", !!passwordField.value);
+      }
+
+      async function typeInto(el, text, gen) {
+        el.value = "";
+        el.classList.add("active");
+        showTapOn(el);
+        await wait(250, gen);
+        for (let i = 0; i < text.length; i++) {
+          if (gen !== generation) return;
+          el.value = text.slice(0, i + 1);
+          updateLoginState();
+          await wait(45, gen);
+        }
+      }
+
+      function startCountdown() {
+        let total = 3 * 3600 + 12 * 60 + 50;
+        const h = document.getElementById("h");
+        const m = document.getElementById("m");
+        const s = document.getElementById("s");
+        if (timerId) clearInterval(timerId);
+        const paint = () => {
+          const hh = Math.floor(total / 3600);
+          const mm = Math.floor((total % 3600) / 60);
+          const ss = total % 60;
+          h.textContent = String(hh).padStart(2, "0");
+          m.textContent = String(mm).padStart(2, "0");
+          s.textContent = String(ss).padStart(2, "0");
+        };
+        paint();
+        timerId = setInterval(() => {
+          total = Math.max(0, total - 1);
+          paint();
+        }, 1000);
+      }
+
+      document.getElementById("startBtn").onclick = () => showScreen("auth");
+      document.getElementById("loginBtn").onclick = () => {
+        if (loginBtn.disabled) return;
+        showScreen("vehicle");
+        startCountdown();
+        batteryFill.style.width = "16%";
+      };
+      document.getElementById("registerBtn").onclick = () => {};
+      document.getElementById("backBtn").onclick = () => showScreen("auth");
+      document.getElementById("bookBtn").onclick = () => {
+        batteryFill.style.transition = "width 1.2s ease";
+        batteryFill.style.width = "42%";
+        if (bookTimer) clearTimeout(bookTimer);
+        bookTimer = setTimeout(() => {
+          batteryFill.style.width = "16%";
+        }, 1800);
+      };
+      document.getElementById("eyeBtn").onclick = () => {
+        passwordField.type =
+          passwordField.type === "password" ? "text" : "password";
+      };
+      emailField.addEventListener("input", updateLoginState);
+      passwordField.addEventListener("input", updateLoginState);
+
+      phone.addEventListener(
+        "pointerdown",
+        (e) => {
+          if (e.target === ripple) return;
+          const p = phone.getBoundingClientRect();
+          ripple.style.left = `${e.clientX - p.left}px`;
+          ripple.style.top = `${e.clientY - p.top}px`;
+          ripple.classList.remove("show");
+          void ripple.offsetWidth;
+          ripple.classList.add("show");
+        },
+        true,
+      );
+
+      async function runLoop() {
+        const gen = ++generation;
+        try {
+          while (gen === generation) {
+            showScreen("splash");
+            emailField.value = "";
+            passwordField.value = "";
+            updateLoginState();
+            await wait(1600, gen);
+
+            await tap(document.getElementById("startBtn"), gen);
+            await wait(900, gen);
+
+            await typeInto(emailField, "vitorino@ccprojects.se", gen);
+            await wait(350, gen);
+            await typeInto(passwordField, "secret123", gen);
+            await wait(500, gen);
+
+            await tap(document.getElementById("loginBtn"), gen);
+            await wait(1800, gen);
+
+            await tap(document.getElementById("bookBtn"), gen);
+            await wait(2200, gen);
+
+            await tap(document.getElementById("backBtn"), gen);
+            await wait(900, gen);
+
+            showScreen("splash");
+            await wait(1000, gen);
+          }
+        } catch (e) {
+          if (e.message !== "cancelled") console.error(e);
+        }
+      }
+
+      function pauseDemo() {
+        generation++;
+        paused = true;
+        if (timerId) {
+          clearInterval(timerId);
+          timerId = null;
+        }
+        if (bookTimer) {
+          clearTimeout(bookTimer);
+          bookTimer = null;
+        }
+      }
+
+      function playDemo() {
+        if (!paused) return;
+        paused = false;
+        runLoop();
+      }
+
+      window.addEventListener("message", (e) => {
+        if (STILL) return;
+        if (e.data?.type === "chargebeam-pause") pauseDemo();
+        if (e.data?.type === "chargebeam-play") playDemo();
+      });
+      window.__chargebeamPause = pauseDemo;
+      window.__chargebeamPlay = playDemo;
+
+      if (STILL) {
+        paused = true;
+        try {
+          window.parent?.postMessage({ type: "chargebeam-ready" }, "*");
+        } catch (_) {}
+      } else if (EMBED) {
+        paused = true;
+        try {
+          window.parent?.postMessage({ type: "chargebeam-ready" }, "*");
+        } catch (_) {}
+      } else {
+        runLoop();
+      }
+    </script>
+  </body>
+</html>

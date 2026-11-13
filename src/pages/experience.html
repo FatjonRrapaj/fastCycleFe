@@ -34,7 +34,7 @@
 
       <section class="section experience-section" style="min-height: auto; padding-top: 0">
         <ol class="timeline">
-          <li class="timeline-item reveal">
+          <li class="timeline-item timeline-item--demo reveal" id="takein">
             <div class="timeline-mark" aria-hidden="true"></div>
             <div class="timeline-body">
               <p class="timeline-when">Aug 2025 — Present · Remote · Saudi Arabia</p>
@@ -46,6 +46,12 @@
                 commits over ~13 months (~45% of team activity). Helped rebuild
                 core product surfaces end to end.
               </p>
+              <div
+                class="timeline-demo takein-stage phone-demo-stage"
+                data-takein-demo
+                role="img"
+                aria-label="TakeIN live demo"
+              ></div>
               <ul class="timeline-points">
                 <li>
                   New design system: fonts, colors, buttons, sheets/modals,
@@ -77,7 +83,7 @@
             </div>
           </li>
 
-          <li class="timeline-item reveal">
+          <li class="timeline-item timeline-item--demo reveal" id="truckup">
             <div class="timeline-mark" aria-hidden="true"></div>
             <div class="timeline-body">
               <p class="timeline-when">Jul 2024 — Jul 2025 · Remote · United States</p>
@@ -88,6 +94,12 @@
                 for roadside and truck service pros. ~1.4k commits over ~1 year
                 (~38% of team activity). Drove a major product and UI rebuild.
               </p>
+              <div
+                class="timeline-demo truckup-stage phone-demo-stage"
+                data-truckup-demo
+                role="img"
+                aria-label="TruckUp Pro live demo"
+              ></div>
               <ul class="timeline-points">
                 <li>
                   Rebuilt job lifecycle UX: requests, accept/decline, details,
@@ -119,7 +131,7 @@
             </div>
           </li>
 
-          <li class="timeline-item reveal">
+          <li class="timeline-item timeline-item--demo reveal" id="chargebeam">
             <div class="timeline-mark" aria-hidden="true"></div>
             <div class="timeline-body">
               <p class="timeline-when">Sep 2023 — Jul 2024 · Remote · Stockholm, Sweden</p>
@@ -130,6 +142,12 @@
                 and Android; technical direction for junior and mid-level
                 developers.
               </p>
+              <div
+                class="timeline-demo chargebeam-stage phone-demo-stage"
+                data-chargebeam-demo
+                role="img"
+                aria-label="Chargebeam live demo"
+              ></div>
               <ul class="timeline-points">
                 <li>
                   Shipped initial Android app, iOS app, admin dashboard, and job
@@ -147,88 +165,178 @@
             </div>
           </li>
 
-          <li class="timeline-item reveal">
+          <li class="timeline-item timeline-item--demo reveal" id="cinolla">
             <div class="timeline-mark" aria-hidden="true"></div>
             <div class="timeline-body">
               <p class="timeline-when">Sep 2022 — Sep 2023 · Remote · London, UK</p>
               <h3>Senior React Native Developer</h3>
               <p class="timeline-org">Cinolla Software · Full-time</p>
               <p>
-                Performance, scalability, and POS product work with product,
-                design, and backend.
+                <strong>Cinolla POS</strong> — cashiers and managers register
+                clients, sell, take Stripe POS payments, and print via STARPRINT.
+                Also shipped language-learning tablets:
+                <strong>Open Mundo</strong> (live + async classes for PT/FR/ES/IT)
+                and <strong>Open English Junior</strong> (kids learning English).
               </p>
+              <div class="timeline-demo-row">
+                <div
+                  class="timeline-demo cinolla-stage tablet-demo-stage phone-demo-stage"
+                  data-cinolla-demo
+                  role="img"
+                  aria-label="Cinolla POS live demo"
+                ></div>
+                <div
+                  class="timeline-demo openmundo-stage tablet-demo-stage phone-demo-stage"
+                  data-openmundo-demo
+                  role="img"
+                  aria-label="Open Mundo live demo"
+                ></div>
+                <div
+                  class="timeline-demo openenglish-stage tablet-demo-stage phone-demo-stage"
+                  data-openenglish-demo
+                  role="img"
+                  aria-label="Open English Junior live demo"
+                ></div>
+              </div>
               <ul class="timeline-points">
                 <li>
                   Multiple POS UI versions for cashiers handling complex forms
                 </li>
-                <li>Stripe POS and multi-method payments</li>
+                <li>Stripe POS and multi-method payments; Star Print SDK</li>
                 <li>
-                  Star Print SDK — Bluetooth thermal invoices and reports
+                  Open Mundo &amp; Open English Junior — sync live classes plus
+                  async lessons/quizzes on RN Expo / RN Web
                 </li>
               </ul>
             </div>
           </li>
 
-          <li class="timeline-item reveal">
+          <li class="timeline-item timeline-item--demo reveal" id="betterspace">
             <div class="timeline-mark" aria-hidden="true"></div>
             <div class="timeline-body">
               <p class="timeline-when">Jul 2021 — Nov 2022 · Remote · London, UK</p>
               <h3>React Native &amp; React JS Developer</h3>
               <p class="timeline-org">Betterspace · Full-time</p>
               <p>
-                Performance/scalability work plus CI/CD for mobile delivery.
+                Owned a shared platform: <strong>four management sites</strong>
+                on one React component library, plus a
+                <strong>React Native employee wellbeing app</strong>. Also
+                <strong>Stalmarck Home Care</strong> — scheduling and route
+                optimization for home-care teams.
               </p>
+              <div class="timeline-demo-row">
+                <div
+                  class="timeline-demo betterspace-stage desktop-demo-stage phone-demo-stage"
+                  data-betterspace-demo
+                  role="img"
+                  aria-label="Betterspace dashboard live demo"
+                ></div>
+                <div
+                  class="timeline-demo stalmarck-stage desktop-demo-stage phone-demo-stage"
+                  data-stalmarck-demo
+                  role="img"
+                  aria-label="Stalmarck Homecare live demo"
+                ></div>
+              </div>
               <ul class="timeline-points">
                 <li>
-                  Component library shared across apps/sites — ~40% faster
-                  development, themeable colour schemes
+                  Shared component library across four management sites —
+                  themeable UI, forms/charts — ~40% faster feature delivery
                 </li>
                 <li>
-                  Stronger test coverage for complex ops demos; helped land
-                  clients like Accenture early
+                  React Native wellbeing app for employees at client companies
+                </li>
+                <li>
+                  Stalmarck: staff/client setup, smart travel-time &amp; capacity
+                  routing so teams cover more visits with less waste
                 </li>
               </ul>
+              <p class="timeline-stack">
+                React · React Native · Shared component library · CI/CD · Jest
+              </p>
             </div>
           </li>
 
-          <li class="timeline-item reveal">
+          <li class="timeline-item timeline-item--demo reveal" id="driving160">
             <div class="timeline-mark" aria-hidden="true"></div>
             <div class="timeline-body">
               <p class="timeline-when">Mar 2019 — May 2021 · On-site · Tirana, Albania</p>
               <h3>React Native and React JS Developer</h3>
               <p class="timeline-org">160 Driving Academy · Full-time</p>
               <p>
-                Job-finding app for US truck drivers plus support web apps for
-                call centre and management.
+                Built the <strong>Truckers Network</strong> ecosystem —
+                swipe-to-apply job matching for US CDL drivers (100k+ downloads),
+                the employer <strong>Web Suite</strong>, and
+                <strong>160 LMS</strong> for 60+ truck driving schools.
               </p>
+              <div class="timeline-demo-row">
+                <div
+                  class="timeline-demo truckers-stage phone-demo-stage"
+                  data-truckers-demo
+                  role="img"
+                  aria-label="Truckers Network App live demo"
+                ></div>
+                <div
+                  class="timeline-demo truckersweb-stage desktop-demo-stage phone-demo-stage"
+                  data-truckersweb-demo
+                  role="img"
+                  aria-label="Truckers Network Web Suite live demo"
+                ></div>
+                <div
+                  class="timeline-demo lms160-stage desktop-demo-stage phone-demo-stage"
+                  data-lms160-demo
+                  role="img"
+                  aria-label="160 LMS live demo"
+                ></div>
+              </div>
               <ul class="timeline-points">
-                <li>Android &amp; iOS trucking job search product</li>
-                <li>Support web apps for ops and management teams</li>
-                <li>Cross-device compatibility and ongoing performance work</li>
+                <li>
+                  Truckers Network App — jobs, activity, detention AI, learning
+                  materials for undergraduates
+                </li>
+                <li>
+                  Web Suite — employer recruiting, driver landing, 160 Driver Score
+                </li>
+                <li>
+                  160 LMS — students, curricula, compliance, scheduling (NDA on
+                  internals)
+                </li>
               </ul>
+              <p class="timeline-stack">React Native · React · TypeScript</p>
             </div>
           </li>
 
-          <li class="timeline-item reveal">
+          <li class="timeline-item timeline-item--demo reveal" id="softmogul">
             <div class="timeline-mark" aria-hidden="true"></div>
             <div class="timeline-body">
               <p class="timeline-when">May 2018 — Mar 2019 · Albania</p>
               <h3>iOS Developer</h3>
-              <p class="timeline-org">Softmogul</p>
+              <p class="timeline-org">SoftMogul Apps Suite · Native iOS (Swift)</p>
               <p>
-                Architecture and multi-app iOS work across hospitality products.
+                Hospitality PMS suite in <strong>native iOS (Swift)</strong> —
+                Reception (frontdesk calendar &amp; bookings), Scheduling,
+                Cashier POS, and Customer Display. Shared architecture across
+                the suite.
               </p>
+              <div
+                class="timeline-demo softmogul-stage tablet-demo-stage phone-demo-stage"
+                data-softmogul-demo
+                role="img"
+                aria-label="SoftMogul Reception live demo"
+              ></div>
               <ul class="timeline-points">
                 <li>MVC → MVVM-RxSwift refactor for maintainability</li>
                 <li>
-                  AirDrop-mimic app via Multipeer Connectivity — faster
-                  inter-app comms, less backend load
+                  Reception tablet — PIN unlock, room calendar, drag-to-reassign
+                  bookings
                 </li>
                 <li>
-                  Internal POD for tab bar / sidebar / navigation — ~80% less
-                  duplicated chrome code
+                  AirDrop-style Multipeer Connectivity between Reception and
+                  Customer Display; shared navigation POD (~80% less chrome
+                  duplication)
                 </li>
               </ul>
+              <p class="timeline-stack">Swift · UIKit · RxSwift · Multipeer Connectivity</p>
             </div>
           </li>
 

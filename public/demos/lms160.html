@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>160 Driving Academy LMS</title>
+    <style>
+      :root {
+        --orange: #e85d04;
+        --ink: #1c1c1c;
+        --muted: #8a8a8a;
+        --line: #d9d9d9;
+        --error: #d32f2f;
+        --btn: #2b2b2b;
+        --bg: #ffffff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: #d8d8d8;
+        font-family: "Avenir Next", "Segoe UI", system-ui, sans-serif;
+        color: var(--ink);
+        display: grid;
+        place-items: center;
+      }
+
+      .app {
+        width: min(1180px, 100%);
+        height: min(740px, 100vh);
+        background: #fff;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 18px 50px rgba(0, 0, 0, 0.18);
+      }
+
+      .tap-ripple {
+        position: absolute;
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        background: rgba(232, 93, 4, 0.2);
+        border: 2px solid rgba(232, 93, 4, 0.45);
+        transform: translate(-50%, -50%) scale(0.35);
+        opacity: 0;
+        pointer-events: none;
+        z-index: 50;
+      }
+
+      .tap-ripple.show {
+        animation: tapRipple 0.5s ease-out;
+      }
+
+      @keyframes tapRipple {
+        0% {
+          opacity: 0.95;
+          transform: translate(-50%, -50%) scale(0.35);
+        }
+        100% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(1.7);
+        }
+      }
+
+      .screen {
+        position: absolute;
+        inset: 0;
+        display: none;
+      }
+
+      .screen.active {
+        display: grid;
+      }
+
+      .login {
+        grid-template-columns: 1.05fr 0.95fr;
+      }
+
+      .visual {
+        background:
+          linear-gradient(rgba(0, 0, 0, 0.28), rgba(0, 0, 0, 0.28)),
+          url("https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=1400&q=80")
+            center / cover;
+      }
+
+      .form-side {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 48px 56px;
+        position: relative;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 0 auto 36px;
+        width: fit-content;
+      }
+
+      .shield {
+        width: 54px;
+        height: 62px;
+        background: #111;
+        clip-path: polygon(50% 0%, 100% 12%, 100% 68%, 50% 100%, 0 68%, 0 12%);
+        color: #fff;
+        display: grid;
+        place-items: center;
+        font-weight: 800;
+        font-size: 18px;
+        letter-spacing: -0.02em;
+        position: relative;
+      }
+
+      .shield::before {
+        content: "";
+        position: absolute;
+        inset: 3px;
+        background: #fff;
+        clip-path: polygon(50% 0%, 100% 12%, 100% 68%, 50% 100%, 0 68%, 0 12%);
+      }
+
+      .shield span {
+        position: relative;
+        color: #111;
+        font-size: 20px;
+      }
+
+      .logo-text strong {
+        display: block;
+        color: var(--orange);
+        font-size: 20px;
+        letter-spacing: 0.02em;
+        line-height: 1.1;
+      }
+
+      .logo-text span {
+        display: block;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        color: #222;
+      }
+
+      .field-wrap {
+        margin-bottom: 14px;
+      }
+
+      .error {
+        color: var(--error);
+        font-size: 12px;
+        margin-bottom: 6px;
+        min-height: 16px;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+      }
+
+      .error.show {
+        opacity: 1;
+      }
+
+      .field {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        padding: 12px 14px;
+        font-size: 15px;
+        outline: none;
+        transition: border-color 0.2s ease;
+      }
+
+      .field.invalid {
+        border-color: var(--error);
+      }
+
+      .field.valid {
+        border-color: #4caf50;
+      }
+
+      .field:focus {
+        border-color: #666;
+      }
+
+      .forgot {
+        display: block;
+        text-align: right;
+        color: #2f6fed;
+        font-size: 13px;
+        text-decoration: none;
+        margin: 4px 0 18px;
+      }
+
+      .login-btn {
+        width: 100%;
+        border: 0;
+        background: var(--btn);
+        color: #fff;
+        border-radius: 6px;
+        padding: 13px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .login-btn:disabled {
+        opacity: 0.55;
+        cursor: default;
+      }
+
+      .version {
+        position: absolute;
+        right: 20px;
+        bottom: 14px;
+        color: #b0b0b0;
+        font-size: 12px;
+      }
+
+      /* NDA GATE */
+      .nda {
+        grid-template-columns: 1fr;
+        place-items: center;
+        background:
+          radial-gradient(circle at 20% 20%, rgba(232, 93, 4, 0.12), transparent 35%),
+          radial-gradient(circle at 80% 70%, rgba(0, 0, 0, 0.05), transparent 40%),
+          #111;
+        color: #fff;
+        padding: 40px;
+      }
+
+      .nda-card {
+        width: min(640px, 100%);
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 18px;
+        padding: 36px 32px;
+        text-align: center;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+        animation: rise 0.45s ease;
+      }
+
+      @keyframes rise {
+        from {
+          opacity: 0;
+          transform: translateY(12px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .lock {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        margin: 0 auto 18px;
+        display: grid;
+        place-items: center;
+        background: rgba(232, 93, 4, 0.15);
+        border: 1px solid rgba(232, 93, 4, 0.4);
+        font-size: 28px;
+      }
+
+      .nda-card h1 {
+        margin: 0 0 12px;
+        font-size: 28px;
+        letter-spacing: -0.02em;
+      }
+
+      .nda-card p {
+        margin: 0 auto 12px;
+        max-width: 520px;
+        color: #c9c9c9;
+        font-size: 15px;
+        line-height: 1.55;
+      }
+
+      .nda-card .accent {
+        color: #ffb067;
+        font-weight: 600;
+      }
+
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: center;
+        margin: 18px 0 22px;
+      }
+
+      .chips span {
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 999px;
+        padding: 7px 12px;
+        font-size: 12px;
+        color: #ddd;
+      }
+
+      .nda-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .ghost {
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        background: transparent;
+        color: #fff;
+        border-radius: 8px;
+        padding: 12px 16px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .primary {
+        border: 0;
+        background: var(--orange);
+        color: #fff;
+        border-radius: 8px;
+        padding: 12px 16px;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      /* EMBED / STILL */
+      body.is-embed {
+        margin: 0;
+        padding: 0;
+        min-height: 0;
+        width: 1180px;
+        height: 740px;
+        background: transparent;
+        display: block;
+        overflow: hidden;
+        place-items: unset;
+        display: block;
+      }
+
+      body.is-embed .app {
+        width: 1180px;
+        height: 740px;
+        max-width: none;
+        box-shadow: none;
+      }
+
+      body.is-still .tap-ripple,
+      body.is-still .nda-card {
+        transition: none !important;
+        animation: none !important;
+      }
+
+      @media (max-width: 860px) {
+        .login {
+          grid-template-columns: 1fr;
+        }
+        .visual {
+          min-height: 220px;
+        }
+        .form-side {
+          padding: 28px 22px 48px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .tap-ripple,
+        .nda-card {
+          transition: none !important;
+          animation: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app" id="app">
+      <div class="tap-ripple" id="ripple" aria-hidden="true"></div>
+
+      <section class="screen login active" id="screen-login">
+        <div class="visual" aria-hidden="true"></div>
+        <div class="form-side">
+          <div class="logo">
+            <div class="shield"><span>160</span></div>
+            <div class="logo-text">
+              <strong>DRIVING ACADEMY</strong>
+              <span>TRUCK DRIVER TRAINING</span>
+            </div>
+          </div>
+
+          <div class="field-wrap">
+            <div class="error show" id="emailError">Email or username is required</div>
+            <input
+              class="field invalid"
+              id="email"
+              type="email"
+              placeholder="Email"
+              autocomplete="off"
+            />
+          </div>
+
+          <div class="field-wrap">
+            <div class="error show" id="passError">Password is required</div>
+            <input
+              class="field invalid"
+              id="password"
+              type="password"
+              placeholder="Password"
+              autocomplete="off"
+            />
+          </div>
+
+          <a class="forgot" href="#" id="forgot">Forgot your password?</a>
+          <button class="login-btn" type="button" id="loginBtn" disabled>Log in</button>
+          <div class="version">Version 1.10.7</div>
+        </div>
+      </section>
+
+      <section class="screen nda" id="screen-nda">
+        <div class="nda-card">
+          <div class="lock">🔒</div>
+          <h1>Access restricted by NDA</h1>
+          <p>
+            I have signed an <span class="accent">NDA</span>, so I cannot show the
+            contents of this site.
+          </p>
+          <p>
+            Behind this login is a pretty complex LMS that manages
+            <span class="accent">tens of truck driving schools</span> — students,
+            instructors, curricula, compliance, scheduling, and school operations
+            across the network.
+          </p>
+          <div class="chips">
+            <span>Multi-school admin</span>
+            <span>Student progress</span>
+            <span>Instructor workflows</span>
+            <span>Compliance tracking</span>
+            <span>Curriculum & testing</span>
+          </div>
+          <div class="nda-actions">
+            <button class="ghost" type="button" id="backLogin">Back to login</button>
+            <button class="primary" type="button" id="ackBtn">Understood</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      const app = document.getElementById("app");
+      const ripple = document.getElementById("ripple");
+      const loginScreen = document.getElementById("screen-login");
+      const ndaScreen = document.getElementById("screen-nda");
+      const email = document.getElementById("email");
+      const password = document.getElementById("password");
+      const emailError = document.getElementById("emailError");
+      const passError = document.getElementById("passError");
+      const loginBtn = document.getElementById("loginBtn");
+
+      const params = new URLSearchParams(window.location.search);
+      const EMBED = params.get("embed") === "1";
+      const STILL = params.get("still") === "1";
+      if (EMBED) document.body.classList.add("is-embed");
+      if (STILL) document.body.classList.add("is-still");
+
+      let generation = 0;
+      let paused = false;
+
+      function wait(ms, gen) {
+        return new Promise((resolve, reject) => {
+          setTimeout(() => {
+            if (gen !== generation) reject(new Error("cancelled"));
+            else resolve();
+          }, ms);
+        });
+      }
+
+      function showTapOn(el) {
+        const p = app.getBoundingClientRect();
+        const r = el.getBoundingClientRect();
+        ripple.style.left = `${r.left - p.left + r.width / 2}px`;
+        ripple.style.top = `${r.top - p.top + r.height / 2}px`;
+        ripple.classList.remove("show");
+        void ripple.offsetWidth;
+        ripple.classList.add("show");
+      }
+
+      async function tap(el, gen) {
+        await wait(280, gen);
+        showTapOn(el);
+        await wait(120, gen);
+        el.click();
+        await wait(280, gen);
+      }
+
+      function validate() {
+        const emailOk = email.value.trim().length > 3 && email.value.includes("@");
+        const passOk = password.value.trim().length >= 4;
+
+        emailError.classList.toggle("show", !email.value.trim());
+        passError.classList.toggle("show", !password.value.trim());
+        emailError.textContent = !email.value.trim()
+          ? "Email or username is required"
+          : "";
+        passError.textContent = !password.value.trim() ? "Password is required" : "";
+
+        email.classList.toggle("invalid", !email.value.trim());
+        password.classList.toggle("invalid", !password.value.trim());
+        email.classList.toggle("valid", emailOk);
+        password.classList.toggle("valid", passOk);
+
+        loginBtn.disabled = !(emailOk && passOk);
+      }
+
+      function showLogin() {
+        ndaScreen.classList.remove("active");
+        loginScreen.classList.add("active");
+        email.value = "";
+        password.value = "";
+        validate();
+      }
+
+      function showNda() {
+        loginScreen.classList.remove("active");
+        ndaScreen.classList.add("active");
+      }
+
+      async function typeInto(el, text, gen) {
+        el.value = "";
+        validate();
+        showTapOn(el);
+        await wait(220, gen);
+        for (let i = 0; i < text.length; i++) {
+          if (gen !== generation) return;
+          el.value = text.slice(0, i + 1);
+          validate();
+          await wait(40, gen);
+        }
+      }
+
+      email.addEventListener("input", validate);
+      password.addEventListener("input", validate);
+      loginBtn.onclick = () => {
+        if (!loginBtn.disabled) showNda();
+      };
+      document.getElementById("backLogin").onclick = showLogin;
+      document.getElementById("ackBtn").onclick = showLogin;
+      document.getElementById("forgot").onclick = (e) => e.preventDefault();
+
+      app.addEventListener(
+        "pointerdown",
+        (e) => {
+          if (e.target === ripple) return;
+          const p = app.getBoundingClientRect();
+          ripple.style.left = `${e.clientX - p.left}px`;
+          ripple.style.top = `${e.clientY - p.top}px`;
+          ripple.classList.remove("show");
+          void ripple.offsetWidth;
+          ripple.classList.add("show");
+        },
+        true,
+      );
+
+      async function runLoop() {
+        const gen = ++generation;
+        try {
+          while (gen === generation) {
+            showLogin();
+            await wait(1200, gen);
+
+            await typeInto(email, "instructor@160driving.com", gen);
+            await wait(350, gen);
+            await typeInto(password, "securepass", gen);
+            await wait(500, gen);
+
+            await tap(loginBtn, gen);
+            await wait(3200, gen);
+
+            await tap(document.getElementById("ackBtn"), gen);
+            await wait(1000, gen);
+          }
+        } catch (e) {
+          if (e.message !== "cancelled") console.error(e);
+        }
+      }
+
+      function pauseDemo() {
+        paused = true;
+        generation++;
+      }
+
+      function playDemo() {
+        if (STILL) return;
+        if (!paused) return;
+        paused = false;
+        runLoop();
+      }
+
+      function postReady() {
+        try {
+          window.parent.postMessage({ type: "lms160-ready" }, "*");
+        } catch (e) {}
+      }
+
+      window.__lms160Pause = pauseDemo;
+      window.__lms160Play = playDemo;
+
+      window.addEventListener("message", (e) => {
+        if (STILL) return;
+        const d = e.data;
+        const type = d && typeof d === "object" ? d.type : d;
+        if (type === "lms160-pause") pauseDemo();
+        else if (type === "lms160-play") playDemo();
+      });
+
+      validate();
+
+      if (STILL) {
+        paused = true;
+        showLogin();
+        validate();
+        postReady();
+      } else if (EMBED) {
+        paused = true;
+        postReady();
+      } else {
+        runLoop();
+      }
+    </script>
+  </body>
+</html>

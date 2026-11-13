@@ -1,0 +1,1414 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reception — Tablet App</title>
+    <style>
+      :root {
+        --orange-a: #ffc857;
+        --orange-b: #f5a623;
+        --orange-c: #e87a28;
+        --header: #2c3038;
+        --blue: #3b7ddd;
+        --blue-deep: #2f6bc4;
+        --clean: #d8f3e4;
+        --clean-text: #1f8a5a;
+        --dirty: #fde0de;
+        --dirty-text: #c44b45;
+        --line: #e6e8ec;
+        --muted: #8b929e;
+        --text: #2a303a;
+        --avail: #e8f7ee;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 20px;
+        background: #cfd5de;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text",
+          "Segoe UI", system-ui, sans-serif;
+        color: var(--text);
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .tablet {
+        width: 1020px;
+        height: 720px;
+        max-width: calc(100vw - 28px);
+        max-height: calc(100vh - 28px);
+        background: #121418;
+        border-radius: 30px;
+        padding: 14px;
+        box-shadow: 0 28px 80px rgba(0, 0, 0, 0.32);
+        position: relative;
+      }
+
+      .bezel {
+        width: 100%;
+        height: 100%;
+        background: #fff;
+        border-radius: 20px;
+        overflow: hidden;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .camera {
+        position: absolute;
+        top: 7px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #0e1014;
+        z-index: 30;
+      }
+
+      .tap-ripple {
+        position: absolute;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.28);
+        border: 2px solid rgba(255, 255, 255, 0.55);
+        transform: translate(-50%, -50%) scale(0.35);
+        opacity: 0;
+        pointer-events: none;
+        z-index: 120;
+      }
+
+      .tap-ripple.dark {
+        background: rgba(59, 125, 221, 0.22);
+        border-color: rgba(59, 125, 221, 0.5);
+      }
+
+      .tap-ripple.show {
+        animation: tapRipple 0.42s ease-out;
+      }
+
+      @keyframes tapRipple {
+        0% {
+          opacity: 0.95;
+          transform: translate(-50%, -50%) scale(0.35);
+        }
+        100% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(1.7);
+        }
+      }
+
+      .screen {
+        display: none;
+        flex: 1;
+        min-height: 0;
+        flex-direction: column;
+      }
+
+      .screen.active {
+        display: flex;
+      }
+
+      /* ——— PIN ——— */
+      #screen-pin {
+        background: linear-gradient(
+          115deg,
+          #ffd56a 0%,
+          #f5a623 42%,
+          #e87220 100%
+        );
+        color: #fff;
+        position: relative;
+      }
+
+      .pin-brand {
+        position: absolute;
+        top: 28px;
+        left: 36px;
+      }
+
+      .pin-brand h1 {
+        margin: 0 0 10px;
+        font-size: 28px;
+        font-weight: 500;
+        letter-spacing: -0.02em;
+      }
+
+      .pin-brand .time {
+        font-size: 42px;
+        font-weight: 300;
+        letter-spacing: -0.03em;
+        line-height: 1;
+      }
+
+      .pin-brand .date {
+        margin-top: 6px;
+        font-size: 16px;
+        font-weight: 400;
+        opacity: 0.95;
+      }
+
+      .pin-meta {
+        position: absolute;
+        left: 36px;
+        bottom: 28px;
+        font-size: 12px;
+        line-height: 1.45;
+        opacity: 0.85;
+      }
+
+      .pin-logout {
+        position: absolute;
+        right: 36px;
+        bottom: 28px;
+        border: 0;
+        background: transparent;
+        color: #fff;
+        font-size: 15px;
+        font-weight: 500;
+        cursor: pointer;
+        font-family: inherit;
+        padding: 8px;
+      }
+
+      .pin-panel {
+        position: absolute;
+        right: 14%;
+        top: 48%;
+        transform: translateY(-50%);
+        width: 280px;
+        text-align: center;
+      }
+
+      .dots {
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+        margin-bottom: 28px;
+      }
+
+      .dot {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        border: 2px solid rgba(255, 255, 255, 0.95);
+        background: transparent;
+        transition: background 0.15s ease, transform 0.15s ease;
+      }
+
+      .dot.filled {
+        background: #fff;
+        transform: scale(1.05);
+      }
+
+      .dot.error {
+        border-color: #fff;
+        background: #ff6b6b;
+        animation: shake 0.35s ease;
+      }
+
+      @keyframes shake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        25% {
+          transform: translateX(-4px);
+        }
+        75% {
+          transform: translateX(4px);
+        }
+      }
+
+      .keys {
+        display: grid;
+        grid-template-columns: repeat(3, 72px);
+        gap: 10px 18px;
+        justify-content: center;
+      }
+
+      .key {
+        width: 72px;
+        height: 56px;
+        border: 0;
+        background: transparent;
+        color: #fff;
+        font-size: 30px;
+        font-weight: 300;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 12px;
+      }
+
+      .key:active {
+        background: rgba(255, 255, 255, 0.15);
+      }
+
+      .key.blank {
+        pointer-events: none;
+      }
+
+      .key.del {
+        display: grid;
+        place-items: center;
+      }
+
+      .key.del span {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: #fff;
+        color: var(--orange-c);
+        display: grid;
+        place-items: center;
+        font-size: 16px;
+        font-weight: 700;
+      }
+
+      /* ——— CALENDAR ——— */
+      #screen-cal {
+        background: #f4f5f7;
+      }
+
+      .cal-header {
+        height: 52px;
+        background: var(--header);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        padding: 0 14px;
+        gap: 10px;
+        flex: 0 0 auto;
+      }
+
+      .cal-header .mark {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        border: 1.5px solid rgba(255, 255, 255, 0.55);
+        display: grid;
+        place-items: center;
+      }
+
+      .cal-header .mark svg {
+        width: 14px;
+        height: 14px;
+      }
+
+      .cal-header .title {
+        font-size: 16px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        border: 0;
+        background: transparent;
+        color: #fff;
+        font-family: inherit;
+        padding: 0;
+      }
+
+      .cal-header .spacer {
+        flex: 1;
+      }
+
+      .cal-header .action {
+        border: 0;
+        background: transparent;
+        color: #fff;
+        font-size: 13px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        font-family: inherit;
+        padding: 8px 10px;
+        border-radius: 8px;
+      }
+
+      .cal-header .action:hover {
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .cal-header .close {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: 0;
+        background: transparent;
+        color: #fff;
+        font-size: 20px;
+        cursor: pointer;
+      }
+
+      .cal-toolbar {
+        height: 44px;
+        background: #fff;
+        border-bottom: 1px solid var(--line);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+        padding: 0 14px;
+        flex: 0 0 auto;
+        position: relative;
+      }
+
+      .date-nav {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      .date-nav button {
+        border: 0;
+        background: #f0f1f4;
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+        cursor: pointer;
+        color: var(--text);
+        font-size: 14px;
+      }
+
+      .tool-right {
+        position: absolute;
+        right: 14px;
+        display: flex;
+        gap: 8px;
+      }
+
+      .tool-right button {
+        border: 1px solid var(--line);
+        background: #fff;
+        border-radius: 8px;
+        padding: 6px 10px;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text);
+        cursor: pointer;
+        font-family: inherit;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .grid-wrap {
+        flex: 1;
+        min-height: 0;
+        overflow: auto;
+        position: relative;
+        background: #fff;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 132px repeat(7, minmax(0, 1fr));
+        width: 100%;
+        position: relative;
+      }
+
+      .cell {
+        border-right: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+        min-height: 48px;
+        padding: 5px 6px;
+        font-size: 11px;
+        position: relative;
+      }
+
+      .cell.head {
+        background: #fafbfc;
+        font-weight: 700;
+        font-size: 11px;
+        color: #4a5160;
+        min-height: 38px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: sticky;
+        top: 0;
+        z-index: 5;
+      }
+
+      .cell.head .sub {
+        font-weight: 500;
+        font-size: 10px;
+        color: var(--muted);
+        margin-top: 1px;
+      }
+
+      .cell.corner {
+        position: sticky;
+        left: 0;
+        top: 0;
+        z-index: 6;
+        background: #fafbfc;
+      }
+
+      .cell.side {
+        position: sticky;
+        left: 0;
+        z-index: 4;
+        background: #fff;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        flex-wrap: wrap;
+      }
+
+      .cell.cat-side,
+      .cell.cat-day {
+        background: #f0f1f4;
+        font-weight: 700;
+        color: #5a6170;
+        min-height: 34px;
+        display: flex;
+        align-items: center;
+        font-size: 11px;
+      }
+
+      .cell.cat-side {
+        position: sticky;
+        left: 0;
+        z-index: 4;
+      }
+
+      .avail {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: var(--avail);
+        color: var(--clean-text);
+        border-radius: 999px;
+        padding: 3px 8px;
+        font-size: 11px;
+        font-weight: 600;
+      }
+
+      .avail::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #2ecc71;
+      }
+
+      .room-no {
+        color: var(--blue);
+        font-weight: 700;
+        font-size: 13px;
+      }
+
+      .badge {
+        border-radius: 999px;
+        padding: 2px 7px;
+        font-size: 10px;
+        font-weight: 700;
+      }
+
+      .badge.clean {
+        background: var(--clean);
+        color: var(--clean-text);
+      }
+
+      .badge.dirty {
+        background: var(--dirty);
+        color: var(--dirty-text);
+      }
+
+      .today-line {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: var(--blue);
+        z-index: 3;
+        pointer-events: none;
+      }
+
+      .booking {
+        position: absolute;
+        background: linear-gradient(180deg, #4a8aef, var(--blue-deep));
+        color: #fff;
+        border-radius: 5px;
+        padding: 4px 7px;
+        font-size: 9px;
+        line-height: 1.2;
+        overflow: hidden;
+        cursor: grab;
+        box-shadow: 0 2px 8px rgba(47, 107, 196, 0.28);
+        z-index: 2;
+        user-select: none;
+        touch-action: none;
+        transition: box-shadow 0.15s ease, transform 0.12s ease;
+      }
+
+      .booking strong {
+        display: block;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .booking span {
+        display: block;
+        opacity: 0.92;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .booking.selected {
+        outline: 2px solid #1e4f9a;
+        outline-offset: 1px;
+        box-shadow: 0 6px 16px rgba(47, 107, 196, 0.4);
+        z-index: 8;
+      }
+
+      .booking.dragging {
+        cursor: grabbing;
+        opacity: 0.92;
+        transform: scale(1.02);
+        z-index: 20;
+        box-shadow: 0 12px 28px rgba(30, 60, 120, 0.35);
+      }
+
+      .booking.jagged::after {
+        content: "";
+        position: absolute;
+        right: -1px;
+        top: 0;
+        bottom: 0;
+        width: 10px;
+        background: repeating-linear-gradient(
+          -45deg,
+          transparent,
+          transparent 4px,
+          rgba(255, 255, 255, 0.35) 4px,
+          rgba(255, 255, 255, 0.35) 6px
+        );
+      }
+
+      .drop-hint {
+        position: absolute;
+        inset: 4px;
+        border: 2px dashed var(--blue);
+        border-radius: 6px;
+        background: rgba(59, 125, 221, 0.08);
+        pointer-events: none;
+        opacity: 0;
+        z-index: 1;
+      }
+
+      .drop-hint.show {
+        opacity: 1;
+      }
+
+      .blocked {
+        background: #eceef2;
+      }
+
+      /* Detail card */
+      .detail {
+        position: absolute;
+        top: 70px;
+        right: 18px;
+        width: 240px;
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 18px 48px rgba(20, 30, 50, 0.22);
+        padding: 16px 16px 18px;
+        z-index: 40;
+        transform: translateX(24px);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.25s ease, transform 0.25s ease;
+      }
+
+      .detail.show {
+        opacity: 1;
+        transform: translateX(0);
+        pointer-events: auto;
+      }
+
+      .detail-close {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        border: 0;
+        background: #eef0f3;
+        color: #666;
+        cursor: pointer;
+        font-size: 14px;
+      }
+
+      .detail-avatar {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        margin: 8px auto 10px;
+        background:
+          linear-gradient(180deg, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.25)),
+          url("https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80")
+            center / cover;
+        border: 3px solid #fff;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+      }
+
+      .detail h3 {
+        margin: 0 0 14px;
+        text-align: center;
+        font-size: 16px;
+      }
+
+      .detail dl {
+        margin: 0;
+        display: grid;
+        gap: 8px;
+      }
+
+      .detail dt {
+        font-size: 11px;
+        color: var(--muted);
+        margin: 0;
+      }
+
+      .detail dd {
+        margin: 1px 0 0;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .hint-bar {
+        position: absolute;
+        left: 50%;
+        bottom: 14px;
+        transform: translateX(-50%);
+        background: rgba(44, 48, 56, 0.92);
+        color: #fff;
+        font-size: 12px;
+        font-weight: 600;
+        padding: 8px 14px;
+        border-radius: 999px;
+        opacity: 0;
+        pointer-events: none;
+        z-index: 50;
+        transition: opacity 0.25s ease;
+        white-space: nowrap;
+      }
+
+      .hint-bar.show {
+        opacity: 1;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .tap-ripple,
+        .booking,
+        .detail {
+          transition: none !important;
+          animation: none !important;
+        }
+      }
+
+      body.is-embed {
+        margin: 0; padding: 0; min-height: 0;
+        width: 1020px; height: 720px;
+        background: transparent; display: block; overflow: hidden;
+        place-items: unset;
+      }
+      body.is-embed .tablet {
+        width: 1020px; height: 720px;
+        max-width: none; max-height: none;
+        margin: 0; box-shadow: none;
+      }
+      body.is-still .tap-ripple,
+      body.is-still .detail,
+      body.is-still .hint-bar,
+      body.is-still .booking {
+        transition: none !important;
+        animation: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="tablet">
+      <div class="bezel" id="bezel">
+        <div class="camera" aria-hidden="true"></div>
+        <div class="tap-ripple" id="ripple" aria-hidden="true"></div>
+
+        <!-- PIN -->
+        <section class="screen active" id="screen-pin">
+          <div class="pin-brand">
+            <h1>Reception</h1>
+            <div class="time">5:45 PM</div>
+            <div class="date">Monday, Sep 28</div>
+          </div>
+          <div class="pin-meta">
+            Device Frontdesk (white iPad)<br />
+            App Version 7.0
+          </div>
+          <button class="pin-logout" type="button" id="pinLogout">Log out</button>
+
+          <div class="pin-panel">
+            <div class="dots" id="dots">
+              <div class="dot"></div>
+              <div class="dot"></div>
+              <div class="dot"></div>
+              <div class="dot"></div>
+            </div>
+            <div class="keys" id="keys">
+              <button class="key" type="button" data-k="1">1</button>
+              <button class="key" type="button" data-k="2">2</button>
+              <button class="key" type="button" data-k="3">3</button>
+              <button class="key" type="button" data-k="4">4</button>
+              <button class="key" type="button" data-k="5">5</button>
+              <button class="key" type="button" data-k="6">6</button>
+              <button class="key" type="button" data-k="7">7</button>
+              <button class="key" type="button" data-k="8">8</button>
+              <button class="key" type="button" data-k="9">9</button>
+              <button class="key blank" type="button" tabindex="-1"></button>
+              <button class="key" type="button" data-k="0">0</button>
+              <button class="key del" type="button" data-k="del" aria-label="Delete">
+                <span>⌫</span>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- CALENDAR -->
+        <section class="screen" id="screen-cal">
+          <header class="cal-header">
+            <div class="mark" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8">
+                <path d="M6 10l6-6 6 6v8a1 1 0 01-1 1h-3v-5H10v5H7a1 1 0 01-1-1v-8z" />
+              </svg>
+            </div>
+            <button class="title" type="button">Calendar ▾</button>
+            <div class="spacer"></div>
+            <button class="action" type="button" id="btnGroup">
+              👥 Group Reservation
+            </button>
+            <button class="action" type="button" id="btnSingle">
+              👤 Single Reservation
+            </button>
+            <button class="close" type="button" id="btnLock" aria-label="Lock">×</button>
+          </header>
+
+          <div class="cal-toolbar">
+            <div class="date-nav">
+              <button type="button" id="prevWeek">‹</button>
+              <span id="weekLabel">01 – 07 September 2019</span>
+              <button type="button" id="nextWeek">›</button>
+            </div>
+            <div class="tool-right">
+              <button type="button">Type ▾</button>
+              <button type="button">⚙ Filter</button>
+            </div>
+          </div>
+
+          <div class="grid-wrap" id="gridWrap">
+            <div class="grid" id="grid"></div>
+            <div class="today-line" id="todayLine"></div>
+          </div>
+
+          <aside class="detail" id="detail">
+            <button class="detail-close" type="button" id="detailClose">×</button>
+            <div class="detail-avatar"></div>
+            <h3 id="detailName">Bertman Gilfoye</h3>
+            <dl>
+              <div>
+                <dt>Reservation ID</dt>
+                <dd id="detailId">405</dd>
+              </div>
+              <div>
+                <dt>Reservation status</dt>
+                <dd id="detailStatus">Checked in</dd>
+              </div>
+              <div>
+                <dt>Room number</dt>
+                <dd id="detailRoom">304</dd>
+              </div>
+              <div>
+                <dt>Rate Plan</dt>
+                <dd id="detailRate">Special Summer</dd>
+              </div>
+              <div>
+                <dt>Check In</dt>
+                <dd id="detailIn">September 2, 2019</dd>
+              </div>
+              <div>
+                <dt>Check Out</dt>
+                <dd id="detailOut">September 6, 2019</dd>
+              </div>
+            </dl>
+          </aside>
+
+          <div class="hint-bar" id="hint">Drag a booking to reassign rooms</div>
+        </section>
+      </div>
+    </div>
+
+    <script>
+      const params = new URLSearchParams(location.search);
+      const EMBED = params.has("embed");
+      const STILL = params.has("still");
+      if (EMBED) document.body.classList.add("is-embed");
+      if (STILL) document.body.classList.add("is-still");
+      const DAYS = [
+        { label: "Sun 01", key: 0 },
+        { label: "Mon 02", key: 1 },
+        { label: "Tue 03", key: 2 },
+        { label: "Wed 04", key: 3 },
+        { label: "Thu 05", key: 4 },
+        { label: "Fri 06", key: 5 },
+        { label: "Sat 07", key: 6 },
+      ];
+
+      const ROOMS = [
+        { id: "301", status: "Clean", occupied: false },
+        { id: "302", status: "Dirty", occupied: false },
+        { id: "304", status: "Clean", occupied: true },
+        { id: "305", status: "Clean", occupied: false },
+        { id: "306", status: "Clean", occupied: false },
+        { id: "307", status: "Clean", occupied: true },
+        { id: "308", status: "Clean", occupied: false },
+      ];
+
+      let bookings = [
+        {
+          id: "b1",
+          room: "301",
+          start: 2,
+          nights: 4,
+          name: "RICHARD HENDRICKS",
+          rate: "Standard Rate (Breakfast Included)",
+          status: "Confirmed",
+          checkIn: "September 3, 2019",
+          checkOut: "September 7, 2019",
+          resId: "401",
+        },
+        {
+          id: "b2",
+          room: "304",
+          start: 1,
+          nights: 4,
+          name: "BERTMAN GILFOYE",
+          rate: "Special Summer (Breakfast Included)",
+          status: "Checked in",
+          checkIn: "September 2, 2019",
+          checkOut: "September 6, 2019",
+          resId: "405",
+          avatar: true,
+        },
+        {
+          id: "b3",
+          room: "307",
+          start: 1,
+          nights: 3,
+          name: "BIG HEAD",
+          rate: "Standard Rate (Breakfast Included)",
+          status: "Checked in",
+          checkIn: "September 2, 2019",
+          checkOut: "September 5, 2019",
+          resId: "412",
+          jagged: true,
+        },
+      ];
+
+      const bezel = document.getElementById("bezel");
+      const ripple = document.getElementById("ripple");
+      const screenPin = document.getElementById("screen-pin");
+      const screenCal = document.getElementById("screen-cal");
+      const dots = [...document.querySelectorAll("#dots .dot")];
+      const grid = document.getElementById("grid");
+      const gridWrap = document.getElementById("gridWrap");
+      const detail = document.getElementById("detail");
+      const hint = document.getElementById("hint");
+      const todayLine = document.getElementById("todayLine");
+
+      let pin = "";
+      let generation = 0;
+      let paused = false;
+      let selectedId = null;
+      let dragState = null;
+
+      function wait(ms, gen) {
+        return new Promise((resolve, reject) => {
+          setTimeout(() => {
+            if (gen !== generation) reject(new Error("cancelled"));
+            else resolve();
+          }, ms);
+        });
+      }
+
+      function showTap(el, dark = false) {
+        const p = bezel.getBoundingClientRect();
+        const r = el.getBoundingClientRect();
+        ripple.classList.toggle("dark", dark);
+        ripple.style.left = `${r.left - p.left + r.width / 2}px`;
+        ripple.style.top = `${r.top - p.top + r.height / 2}px`;
+        ripple.classList.remove("show");
+        void ripple.offsetWidth;
+        ripple.classList.add("show");
+      }
+
+      async function tap(el, gen, dark = false) {
+        await wait(180, gen);
+        showTap(el, dark);
+        await wait(90, gen);
+        el.click();
+        await wait(180, gen);
+      }
+
+      function showHint(msg) {
+        hint.textContent = msg;
+        hint.classList.add("show");
+        setTimeout(() => hint.classList.remove("show"), 1600);
+      }
+
+      function setPin(next) {
+        pin = next.slice(0, 4);
+        dots.forEach((d, i) => {
+          d.classList.toggle("filled", i < pin.length);
+          d.classList.remove("error");
+        });
+        if (pin.length === 4) {
+          setTimeout(() => {
+            if (pin === "2580" || pin.length === 4) unlock();
+          }, 220);
+        }
+      }
+
+      function unlock() {
+        screenPin.classList.remove("active");
+        screenCal.classList.add("active");
+        ripple.classList.add("dark");
+        renderGrid();
+        showHint("Tap a booking · drag to move rooms");
+      }
+
+      function lock() {
+        screenCal.classList.remove("active");
+        screenPin.classList.add("active");
+        ripple.classList.remove("dark");
+        pin = "";
+        setPin("");
+        closeDetail();
+        selectedId = null;
+      }
+
+      document.querySelectorAll("#keys .key[data-k]").forEach((btn) => {
+        btn.onclick = () => {
+          const k = btn.dataset.k;
+          if (k === "del") setPin(pin.slice(0, -1));
+          else if (pin.length < 4) setPin(pin + k);
+        };
+      });
+
+      document.getElementById("pinLogout").onclick = () =>
+        showHint("Already on PIN lock");
+      document.getElementById("btnLock").onclick = lock;
+      document.getElementById("btnGroup").onclick = () =>
+        showHint("Group reservation");
+      document.getElementById("btnSingle").onclick = () =>
+        showHint("Single reservation");
+      document.getElementById("prevWeek").onclick = () =>
+        showHint("Previous week");
+      document.getElementById("nextWeek").onclick = () => showHint("Next week");
+      document.getElementById("detailClose").onclick = closeDetail;
+
+      function closeDetail() {
+        detail.classList.remove("show");
+      }
+
+      function openDetail(b) {
+        selectedId = b.id;
+        document.getElementById("detailName").textContent = titleCase(b.name);
+        document.getElementById("detailId").textContent = b.resId;
+        document.getElementById("detailStatus").textContent = b.status;
+        document.getElementById("detailRoom").textContent = b.room;
+        document.getElementById("detailRate").textContent = b.rate.split("(")[0].trim();
+        document.getElementById("detailIn").textContent = b.checkIn;
+        document.getElementById("detailOut").textContent = b.checkOut;
+        detail.classList.add("show");
+        document.querySelectorAll(".booking").forEach((el) => {
+          el.classList.toggle("selected", el.dataset.id === b.id);
+        });
+      }
+
+      function titleCase(s) {
+        return s
+          .toLowerCase()
+          .split(" ")
+          .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+          .join(" ");
+      }
+
+      function renderGrid() {
+        const colW = () => {
+          const first = grid.querySelector('.cell.head[data-day="0"]');
+          return first ? first.getBoundingClientRect().width : 120;
+        };
+
+        let html = "";
+        html += `<div class="cell head corner">Rooms</div>`;
+        DAYS.forEach((d, i) => {
+          html += `<div class="cell head" data-day="${i}">${d.label}<div class="sub">Sept 2019</div></div>`;
+        });
+
+        html += `<div class="cell side">Not Assigned</div>`;
+        DAYS.forEach(() => {
+          html += `<div class="cell" style="text-align:center;color:var(--muted);font-weight:600">0</div>`;
+        });
+
+        html += `<div class="cell cat-side">Deluxe Double Room</div>`;
+        DAYS.forEach(() => {
+          html += `<div class="cell cat-day"><span class="avail">Available 5</span></div>`;
+        });
+
+        ROOMS.forEach((room) => {
+          html += `<div class="cell side" data-room-label="${room.id}">
+            <span class="room-no">${room.id}</span>
+            ${room.occupied ? '<span style="font-size:11px">👤</span>' : ""}
+            <span class="badge ${room.status === "Clean" ? "clean" : "dirty"}">${room.status}</span>
+          </div>`;
+          DAYS.forEach((d, dayIdx) => {
+            const blocked =
+              (room.id === "302" && dayIdx === 0) ||
+              (room.id === "307" && dayIdx === 0);
+            html += `<div class="cell ${blocked ? "blocked" : ""}" data-room="${room.id}" data-day="${dayIdx}">
+              <div class="drop-hint"></div>
+            </div>`;
+          });
+        });
+
+        grid.innerHTML = html;
+
+        const layout = () => {
+          placeBookings();
+          positionTodayLine();
+        };
+        requestAnimationFrame(() => {
+          layout();
+          requestAnimationFrame(layout);
+          setTimeout(layout, 80);
+        });
+      }
+
+      function placeBookings() {
+        grid.querySelectorAll(".booking").forEach((b) => b.remove());
+
+        const sample = grid.querySelector('.cell[data-room="301"][data-day="0"]');
+        if (!sample) return;
+        const cellW = sample.getBoundingClientRect().width;
+        const gridRect = grid.getBoundingClientRect();
+        if (cellW < 8) return;
+
+        bookings.forEach((b) => {
+          const startCell = grid.querySelector(
+            `.cell[data-room="${b.room}"][data-day="${b.start}"]`,
+          );
+          if (!startCell) return;
+          const r = startCell.getBoundingClientRect();
+          const left = r.left - gridRect.left + grid.scrollLeft + 3;
+          const top = r.top - gridRect.top + grid.scrollTop + 3;
+          const width = Math.max(48, cellW * Math.min(b.nights, 7 - b.start) - 6);
+          const height = Math.max(28, r.height - 6);
+
+          const el = document.createElement("div");
+          el.className = `booking${b.jagged ? " jagged" : ""}${selectedId === b.id ? " selected" : ""}`;
+          el.dataset.id = b.id;
+          el.style.left = `${left}px`;
+          el.style.top = `${top}px`;
+          el.style.width = `${width}px`;
+          el.style.height = `${height}px`;
+          el.innerHTML = `<strong>${b.name}</strong><span>${b.nights} nights</span><span>${b.rate}</span>`;
+          grid.appendChild(el);
+
+          el.addEventListener("pointerdown", (e) => startDrag(e, b, el));
+          el.addEventListener("click", (e) => {
+            e.stopPropagation();
+            openDetail(b);
+          });
+        });
+      }
+
+      function positionTodayLine() {
+        const mon = grid.querySelector('.cell.head[data-day="1"]');
+        if (!mon) return;
+        const gridRect = grid.getBoundingClientRect();
+        const r = mon.getBoundingClientRect();
+        todayLine.style.left = `${r.left - gridRect.left}px`;
+        todayLine.style.height = `${grid.scrollHeight}px`;
+      }
+
+      function startDrag(e, booking, el) {
+        if (e.button !== 0) return;
+        e.preventDefault();
+        e.stopPropagation();
+        openDetail(booking);
+        el.classList.add("dragging", "selected");
+        selectedId = booking.id;
+
+        const startX = e.clientX;
+        const startY = e.clientY;
+        const origLeft = parseFloat(el.style.left);
+        const origTop = parseFloat(el.style.top);
+        let moved = false;
+
+        dragState = { booking, el, startX, startY, origLeft, origTop };
+
+        const onMove = (ev) => {
+          const dx = ev.clientX - startX;
+          const dy = ev.clientY - startY;
+          if (Math.abs(dx) + Math.abs(dy) > 4) moved = true;
+          el.style.left = `${origLeft + dx}px`;
+          el.style.top = `${origTop + dy}px`;
+
+          const target = document.elementFromPoint(ev.clientX, ev.clientY);
+          const cell = target?.closest?.(".cell[data-room][data-day]");
+          grid.querySelectorAll(".drop-hint").forEach((h) => h.classList.remove("show"));
+          if (cell) cell.querySelector(".drop-hint")?.classList.add("show");
+        };
+
+        const onUp = (ev) => {
+          window.removeEventListener("pointermove", onMove);
+          window.removeEventListener("pointerup", onUp);
+          el.classList.remove("dragging");
+          grid.querySelectorAll(".drop-hint").forEach((h) => h.classList.remove("show"));
+
+          const target = document.elementFromPoint(ev.clientX, ev.clientY);
+          const cell = target?.closest?.(".cell[data-room][data-day]");
+          if (moved && cell) {
+            const newRoom = cell.dataset.room;
+            const newDay = Number(cell.dataset.day);
+            const conflict = bookings.some(
+              (x) =>
+                x.id !== booking.id &&
+                x.room === newRoom &&
+                rangesOverlap(newDay, booking.nights, x.start, x.nights),
+            );
+            if (!conflict && !cell.classList.contains("blocked")) {
+              booking.room = newRoom;
+              booking.start = Math.min(newDay, 7 - booking.nights);
+              document.getElementById("detailRoom").textContent = newRoom;
+              showHint(`Moved to room ${newRoom}`);
+            } else {
+              showHint("Can't place booking there");
+            }
+          }
+          placeBookings();
+          dragState = null;
+        };
+
+        window.addEventListener("pointermove", onMove);
+        window.addEventListener("pointerup", onUp);
+      }
+
+      function rangesOverlap(aStart, aLen, bStart, bLen) {
+        const aEnd = aStart + aLen;
+        const bEnd = bStart + bLen;
+        return aStart < bEnd && bStart < aEnd;
+      }
+
+      bezel.addEventListener(
+        "pointerdown",
+        (e) => {
+          if (e.target === ripple) return;
+          const p = bezel.getBoundingClientRect();
+          ripple.style.left = `${e.clientX - p.left}px`;
+          ripple.style.top = `${e.clientY - p.top}px`;
+          ripple.classList.remove("show");
+          void ripple.offsetWidth;
+          ripple.classList.add("show");
+        },
+        true,
+      );
+
+      window.addEventListener("resize", () => {
+        if (screenCal.classList.contains("active")) {
+          placeBookings();
+          positionTodayLine();
+        }
+      });
+
+      async function demoDrag(bookingId, toRoom, toDay, gen) {
+        const el = grid.querySelector(`.booking[data-id="${bookingId}"]`);
+        const target = grid.querySelector(
+          `.cell[data-room="${toRoom}"][data-day="${toDay}"]`,
+        );
+        if (!el || !target) return;
+        const booking = bookings.find((b) => b.id === bookingId);
+        openDetail(booking);
+        showTap(el, true);
+        await wait(200, gen);
+
+        el.classList.add("dragging", "selected");
+        const from = el.getBoundingClientRect();
+        const to = target.getBoundingClientRect();
+        const gridRect = grid.getBoundingClientRect();
+        const steps = 18;
+        const startL = parseFloat(el.style.left);
+        const startT = parseFloat(el.style.top);
+        const endL = to.left - gridRect.left + 4;
+        const endT = to.top - gridRect.top + 4;
+
+        for (let i = 1; i <= steps; i++) {
+          if (gen !== generation) throw new Error("cancelled");
+          const t = i / steps;
+          const ease = t * (2 - t);
+          el.style.left = `${startL + (endL - startL) * ease}px`;
+          el.style.top = `${startT + (endT - startT) * ease}px`;
+          await wait(22, gen);
+        }
+
+        booking.room = toRoom;
+        booking.start = toDay;
+        document.getElementById("detailRoom").textContent = toRoom;
+        el.classList.remove("dragging");
+        placeBookings();
+        showHint(`Moved to room ${toRoom}`);
+        await wait(400, gen);
+      }
+
+      async function runLoop() {
+        const gen = ++generation;
+        try {
+          while (gen === generation) {
+            // reset
+            bookings = [
+              {
+                id: "b1",
+                room: "301",
+                start: 2,
+                nights: 4,
+                name: "RICHARD HENDRICKS",
+                rate: "Standard Rate (Breakfast Included)",
+                status: "Confirmed",
+                checkIn: "September 3, 2019",
+                checkOut: "September 7, 2019",
+                resId: "401",
+              },
+              {
+                id: "b2",
+                room: "304",
+                start: 1,
+                nights: 4,
+                name: "BERTMAN GILFOYE",
+                rate: "Special Summer (Breakfast Included)",
+                status: "Checked in",
+                checkIn: "September 2, 2019",
+                checkOut: "September 6, 2019",
+                resId: "405",
+                avatar: true,
+              },
+              {
+                id: "b3",
+                room: "307",
+                start: 1,
+                nights: 3,
+                name: "BIG HEAD",
+                rate: "Standard Rate (Breakfast Included)",
+                status: "Checked in",
+                checkIn: "September 2, 2019",
+                checkOut: "September 5, 2019",
+                resId: "412",
+                jagged: true,
+              },
+            ];
+            selectedId = null;
+            closeDetail();
+            lock();
+            await wait(900, gen);
+
+            // Enter PIN 2-5-8-0
+            for (const digit of ["2", "5", "8", "0"]) {
+              const key = document.querySelector(`#keys .key[data-k="${digit}"]`);
+              await tap(key, gen, false);
+              await wait(160, gen);
+            }
+            await wait(700, gen);
+
+            // Select Gilfoye
+            let gil = grid.querySelector('.booking[data-id="b2"]');
+            if (gil) {
+              await tap(gil, gen, true);
+              await wait(1200, gen);
+            }
+
+            // Drag Big Head to room 305
+            await demoDrag("b3", "305", 1, gen);
+            await wait(900, gen);
+
+            // Drag Richard to 306
+            await demoDrag("b1", "306", 2, gen);
+            await wait(1000, gen);
+
+            // Close detail, lock again
+            await tap(document.getElementById("detailClose"), gen, true);
+            await wait(500, gen);
+            await tap(document.getElementById("btnLock"), gen, true);
+            await wait(900, gen);
+          }
+        } catch (e) {
+          if (e.message !== "cancelled") console.error(e);
+        }
+      }
+
+
+      function pauseDemo() {
+        generation++;
+        paused = true;
+        hint.classList.remove("show");
+      }
+
+      function playDemo() {
+        if (!paused) return;
+        paused = false;
+        runLoop();
+      }
+
+      window.addEventListener("message", (e) => {
+        if (STILL) return;
+        if (e.data?.type === "softmogul-pause") pauseDemo();
+        if (e.data?.type === "softmogul-play") playDemo();
+      });
+      window.__softmogulPause = pauseDemo;
+      window.__softmogulPlay = playDemo;
+
+
+      if (STILL) {
+        paused = true;
+        generation++;
+        lock(); // stay on PIN screen
+        try { window.parent?.postMessage({ type: "softmogul-ready" }, "*"); } catch (_) {}
+      } else if (EMBED) {
+        paused = true;
+        try { window.parent?.postMessage({ type: "softmogul-ready" }, "*"); } catch (_) {}
+      } else {
+        runLoop();
+      }
+
+    </script>
+  </body>
+</html>

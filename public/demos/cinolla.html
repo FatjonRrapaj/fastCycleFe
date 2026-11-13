@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cinolla Preview</title>
+    <style>
+      :root {
+        --indigo: #5046e5;
+        --indigo-soft: #ebe9fe;
+        --indigo-mid: #c7c2f9;
+        --text: #1f2937;
+        --muted: #6b7280;
+        --line: #e5e7eb;
+        --bg: #f3f4f6;
+        --due: #fde8c8;
+        --due-text: #9a6700;
+        --yellow: #fef3c7;
+        --yellow-text: #92400e;
+        --white: #ffffff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        background: #d8dde5;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui,
+          sans-serif;
+        color: var(--text);
+      }
+
+      .tablet {
+        width: 980px;
+        height: 700px;
+        max-width: calc(100vw - 32px);
+        max-height: calc(100vh - 32px);
+        background: #1c1f24;
+        border-radius: 28px;
+        padding: 14px;
+        box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+        position: relative;
+      }
+
+      .bezel {
+        width: 100%;
+        height: 100%;
+        background: var(--bg);
+        border-radius: 18px;
+        overflow: hidden;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .camera {
+        position: absolute;
+        top: 6px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #0f1114;
+        z-index: 5;
+      }
+
+      .tap-ripple {
+        position: absolute;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: rgba(80, 70, 229, 0.2);
+        border: 2px solid rgba(80, 70, 229, 0.45);
+        transform: translate(-50%, -50%) scale(0.35);
+        opacity: 0;
+        pointer-events: none;
+        z-index: 100;
+      }
+
+      .tap-ripple.show {
+        animation: tapRipple 0.5s ease-out;
+      }
+
+      @keyframes tapRipple {
+        0% {
+          opacity: 0.95;
+          transform: translate(-50%, -50%) scale(0.35);
+        }
+        100% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(1.7);
+        }
+      }
+
+      .topbar {
+        height: 48px;
+        background: #fff;
+        border-bottom: 1px solid var(--line);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 18px;
+        flex: 0 0 auto;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 700;
+        font-size: 14px;
+      }
+
+      .brand i {
+        width: 22px;
+        height: 22px;
+        border-radius: 7px;
+        background: var(--indigo);
+        display: block;
+      }
+
+      .tabs {
+        display: flex;
+        gap: 6px;
+      }
+
+      .tabs button {
+        border: 0;
+        background: transparent;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 600;
+        padding: 8px 12px;
+        border-radius: 999px;
+        cursor: pointer;
+      }
+
+      .tabs button.active {
+        background: var(--indigo-soft);
+        color: var(--indigo);
+      }
+
+      .screen {
+        display: none;
+        flex: 1;
+        min-height: 0;
+        padding: 18px;
+        overflow: auto;
+      }
+
+      .screen.active {
+        display: block;
+      }
+
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1.05fr 1fr;
+        gap: 16px;
+        height: 100%;
+      }
+
+      .card {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 18px;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+      }
+
+      .card h2 {
+        margin: 0 0 14px;
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+        font-weight: 700;
+      }
+
+      .line {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--line);
+        font-size: 14px;
+      }
+
+      .line:last-of-type {
+        border-bottom: 0;
+      }
+
+      .total {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin: 10px 0 14px;
+        font-weight: 700;
+      }
+
+      .total strong {
+        font-size: 28px;
+      }
+
+      .pay-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+
+      .btn {
+        border: 0;
+        border-radius: 14px;
+        padding: 14px 16px;
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .btn-primary {
+        background: var(--indigo);
+        color: #fff;
+      }
+
+      .btn-ghost {
+        background: #fff;
+        color: #374151;
+        border: 1px solid var(--line);
+      }
+
+      .btn-soft {
+        background: var(--indigo-soft);
+        color: #3730a3;
+        width: 100%;
+      }
+
+      .btn.selected {
+        box-shadow: 0 0 0 3px rgba(80, 70, 229, 0.25);
+      }
+
+      .arrival {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .arrival:last-of-type {
+        border-bottom: 0;
+      }
+
+      .arrival strong {
+        display: block;
+        font-size: 15px;
+        margin-bottom: 3px;
+      }
+
+      .arrival span {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .pill {
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-size: 12px;
+        font-weight: 700;
+        white-space: nowrap;
+      }
+
+      .pill.checked {
+        background: var(--indigo);
+        color: #fff;
+      }
+
+      .pill.due {
+        background: var(--due);
+        color: var(--due-text);
+      }
+
+      .pill.expected {
+        background: var(--indigo-soft);
+        color: var(--indigo);
+      }
+
+      .pill.places {
+        background: var(--indigo-soft);
+        color: var(--indigo);
+      }
+
+      .pill.low {
+        background: var(--yellow);
+        color: var(--yellow-text);
+      }
+
+      .foot-note {
+        margin-top: auto;
+        padding-top: 14px;
+        border-top: 1px solid var(--line);
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.45;
+      }
+
+      /* CALENDAR */
+      .calendar {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        overflow: hidden;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .cal-head {
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--line);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .cal-head h1 {
+        margin: 0;
+        font-size: 18px;
+      }
+
+      .days {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 8px;
+        padding: 12px 12px 8px;
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+      }
+
+      .cal-body {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 8px;
+        padding: 0 12px 14px;
+        flex: 1;
+        align-content: start;
+      }
+
+      .day-col {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        min-height: 120px;
+      }
+
+      .event {
+        border-radius: 10px;
+        padding: 8px 9px;
+        font-size: 11px;
+        font-weight: 600;
+        line-height: 1.25;
+        border: 0;
+        text-align: left;
+        cursor: pointer;
+      }
+
+      .event.soft {
+        background: #ecebff;
+        color: #3730a3;
+      }
+
+      .event.mid {
+        background: #c7c2f9;
+        color: #312e81;
+      }
+
+      .event.hot {
+        background: var(--indigo);
+        color: #fff;
+      }
+
+      .event.warn {
+        background: var(--yellow);
+        color: var(--yellow-text);
+      }
+
+      .event.flash {
+        transform: scale(1.03);
+        box-shadow: 0 8px 20px rgba(80, 70, 229, 0.25);
+      }
+
+      /* BOOK ONLINE */
+      .book-grid {
+        display: grid;
+        grid-template-columns: 1.35fr 0.9fr;
+        gap: 16px;
+        height: 100%;
+      }
+
+      .course-banner {
+        background: var(--indigo-soft);
+        border-radius: 14px;
+        padding: 16px;
+        margin-bottom: 8px;
+      }
+
+      .course-banner strong {
+        display: block;
+        font-size: 18px;
+        color: #312e81;
+        margin-bottom: 4px;
+      }
+
+      .course-banner span {
+        color: #4338ca;
+        font-size: 13px;
+      }
+
+      .date-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px 2px;
+        border-bottom: 1px solid var(--line);
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      .date-row.selected {
+        background: #f8f7ff;
+        margin: 0 -10px;
+        padding-left: 12px;
+        padding-right: 12px;
+        border-radius: 10px;
+      }
+
+      .basket-lines .line {
+        font-size: 13px;
+      }
+
+      .toast {
+        position: absolute;
+        left: 50%;
+        bottom: 22px;
+        transform: translateX(-50%) translateY(20px);
+        background: #111827;
+        color: #fff;
+        padding: 10px 14px;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 600;
+        opacity: 0;
+        transition: opacity 0.25s ease, transform 0.25s ease;
+        z-index: 50;
+        pointer-events: none;
+      }
+
+      .toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+
+      @media (max-width: 900px) {
+        .tablet {
+          width: 100%;
+          height: auto;
+          aspect-ratio: 10 / 7;
+        }
+        .grid-2,
+        .book-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .tap-ripple,
+        .toast,
+        .event {
+          transition: none !important;
+          animation: none !important;
+        }
+      }
+
+      /* Embed mode (iframe inside portfolio) */
+      body.is-embed {
+        margin: 0;
+        padding: 0;
+        min-height: 0;
+        width: 980px;
+        height: 700px;
+        background: transparent;
+        display: block;
+        overflow: hidden;
+      }
+
+      body.is-embed .tablet {
+        max-width: none;
+        max-height: none;
+        width: 980px;
+        height: 700px;
+        box-shadow: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="tablet" id="tablet">
+      <div class="camera"></div>
+      <div class="bezel" id="bezel">
+        <div class="tap-ripple" id="ripple" aria-hidden="true"></div>
+        <div class="toast" id="toast"></div>
+
+        <header class="topbar">
+          <div class="brand"><i></i> Cinolla One</div>
+          <nav class="tabs">
+            <button type="button" class="active" data-screen="pos" id="tabPos">
+              POS & Check-in
+            </button>
+            <button type="button" data-screen="calendar" id="tabCal">
+              Bookings
+            </button>
+            <button type="button" data-screen="book" id="tabBook">
+              Book online
+            </button>
+          </nav>
+        </header>
+
+        <!-- POS -->
+        <section class="screen active" id="screen-pos">
+          <div class="grid-2">
+            <div class="card">
+              <h2>WALK-UP SALE</h2>
+              <div class="line"><span>2 × SUP hire — 1 hour</span><strong>£30.00</strong></div>
+              <div class="line"><span>1 × Climbing taster</span><strong>£18.00</strong></div>
+              <div class="line"><span>1 × Day parking</span><strong>£6.00</strong></div>
+              <div class="total"><span>Total</span><strong>£54.00</strong></div>
+              <div class="pay-row">
+                <button class="btn btn-primary selected" type="button" id="payCard">Card</button>
+                <button class="btn btn-ghost" type="button" id="payCash">Cash</button>
+              </div>
+              <button class="btn btn-soft" type="button" id="printBtn">
+                Print receipt · availability updated
+              </button>
+            </div>
+
+            <div class="card">
+              <h2>TODAY'S ARRIVALS</h2>
+              <div class="arrival" id="arr1">
+                <div>
+                  <strong>Oakfield School</strong>
+                  <span>09:30 · 42 guests</span>
+                </div>
+                <div class="pill checked">Checked in</div>
+              </div>
+              <div class="arrival" id="arr2">
+                <div>
+                  <strong>Family taster</strong>
+                  <span>10:00 · Climbing · 4</span>
+                </div>
+                <div class="pill checked">Checked in</div>
+              </div>
+              <div class="arrival" id="arr3">
+                <div>
+                  <strong>Kayak hire</strong>
+                  <span>11:15 · Lakeside · 2</span>
+                </div>
+                <button class="pill due" type="button" id="checkInDue">Due</button>
+              </div>
+              <div class="arrival" id="arr4">
+                <div>
+                  <strong>Scout group</strong>
+                  <span>13:00 · Camping · 18</span>
+                </div>
+                <div class="pill expected">Expected</div>
+              </div>
+              <p class="foot-note">
+                Walk-ups and pre-booked guests, together in one unified app.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- CALENDAR -->
+        <section class="screen" id="screen-calendar">
+          <div class="calendar">
+            <div class="cal-head">
+              <h1>Bookings — June</h1>
+              <button class="btn btn-ghost" type="button" id="newBooking" style="padding: 8px 12px; font-size: 13px">
+                + New booking
+              </button>
+            </div>
+            <div class="days">
+              <div>MON</div><div>TUE</div><div>WED</div><div>THU</div><div>FRI</div><div>SAT</div><div>SUN</div>
+            </div>
+            <div class="cal-body">
+              <div class="day-col">
+                <button class="event soft" type="button">School residential</button>
+                <button class="event soft" type="button">Holiday club</button>
+              </div>
+              <div class="day-col">
+                <button class="event mid" type="button">Bunkhouse — Oakfield School</button>
+                <button class="event hot" type="button" id="evKayak">Kayaking</button>
+              </div>
+              <div class="day-col">
+                <button class="event soft" type="button">Sailing</button>
+                <button class="event hot" type="button" id="evClimb">Climbing taster</button>
+              </div>
+              <div class="day-col">
+                <button class="event warn" type="button" id="evBalance">Balance due · SUP hire</button>
+                <button class="event soft" type="button">Corporate away day</button>
+              </div>
+              <div class="day-col">
+                <button class="event mid" type="button">DofE expedition — Silver group</button>
+                <button class="event hot" type="button">High ropes</button>
+              </div>
+              <div class="day-col">
+                <button class="event soft" type="button">Family taster</button>
+                <button class="event warn" type="button">Provisional · Scout group</button>
+              </div>
+              <div class="day-col">
+                <button class="event soft" type="button">Rentals</button>
+                <button class="event hot" type="button" id="evOpenDay">Open day — fully booked</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- BOOK ONLINE -->
+        <section class="screen" id="screen-book">
+          <div class="book-grid">
+            <div class="card">
+              <div class="course-banner">
+                <strong>Beginners' Sailing</strong>
+                <span>5-day course · Ages 8+</span>
+              </div>
+              <div class="date-row" id="date1">
+                <span>Mon 3 Aug</span>
+                <span class="pill places">6 places</span>
+              </div>
+              <div class="date-row selected" id="date2">
+                <span>Mon 10 Aug</span>
+                <span class="pill low">2 places</span>
+              </div>
+              <div class="date-row" id="date3">
+                <span>Mon 17 Aug</span>
+                <span class="pill places">8 places</span>
+              </div>
+              <div style="margin-top: auto; padding-top: 16px">
+                <button class="btn btn-primary" type="button" id="bookNow" style="width: 100%">
+                  Book now
+                </button>
+              </div>
+            </div>
+
+            <div class="card">
+              <h2>BASKET</h2>
+              <div class="basket-lines">
+                <div class="line"><span>2 × Adult</span><strong>£310.00</strong></div>
+                <div class="line"><span>1 × Junior</span><strong>£95.00</strong></div>
+                <div class="line">
+                  <span>Voucher</span>
+                  <span class="pill places">–£40.50</span>
+                </div>
+              </div>
+              <div class="total"><span>Total</span><strong>£364.50</strong></div>
+              <button class="btn btn-primary" type="button" id="checkoutBtn" style="width: 100%; margin-bottom: 10px">
+                Secure checkout
+              </button>
+              <button class="btn btn-soft" type="button" id="availabilityBtn">
+                Real-time availability
+              </button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <script>
+      const params = new URLSearchParams(location.search);
+      const EMBED = params.has("embed");
+      const STILL = params.has("still");
+      if (EMBED) document.body.classList.add("is-embed");
+      if (STILL) document.body.classList.add("is-still");
+
+      const bezel = document.getElementById("bezel");
+      const ripple = document.getElementById("ripple");
+      const toast = document.getElementById("toast");
+      const screens = {
+        pos: document.getElementById("screen-pos"),
+        calendar: document.getElementById("screen-calendar"),
+        book: document.getElementById("screen-book"),
+      };
+      const tabs = {
+        pos: document.getElementById("tabPos"),
+        calendar: document.getElementById("tabCal"),
+        book: document.getElementById("tabBook"),
+      };
+
+      let generation = 0;
+      let paused = false;
+      let toastTimer = null;
+
+      function wait(ms, gen) {
+        return new Promise((resolve, reject) => {
+          setTimeout(() => {
+            if (gen !== generation) reject(new Error("cancelled"));
+            else resolve();
+          }, ms);
+        });
+      }
+
+      function showScreen(name) {
+        Object.values(screens).forEach((s) => s.classList.remove("active"));
+        Object.values(tabs).forEach((t) => t.classList.remove("active"));
+        screens[name].classList.add("active");
+        tabs[name].classList.add("active");
+      }
+
+      function showToast(text) {
+        toast.textContent = text;
+        toast.classList.add("show");
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove("show"), 1400);
+      }
+
+      function showTapOn(el) {
+        const p = bezel.getBoundingClientRect();
+        const r = el.getBoundingClientRect();
+        ripple.style.left = `${r.left - p.left + r.width / 2}px`;
+        ripple.style.top = `${r.top - p.top + r.height / 2}px`;
+        ripple.classList.remove("show");
+        void ripple.offsetWidth;
+        ripple.classList.add("show");
+      }
+
+      async function tap(el, gen) {
+        await wait(280, gen);
+        showTapOn(el);
+        await wait(120, gen);
+        el.click();
+        await wait(280, gen);
+      }
+
+      Object.entries(tabs).forEach(([name, btn]) => {
+        btn.onclick = () => showScreen(name);
+      });
+
+      document.getElementById("payCard").onclick = () => {
+        document.getElementById("payCard").classList.add("selected");
+        document.getElementById("payCash").classList.remove("selected");
+        document.getElementById("payCard").classList.add("btn-primary");
+        document.getElementById("payCard").classList.remove("btn-ghost");
+        document.getElementById("payCash").classList.add("btn-ghost");
+        document.getElementById("payCash").classList.remove("btn-primary");
+      };
+      document.getElementById("payCash").onclick = () => {
+        document.getElementById("payCash").classList.add("selected", "btn-primary");
+        document.getElementById("payCash").classList.remove("btn-ghost");
+        document.getElementById("payCard").classList.remove("selected", "btn-primary");
+        document.getElementById("payCard").classList.add("btn-ghost");
+      };
+      document.getElementById("printBtn").onclick = () =>
+        showToast("Receipt printed · stock updated");
+      document.getElementById("checkInDue").onclick = (e) => {
+        const btn = e.currentTarget;
+        btn.textContent = "Checked in";
+        btn.className = "pill checked";
+        showToast("Kayak hire checked in");
+      };
+      document.getElementById("bookNow").onclick = () =>
+        showToast("Added Beginners' Sailing to basket");
+      document.getElementById("checkoutBtn").onclick = () =>
+        showToast("Opening secure checkout…");
+      document.getElementById("availabilityBtn").onclick = () =>
+        showToast("Availability refreshed");
+      document.getElementById("newBooking").onclick = () =>
+        showToast("Create booking");
+
+      document.querySelectorAll(".event").forEach((ev) => {
+        ev.onclick = () => {
+          document
+            .querySelectorAll(".event")
+            .forEach((e) => e.classList.remove("flash"));
+          ev.classList.add("flash");
+          showToast(ev.textContent.trim());
+          setTimeout(() => ev.classList.remove("flash"), 700);
+        };
+      });
+
+      document.querySelectorAll(".date-row").forEach((row) => {
+        row.onclick = () => {
+          document
+            .querySelectorAll(".date-row")
+            .forEach((r) => r.classList.remove("selected"));
+          row.classList.add("selected");
+        };
+      });
+
+      bezel.addEventListener(
+        "pointerdown",
+        (e) => {
+          if (e.target === ripple) return;
+          const p = bezel.getBoundingClientRect();
+          ripple.style.left = `${e.clientX - p.left}px`;
+          ripple.style.top = `${e.clientY - p.top}px`;
+          ripple.classList.remove("show");
+          void ripple.offsetWidth;
+          ripple.classList.add("show");
+        },
+        true,
+      );
+
+      async function runLoop() {
+        const gen = ++generation;
+        try {
+          while (gen === generation) {
+            showScreen("pos");
+            const due = document.getElementById("checkInDue");
+            due.textContent = "Due";
+            due.className = "pill due";
+            document.getElementById("payCard").click();
+            await wait(1100, gen);
+
+            await tap(document.getElementById("payCash"), gen);
+            await wait(700, gen);
+            await tap(document.getElementById("payCard"), gen);
+            await wait(600, gen);
+            await tap(document.getElementById("printBtn"), gen);
+            await wait(1100, gen);
+            await tap(document.getElementById("checkInDue"), gen);
+            await wait(1200, gen);
+
+            await tap(document.getElementById("tabCal"), gen);
+            await wait(900, gen);
+            await tap(document.getElementById("evKayak"), gen);
+            await wait(800, gen);
+            await tap(document.getElementById("evClimb"), gen);
+            await wait(700, gen);
+            await tap(document.getElementById("evBalance"), gen);
+            await wait(800, gen);
+            await tap(document.getElementById("evOpenDay"), gen);
+            await wait(1000, gen);
+
+            await tap(document.getElementById("tabBook"), gen);
+            await wait(900, gen);
+            await tap(document.getElementById("date1"), gen);
+            await wait(700, gen);
+            await tap(document.getElementById("date2"), gen);
+            await wait(700, gen);
+            await tap(document.getElementById("bookNow"), gen);
+            await wait(900, gen);
+            await tap(document.getElementById("checkoutBtn"), gen);
+            await wait(1200, gen);
+
+            await tap(document.getElementById("tabPos"), gen);
+            await wait(1000, gen);
+          }
+        } catch (e) {
+          if (e.message !== "cancelled") console.error(e);
+        }
+      }
+
+      function pauseDemo() {
+        generation++;
+        paused = true;
+        toast.classList.remove("show");
+        if (toastTimer) {
+          clearTimeout(toastTimer);
+          toastTimer = null;
+        }
+      }
+
+      function playDemo() {
+        if (!paused) return;
+        paused = false;
+        runLoop();
+      }
+
+      window.addEventListener("message", (e) => {
+        if (STILL) return;
+        if (e.data?.type === "cinolla-pause") pauseDemo();
+        if (e.data?.type === "cinolla-play") playDemo();
+      });
+      window.__cinollaPause = pauseDemo;
+      window.__cinollaPlay = playDemo;
+
+      if (STILL) {
+        paused = true;
+        try {
+          window.parent?.postMessage({ type: "cinolla-ready" }, "*");
+        } catch (_) {}
+      } else if (EMBED) {
+        paused = true;
+        try {
+          window.parent?.postMessage({ type: "cinolla-ready" }, "*");
+        } catch (_) {}
+      } else {
+        runLoop();
+      }
+    </script>
+  </body>
+</html>

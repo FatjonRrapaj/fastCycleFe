@@ -1,0 +1,1398 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Open English Junior Preview</title>
+    <style>
+      :root {
+        --orange: #ff6a00;
+        --orange-deep: #e85f00;
+        --blue: #1f6fe5;
+        --blue-soft: #e8f3ff;
+        --blue-mid: #4da3ff;
+        --yellow: #f5c542;
+        --green: #22c55e;
+        --text: #222;
+        --muted: #7a8494;
+        --line: #e6ebf2;
+        --bg: #f4f8fc;
+        --panel: #dff0fb;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 20px;
+        background: #cfd8e3;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui,
+          sans-serif;
+        color: var(--text);
+      }
+
+      .tablet {
+        width: 1020px;
+        height: 700px;
+        max-width: calc(100vw - 28px);
+        max-height: calc(100vh - 28px);
+        background: #1b1f24;
+        border-radius: 28px;
+        padding: 14px;
+        box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+        position: relative;
+      }
+
+      .bezel {
+        width: 100%;
+        height: 100%;
+        background: #fff;
+        border-radius: 18px;
+        overflow: hidden;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .camera {
+        position: absolute;
+        top: 6px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #0f1114;
+        z-index: 6;
+      }
+
+      .tap-ripple {
+        position: absolute;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: rgba(255, 106, 0, 0.22);
+        border: 2px solid rgba(255, 106, 0, 0.5);
+        transform: translate(-50%, -50%) scale(0.35);
+        opacity: 0;
+        pointer-events: none;
+        z-index: 120;
+      }
+
+      .tap-ripple.show {
+        animation: tapRipple 0.5s ease-out;
+      }
+
+      @keyframes tapRipple {
+        0% {
+          opacity: 0.95;
+          transform: translate(-50%, -50%) scale(0.35);
+        }
+        100% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(1.7);
+        }
+      }
+
+      .topnav {
+        height: 56px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 22px;
+        border-bottom: 1px solid #eef2f7;
+        flex: 0 0 auto;
+        background: #fff;
+        z-index: 5;
+      }
+
+      .logo {
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+        font-weight: 800;
+        font-size: 15px;
+        letter-spacing: -0.02em;
+      }
+
+      .logo .open {
+        color: var(--blue);
+      }
+
+      .logo .junior {
+        color: #334;
+        font-weight: 700;
+      }
+
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #445;
+      }
+
+      .nav-links .active {
+        color: var(--text);
+        border-bottom: 3px solid var(--orange);
+        padding-bottom: 4px;
+      }
+
+      .main {
+        flex: 1;
+        min-height: 0;
+        background: var(--bg);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .course {
+        position: absolute;
+        inset: 0;
+        padding: 18px 22px 22px;
+        display: none;
+      }
+
+      .course.active {
+        display: block;
+      }
+
+      .stage {
+        height: 100%;
+        background: linear-gradient(180deg, #dff3ff, #cfe9fb);
+        border-radius: 22px;
+        padding: 16px 18px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .stage-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+      }
+
+      .back-link {
+        border: 0;
+        background: transparent;
+        color: #334;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .level-badge {
+        position: absolute;
+        left: 50%;
+        top: 10px;
+        transform: translateX(-50%);
+        background: var(--orange);
+        color: #fff;
+        font-weight: 800;
+        font-size: 13px;
+        padding: 8px 18px;
+        border-radius: 4px 4px 10px 10px;
+        box-shadow: 0 6px 0 #d45500;
+        z-index: 2;
+      }
+
+      .course-grid {
+        display: grid;
+        grid-template-columns: 1.15fr 0.85fr;
+        gap: 18px;
+        height: calc(100% - 28px);
+        margin-top: 18px;
+      }
+
+      .units-card {
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 10px 30px rgba(40, 80, 120, 0.12);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .units-tab {
+        align-self: flex-start;
+        background: var(--blue);
+        color: #fff;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        padding: 8px 14px;
+        border-radius: 0 0 12px 0;
+      }
+
+      .units-list {
+        padding: 10px 12px 14px;
+        overflow: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .unit {
+        display: grid;
+        grid-template-columns: 28px 1fr 18px;
+        align-items: center;
+        gap: 10px;
+        background: #fff;
+        border: 1px solid #edf1f6;
+        border-radius: 12px;
+        padding: 12px 12px;
+        font-size: 14px;
+        font-weight: 600;
+        box-shadow: 0 2px 0 #eef2f7;
+        cursor: pointer;
+      }
+
+      .unit:hover,
+      .unit.active {
+        border-color: #cfe0ff;
+        box-shadow: 0 0 0 2px rgba(31, 111, 229, 0.12);
+      }
+
+      .check {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: var(--green);
+        color: #fff;
+        display: grid;
+        place-items: center;
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .unit.locked {
+        opacity: 0.55;
+        color: var(--muted);
+      }
+
+      .unit.locked .check {
+        background: #c5ccd6;
+      }
+
+      .right-col {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        padding-top: 8px;
+      }
+
+      .progress-block {
+        background: rgba(255, 255, 255, 0.55);
+        border-radius: 14px;
+        padding: 12px;
+      }
+
+      .progress-row {
+        display: grid;
+        grid-template-columns: 110px 1fr 58px;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 10px;
+        font-size: 12px;
+        font-weight: 700;
+        color: #445;
+      }
+
+      .progress-row:last-child {
+        margin-bottom: 0;
+      }
+
+      .bar {
+        height: 10px;
+        background: #fff;
+        border-radius: 999px;
+        overflow: hidden;
+      }
+
+      .bar > i {
+        display: block;
+        height: 100%;
+        border-radius: 999px;
+      }
+
+      .bar.blue > i {
+        width: 100%;
+        background: var(--blue-mid);
+      }
+
+      .bar.yellow > i {
+        width: 25%;
+        background: var(--yellow);
+      }
+
+      .cta {
+        width: 100%;
+        border: 0;
+        border-radius: 10px;
+        background: var(--orange);
+        color: #fff;
+        font-size: 15px;
+        font-weight: 800;
+        padding: 14px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        cursor: pointer;
+        box-shadow: 0 6px 0 #d45500;
+      }
+
+      .mascots {
+        margin-top: auto;
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;
+        gap: 10px;
+        min-height: 160px;
+      }
+
+      .blob {
+        width: 110px;
+        height: 110px;
+        border-radius: 28px;
+        position: relative;
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+      }
+
+      .blob.blue {
+        background: linear-gradient(160deg, #5bb7ff, #2f7fe0);
+        border-radius: 26px;
+      }
+
+      .blob.orange {
+        width: 0;
+        height: 0;
+        border-left: 60px solid transparent;
+        border-right: 60px solid transparent;
+        border-bottom: 110px solid #ff8a2a;
+        background: none;
+        box-shadow: none;
+        filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.12));
+      }
+
+      .blob .eye {
+        position: absolute;
+        width: 14px;
+        height: 14px;
+        background: #fff;
+        border-radius: 50%;
+        top: 34px;
+      }
+
+      .blob.blue .eye.l {
+        left: 28px;
+      }
+      .blob.blue .eye.r {
+        right: 28px;
+      }
+      .blob.blue .eye::after {
+        content: "";
+        position: absolute;
+        width: 6px;
+        height: 6px;
+        background: #222;
+        border-radius: 50%;
+        top: 4px;
+        left: 4px;
+      }
+
+      /* OVERLAY / MODALS */
+      .overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(20, 30, 45, 0.4);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.25s ease;
+        z-index: 30;
+      }
+
+      .overlay.open {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .modal {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: min(560px, 88%);
+        max-height: 82%;
+        overflow: auto;
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25);
+        transform: translate(-50%, -46%) scale(0.96);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.25s ease, transform 0.28s ease;
+        z-index: 40;
+        padding: 20px;
+      }
+
+      .modal.open {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translate(-50%, -50%) scale(1);
+      }
+
+      .modal-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 8px;
+      }
+
+      .modal-head h2 {
+        margin: 0;
+        font-size: 20px;
+      }
+
+      .close {
+        border: 0;
+        background: transparent;
+        font-size: 20px;
+        color: #667;
+        cursor: pointer;
+      }
+
+      .sub {
+        color: var(--muted);
+        font-size: 12px;
+        margin-bottom: 14px;
+      }
+
+      .dates {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        padding-bottom: 12px;
+        margin-bottom: 8px;
+      }
+
+      .date {
+        min-width: 58px;
+        border: 1.5px solid var(--blue);
+        border-radius: 12px;
+        padding: 10px 8px;
+        text-align: center;
+        background: #fff;
+        cursor: pointer;
+      }
+
+      .date strong {
+        display: block;
+        font-size: 16px;
+      }
+
+      .date span {
+        font-size: 11px;
+        color: var(--muted);
+      }
+
+      .date.selected {
+        background: var(--blue);
+        color: #fff;
+        border-color: var(--blue);
+      }
+
+      .date.selected span {
+        color: rgba(255, 255, 255, 0.85);
+      }
+
+      .slot {
+        margin-bottom: 12px;
+      }
+
+      .slot-time {
+        font-size: 12px;
+        font-weight: 700;
+        color: #556;
+        margin-bottom: 6px;
+      }
+
+      .class-row {
+        display: grid;
+        grid-template-columns: 36px 1fr auto;
+        gap: 10px;
+        align-items: center;
+        padding: 10px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        margin-bottom: 8px;
+      }
+
+      .class-row strong {
+        display: block;
+        font-size: 14px;
+      }
+
+      .class-row span {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .icon-pill {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        display: grid;
+        place-items: center;
+        font-size: 14px;
+        color: #fff;
+      }
+
+      .icon-pill.blue {
+        background: var(--blue);
+      }
+      .icon-pill.orange {
+        background: var(--orange);
+      }
+
+      .btn-outline {
+        border: 1.5px solid var(--orange);
+        background: #fff;
+        color: var(--orange);
+        border-radius: 999px;
+        padding: 8px 14px;
+        font-weight: 700;
+        font-size: 13px;
+        cursor: pointer;
+      }
+
+      .success-body {
+        text-align: center;
+        padding: 10px 8px 4px;
+      }
+
+      .spinner {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        border: 5px solid #e8f7ee;
+        border-top-color: var(--green);
+        margin: 18px auto;
+        animation: spin 0.9s linear infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .success-body p {
+        color: #667;
+        font-size: 14px;
+        line-height: 1.45;
+        margin: 0 0 18px;
+      }
+
+      .success-body a {
+        color: var(--blue);
+        font-weight: 700;
+        text-decoration: none;
+      }
+
+      .btn-continue {
+        width: 100%;
+        border: 0;
+        border-radius: 999px;
+        background: var(--orange);
+        color: #fff;
+        font-size: 16px;
+        font-weight: 800;
+        padding: 14px;
+        cursor: pointer;
+      }
+
+      /* LESSON */
+      .lesson {
+        position: absolute;
+        inset: 0;
+        background: #fff;
+        display: none;
+        flex-direction: column;
+        z-index: 20;
+      }
+
+      .lesson.active {
+        display: flex;
+      }
+
+      .lesson-bar {
+        height: 56px;
+        display: grid;
+        grid-template-columns: 80px 1fr 90px;
+        align-items: center;
+        gap: 12px;
+        padding: 0 18px;
+        border-bottom: 1px solid #eef2f7;
+      }
+
+      .lesson-bar h3 {
+        margin: 0;
+        font-size: 16px;
+      }
+
+      .progress-wrap {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .progress-wrap button {
+        border: 0;
+        background: transparent;
+        color: #667;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .lesson-progress {
+        width: min(360px, 46vw);
+        height: 8px;
+        background: #e8eef6;
+        border-radius: 999px;
+        position: relative;
+      }
+
+      .lesson-progress > i {
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 14%;
+        background: var(--blue);
+        border-radius: 999px;
+        transition: width 0.35s ease;
+      }
+
+      .pct {
+        position: absolute;
+        top: -28px;
+        transform: translateX(-50%);
+        background: var(--blue);
+        color: #fff;
+        font-size: 11px;
+        font-weight: 800;
+        padding: 4px 8px;
+        border-radius: 8px;
+        white-space: nowrap;
+      }
+
+      .pct::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        bottom: -5px;
+        transform: translateX(-50%);
+        border: 5px solid transparent;
+        border-top-color: var(--blue);
+      }
+
+      .lesson-stage {
+        flex: 1;
+        background: linear-gradient(180deg, #eaf6ff, #d9eefc);
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+
+      .slide-count {
+        position: absolute;
+        top: 16px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: #7a8798;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .nav-circle {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        border: 0;
+        background: #fff;
+        color: #889;
+        font-size: 18px;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        z-index: 3;
+      }
+
+      .nav-circle.left {
+        left: 18px;
+      }
+      .nav-circle.right {
+        right: 18px;
+      }
+
+      .card-track {
+        width: min(420px, 70%);
+        position: relative;
+      }
+
+      .lesson-card {
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 14px 34px rgba(40, 80, 120, 0.14);
+        overflow: hidden;
+        padding-bottom: 18px;
+      }
+
+      .lesson-art {
+        height: 220px;
+        background: #d9efff;
+        display: grid;
+        place-items: center;
+        position: relative;
+      }
+
+      .person {
+        width: 120px;
+        height: 160px;
+        position: relative;
+      }
+
+      .person .head {
+        width: 58px;
+        height: 58px;
+        border-radius: 50%;
+        background: #f1c7a5;
+        margin: 0 auto;
+        position: relative;
+      }
+
+      .person .hair {
+        position: absolute;
+        top: -8px;
+        left: 4px;
+        right: 4px;
+        height: 28px;
+        border-radius: 20px 20px 8px 8px;
+        background: #6b3e2e;
+      }
+
+      .person .body {
+        width: 78px;
+        height: 78px;
+        margin: 8px auto 0;
+        border-radius: 18px 18px 10px 10px;
+        background: #3bbf7a;
+      }
+
+      .arrow-hair {
+        position: absolute;
+        top: 48px;
+        right: 70px;
+        width: 54px;
+        height: 3px;
+        background: var(--blue);
+      }
+
+      .arrow-hair::after {
+        content: "";
+        position: absolute;
+        right: -2px;
+        top: -5px;
+        border: 6px solid transparent;
+        border-left-color: var(--blue);
+      }
+
+      .audio {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 18px 8px;
+      }
+
+      .play {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        border: 0;
+        background: var(--orange);
+        color: #fff;
+        display: grid;
+        place-items: center;
+        cursor: pointer;
+      }
+
+      .seek {
+        flex: 1;
+        height: 6px;
+        background: #e8eef6;
+        border-radius: 999px;
+        overflow: hidden;
+      }
+
+      .seek > i {
+        display: block;
+        height: 100%;
+        width: 0%;
+        background: var(--orange);
+        transition: width 0.2s linear;
+      }
+
+      .sentence {
+        text-align: center;
+        font-size: 22px;
+        font-weight: 600;
+        padding: 6px 12px 0;
+      }
+
+      .sentence b {
+        color: var(--blue);
+      }
+
+      .side-card {
+        position: absolute;
+        top: 50%;
+        width: 180px;
+        height: 220px;
+        background: #fff;
+        border-radius: 16px;
+        opacity: 0.55;
+        transform: translateY(-50%) scale(0.86);
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+        background-image: linear-gradient(#d9efff, #d9efff);
+        background-size: 100% 70%;
+        background-repeat: no-repeat;
+      }
+
+      .side-card.right {
+        right: -120px;
+      }
+      .side-card.left {
+        left: -120px;
+      }
+
+      @media (max-width: 920px) {
+        .course-grid {
+          grid-template-columns: 1fr;
+        }
+        .tablet {
+          width: 100%;
+          height: auto;
+          aspect-ratio: 10 / 7;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .tap-ripple,
+        .modal,
+        .overlay,
+        .spinner,
+        .seek > i,
+        .lesson-progress > i {
+          transition: none !important;
+          animation: none !important;
+        }
+      }
+      /* Embed mode (iframe inside portfolio) */
+      body.is-embed {
+        margin: 0;
+        padding: 0;
+        min-height: 0;
+        width: 1020px;
+        height: 700px;
+        background: transparent;
+        display: block;
+        overflow: hidden;
+      }
+
+      body.is-embed .tablet {
+        max-width: none;
+        max-height: none;
+        width: 1020px;
+        height: 700px;
+        box-shadow: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="tablet">
+      <div class="camera"></div>
+      <div class="bezel" id="bezel">
+        <div class="tap-ripple" id="ripple" aria-hidden="true"></div>
+
+        <header class="topnav">
+          <div class="logo">
+            <span class="open">open english</span>
+            <span class="junior">junior</span>
+          </div>
+          <nav class="nav-links">
+            <span class="active">Curso</span>
+            <span>Progresso</span>
+            <span>Ajuda</span>
+            <span>Robin ▾</span>
+          </nav>
+        </header>
+
+        <div class="main">
+          <!-- COURSE -->
+          <section class="course active" id="screen-course">
+            <div class="stage">
+              <div class="level-badge">Nível 3</div>
+              <div class="stage-top">
+                <button class="back-link" type="button">← Ver níveis</button>
+                <span></span>
+              </div>
+              <div class="course-grid">
+                <div class="units-card">
+                  <div class="units-tab">UNIDADES</div>
+                  <div class="units-list">
+                    <button class="unit" type="button" id="unit4">
+                      <span class="check">✓</span>
+                      <span>Unit 4: Let's Compare</span>
+                      <span>›</span>
+                    </button>
+                    <button class="unit active" type="button" id="unit5">
+                      <span class="check">✓</span>
+                      <span>Unit 5: How Was Your Weekend</span>
+                      <span>›</span>
+                    </button>
+                    <button class="unit" type="button">
+                      <span class="check">✓</span>
+                      <span>Unit 6: School Break</span>
+                      <span>›</span>
+                    </button>
+                    <button class="unit" type="button">
+                      <span class="check">✓</span>
+                      <span>Unit 7: We Were So Surprised</span>
+                      <span>›</span>
+                    </button>
+                    <button class="unit" type="button">
+                      <span class="check">✓</span>
+                      <span>Unit 8: Was It Fun</span>
+                      <span>›</span>
+                    </button>
+                    <button class="unit locked" type="button">
+                      <span class="check">🔒</span>
+                      <span>End of level test</span>
+                      <span>›</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="right-col">
+                  <div class="progress-block">
+                    <div class="progress-row">
+                      <span>Unidades</span>
+                      <div class="bar blue"><i></i></div>
+                      <strong>8 DE 8</strong>
+                    </div>
+                    <div class="progress-row">
+                      <span>Aulas ao vivo</span>
+                      <div class="bar yellow"><i></i></div>
+                      <strong>3 DE 12</strong>
+                    </div>
+                  </div>
+                  <button class="cta" type="button" id="scheduleBtn">
+                    📅 Agende uma aula ao vivo
+                  </button>
+                  <div class="mascots" aria-hidden="true">
+                    <div class="blob blue">
+                      <span class="eye l"></span>
+                      <span class="eye r"></span>
+                    </div>
+                    <div class="blob orange"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- LESSON -->
+          <section class="lesson" id="screen-lesson">
+            <div class="lesson-bar">
+              <h3>Lição</h3>
+              <div class="progress-wrap">
+                <button type="button" id="prevLesson">← Anterior</button>
+                <div class="lesson-progress">
+                  <i id="lessonFill"></i>
+                  <div class="pct" id="lessonPct">14%</div>
+                </div>
+                <button type="button" id="nextLesson">Próximo →</button>
+              </div>
+              <button class="back-link" type="button" id="closeLesson" style="justify-self: end">
+                Fechar X
+              </button>
+            </div>
+            <div class="lesson-stage">
+              <div class="slide-count" id="slideCount">1 / 7</div>
+              <button class="nav-circle left" type="button" id="cardPrev">‹</button>
+              <button class="nav-circle right" type="button" id="cardNext">›</button>
+              <div class="side-card left"></div>
+              <div class="card-track">
+                <div class="lesson-card">
+                  <div class="lesson-art">
+                    <div class="person">
+                      <div class="head"><div class="hair" id="hair"></div></div>
+                      <div class="body"></div>
+                    </div>
+                    <div class="arrow-hair"></div>
+                  </div>
+                  <div class="audio">
+                    <button class="play" type="button" id="playBtn">▶</button>
+                    <div class="seek"><i id="seekFill"></i></div>
+                    <span>🐢</span>
+                  </div>
+                  <div class="sentence" id="sentence"><b>My</b> hair is brown.</div>
+                </div>
+              </div>
+              <div class="side-card right"></div>
+            </div>
+          </section>
+
+          <div class="overlay" id="overlay"></div>
+
+          <!-- SCHEDULE MODAL -->
+          <div class="modal" id="modal-schedule">
+            <div class="modal-head">
+              <h2>Agende uma aula ao vivo</h2>
+              <button class="close" type="button" data-close>×</button>
+            </div>
+            <div class="sub">Minha assinatura: Ilimitadas</div>
+            <div class="dates" id="dates">
+              <button class="date" type="button" data-d="26"><strong>26</strong><span>Hoje</span></button>
+              <button class="date selected" type="button" data-d="27"><strong>27</strong><span>Qui</span></button>
+              <button class="date" type="button" data-d="28"><strong>28</strong><span>Sex</span></button>
+              <button class="date" type="button" data-d="29"><strong>29</strong><span>Sáb</span></button>
+              <button class="date" type="button" data-d="30"><strong>30</strong><span>Dom</span></button>
+              <button class="date" type="button" data-d="1"><strong>1</strong><span>Seg</span></button>
+              <button class="date" type="button" data-d="2"><strong>2</strong><span>Ter</span></button>
+            </div>
+
+            <div class="slot">
+              <div class="slot-time">9:30 am</div>
+              <div class="class-row">
+                <div class="icon-pill blue">👥</div>
+                <div>
+                  <strong>Our Environment</strong>
+                  <span>Aula em grupo</span>
+                </div>
+                <button class="btn-outline" type="button">Agendar</button>
+              </div>
+              <div class="class-row">
+                <div class="icon-pill orange">🧩</div>
+                <div>
+                  <strong>Amazing Adventures!</strong>
+                  <span>Play2Learn</span>
+                </div>
+                <button class="btn-outline" type="button" id="bookClass">Agendar</button>
+              </div>
+            </div>
+
+            <div class="slot">
+              <div class="slot-time">10:00 am</div>
+              <div class="class-row">
+                <div class="icon-pill blue">👥</div>
+                <div>
+                  <strong>Our Environment</strong>
+                  <span>Aula em grupo</span>
+                </div>
+                <button class="btn-outline" type="button">Agendar</button>
+              </div>
+              <div class="class-row">
+                <div class="icon-pill orange">🧩</div>
+                <div>
+                  <strong>Amazing Adventures!</strong>
+                  <span>Play2Learn</span>
+                </div>
+                <button class="btn-outline" type="button">Agendar</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- SUCCESS MODAL -->
+          <div class="modal" id="modal-success">
+            <div class="modal-head">
+              <h2>Excelente! Sua aula está agendada.</h2>
+              <button class="close" type="button" data-close>×</button>
+            </div>
+            <div class="success-body">
+              <div class="spinner"></div>
+              <p>
+                Lembre-se que, 5 minutos antes da aula, você deve confirmar sua
+                presença. Assista a este vídeo para conhecer as novidades do
+                <a href="#">Play2Learn!</a>
+              </p>
+              <button class="btn-continue" type="button" id="continueBtn">
+                Continuar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const params = new URLSearchParams(location.search);
+      const EMBED = params.has("embed");
+      const STILL = params.has("still");
+      if (EMBED) document.body.classList.add("is-embed");
+      if (STILL) document.body.classList.add("is-still");
+
+      const bezel = document.getElementById("bezel");
+      const ripple = document.getElementById("ripple");
+      const overlay = document.getElementById("overlay");
+      const course = document.getElementById("screen-course");
+      const lesson = document.getElementById("screen-lesson");
+      const modalSchedule = document.getElementById("modal-schedule");
+      const modalSuccess = document.getElementById("modal-success");
+      const lessonFill = document.getElementById("lessonFill");
+      const lessonPct = document.getElementById("lessonPct");
+      const slideCount = document.getElementById("slideCount");
+      const sentence = document.getElementById("sentence");
+      const hair = document.getElementById("hair");
+      const seekFill = document.getElementById("seekFill");
+
+      const slides = [
+        { html: "<b>My</b> hair is brown.", hair: "#6b3e2e", pct: 14 },
+        { html: "<b>Your</b> hair is black.", hair: "#1a1a1a", pct: 28 },
+        { html: "<b>His</b> hair is short.", hair: "#4a3728", pct: 42 },
+        { html: "<b>Her</b> hair is long.", hair: "#8b5a2b", pct: 57 },
+        { html: "<b>Our</b> hair is different.", hair: "#5c4033", pct: 71 },
+        { html: "<b>Their</b> hair is curly.", hair: "#3b2f2f", pct: 85 },
+        { html: "<b>Your</b> hair looks great!", hair: "#6b3e2e", pct: 100 },
+      ];
+
+      let slideIndex = 0;
+      let generation = 0;
+      let seekTimer = null;
+      let paused = false;
+
+      function wait(ms, gen) {
+        return new Promise((resolve, reject) => {
+          setTimeout(() => {
+            if (gen !== generation) reject(new Error("cancelled"));
+            else resolve();
+          }, ms);
+        });
+      }
+
+      function showTapOn(el) {
+        const p = bezel.getBoundingClientRect();
+        const r = el.getBoundingClientRect();
+        ripple.style.left = `${r.left - p.left + r.width / 2}px`;
+        ripple.style.top = `${r.top - p.top + r.height / 2}px`;
+        ripple.classList.remove("show");
+        void ripple.offsetWidth;
+        ripple.classList.add("show");
+      }
+
+      async function tap(el, gen) {
+        await wait(280, gen);
+        showTapOn(el);
+        await wait(120, gen);
+        el.click();
+        await wait(280, gen);
+      }
+
+      function closeModals() {
+        modalSchedule.classList.remove("open");
+        modalSuccess.classList.remove("open");
+        overlay.classList.remove("open");
+      }
+
+      function openSchedule() {
+        modalSuccess.classList.remove("open");
+        modalSchedule.classList.add("open");
+        overlay.classList.add("open");
+      }
+
+      function openSuccess() {
+        modalSchedule.classList.remove("open");
+        modalSuccess.classList.add("open");
+        overlay.classList.add("open");
+      }
+
+      function showCourse() {
+        lesson.classList.remove("active");
+        course.classList.add("active");
+        closeModals();
+      }
+
+      function showLesson() {
+        course.classList.remove("active");
+        lesson.classList.add("active");
+        closeModals();
+        setSlide(0);
+      }
+
+      function setSlide(i) {
+        slideIndex = Math.max(0, Math.min(slides.length - 1, i));
+        const s = slides[slideIndex];
+        sentence.innerHTML = s.html;
+        hair.style.background = s.hair;
+        slideCount.textContent = `${slideIndex + 1} / ${slides.length}`;
+        lessonFill.style.width = `${s.pct}%`;
+        lessonPct.textContent = `${s.pct}%`;
+        lessonPct.style.left = `${s.pct}%`;
+        seekFill.style.width = "0%";
+      }
+
+      function playAudio() {
+        if (seekTimer) clearInterval(seekTimer);
+        let w = 0;
+        seekFill.style.width = "0%";
+        seekTimer = setInterval(() => {
+          w += 8;
+          seekFill.style.width = `${Math.min(w, 100)}%`;
+          if (w >= 100) clearInterval(seekTimer);
+        }, 80);
+      }
+
+      document.getElementById("scheduleBtn").onclick = openSchedule;
+      document.getElementById("bookClass").onclick = openSuccess;
+      document.getElementById("continueBtn").onclick = () => {
+        closeModals();
+        showLesson();
+      };
+      document.getElementById("closeLesson").onclick = showCourse;
+      document.getElementById("unit5").onclick = showLesson;
+      document.getElementById("cardNext").onclick = () => setSlide(slideIndex + 1);
+      document.getElementById("cardPrev").onclick = () => setSlide(slideIndex - 1);
+      document.getElementById("nextLesson").onclick = () => setSlide(slideIndex + 1);
+      document.getElementById("prevLesson").onclick = () => setSlide(slideIndex - 1);
+      document.getElementById("playBtn").onclick = playAudio;
+
+      document.querySelectorAll("#dates .date").forEach((d) => {
+        d.onclick = () => {
+          document
+            .querySelectorAll("#dates .date")
+            .forEach((x) => x.classList.remove("selected"));
+          d.classList.add("selected");
+        };
+      });
+
+      document.querySelectorAll("[data-close]").forEach((btn) => {
+        btn.onclick = closeModals;
+      });
+      overlay.onclick = closeModals;
+
+      bezel.addEventListener(
+        "pointerdown",
+        (e) => {
+          if (e.target === ripple) return;
+          const p = bezel.getBoundingClientRect();
+          ripple.style.left = `${e.clientX - p.left}px`;
+          ripple.style.top = `${e.clientY - p.top}px`;
+          ripple.classList.remove("show");
+          void ripple.offsetWidth;
+          ripple.classList.add("show");
+        },
+        true,
+      );
+
+      async function runLoop() {
+        const gen = ++generation;
+        try {
+          while (gen === generation) {
+            showCourse();
+            await wait(1200, gen);
+
+            await tap(document.getElementById("scheduleBtn"), gen);
+            await wait(900, gen);
+
+            const dates = [...document.querySelectorAll("#dates .date")];
+            await tap(dates[2], gen);
+            await wait(600, gen);
+            await tap(dates[1], gen);
+            await wait(700, gen);
+
+            await tap(document.getElementById("bookClass"), gen);
+            await wait(1600, gen);
+
+            await tap(document.getElementById("continueBtn"), gen);
+            await wait(900, gen);
+
+            await tap(document.getElementById("playBtn"), gen);
+            await wait(1100, gen);
+            await tap(document.getElementById("cardNext"), gen);
+            await wait(800, gen);
+            await tap(document.getElementById("playBtn"), gen);
+            await wait(900, gen);
+            await tap(document.getElementById("cardNext"), gen);
+            await wait(700, gen);
+            await tap(document.getElementById("cardNext"), gen);
+            await wait(700, gen);
+            await tap(document.getElementById("nextLesson"), gen);
+            await wait(800, gen);
+
+            await tap(document.getElementById("closeLesson"), gen);
+            await wait(900, gen);
+
+            await tap(document.getElementById("unit5"), gen);
+            await wait(1000, gen);
+            await tap(document.getElementById("closeLesson"), gen);
+            await wait(1000, gen);
+          }
+        } catch (e) {
+          if (e.message !== "cancelled") console.error(e);
+        }
+      }
+
+      function pauseDemo() {
+        generation++;
+        paused = true;
+        if (seekTimer) {
+          clearInterval(seekTimer);
+          seekTimer = null;
+        }
+      }
+
+      function playDemo() {
+        if (!paused) return;
+        paused = false;
+        runLoop();
+      }
+
+      window.addEventListener("message", (e) => {
+        if (STILL) return;
+        if (e.data?.type === "openenglish-pause") pauseDemo();
+        if (e.data?.type === "openenglish-play") playDemo();
+      });
+      window.__openenglishPause = pauseDemo;
+      window.__openenglishPlay = playDemo;
+
+      if (STILL) {
+        paused = true;
+        showCourse();
+        try {
+          window.parent?.postMessage({ type: "openenglish-ready" }, "*");
+        } catch (_) {}
+      } else if (EMBED) {
+        paused = true;
+        try {
+          window.parent?.postMessage({ type: "openenglish-ready" }, "*");
+        } catch (_) {}
+      } else {
+        runLoop();
+      }
+    </script>
+  </body>
+</html>

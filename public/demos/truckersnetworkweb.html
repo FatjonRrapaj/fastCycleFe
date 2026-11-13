@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Truckers Network Web Suite</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --orange: #e86339;
+        --orange-bright: #ff6b00;
+        --black: #0a0a0a;
+        --ink: #111111;
+        --gray: #f0f0f0;
+        --muted: #5c5c5c;
+        --text: #2a2a2a;
+        --line: #e2e2e2;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: #1a1a1a;
+        font-family: Montserrat, system-ui, sans-serif;
+        color: var(--text);
+      }
+
+      .site {
+        width: min(1280px, 100%);
+        min-height: 100vh;
+        margin: 0 auto;
+        background: #fff;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06);
+      }
+
+      .tap-ripple {
+        position: absolute;
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        background: rgba(232, 99, 57, 0.22);
+        border: 2px solid rgba(232, 99, 57, 0.5);
+        transform: translate(-50%, -50%) scale(0.35);
+        opacity: 0;
+        pointer-events: none;
+        z-index: 200;
+      }
+
+      .tap-ripple.show {
+        animation: tapRipple 0.45s ease-out;
+      }
+
+      @keyframes tapRipple {
+        0% {
+          opacity: 0.95;
+          transform: translate(-50%, -50%) scale(0.35);
+        }
+        100% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(1.7);
+        }
+      }
+
+      .toast {
+        position: absolute;
+        left: 50%;
+        bottom: 28px;
+        transform: translateX(-50%) translateY(12px);
+        background: rgba(20, 20, 20, 0.92);
+        color: #fff;
+        font-size: 13px;
+        font-weight: 600;
+        padding: 11px 18px;
+        border-radius: 999px;
+        opacity: 0;
+        pointer-events: none;
+        z-index: 180;
+        transition: opacity 0.25s ease, transform 0.25s ease;
+        white-space: nowrap;
+      }
+
+      .toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+
+      /* NAV */
+      .nav {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 40;
+        height: 68px;
+        background: #000;
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        padding: 0 22px;
+      }
+
+      .logo {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 35% 30%, #ffb36a, var(--orange) 55%, #c4471f);
+        display: grid;
+        place-items: center;
+        flex: 0 0 auto;
+        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.08);
+        cursor: pointer;
+        border: 0;
+        padding: 0;
+      }
+
+      .logo svg {
+        width: 26px;
+        height: 26px;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 22px;
+        margin-left: 10px;
+        flex: 1;
+      }
+
+      .nav-links button {
+        border: 0;
+        background: transparent;
+        color: #fff;
+        font-family: Montserrat, sans-serif;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        cursor: pointer;
+        padding: 8px 2px;
+        position: relative;
+      }
+
+      .nav-links button.active {
+        color: var(--orange);
+      }
+
+      .nav-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .btn-ghost {
+        border: 1.5px solid rgba(255, 255, 255, 0.75);
+        background: transparent;
+        color: #fff;
+        font-family: Montserrat, sans-serif;
+        font-size: 12px;
+        font-weight: 600;
+        padding: 8px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+
+      .btn-orange {
+        border: 0;
+        background: var(--orange);
+        color: #fff;
+        font-family: Montserrat, sans-serif;
+        font-size: 12px;
+        font-weight: 700;
+        padding: 9px 18px;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+
+      .btn-orange.lg {
+        font-size: 14px;
+        padding: 12px 26px;
+        border-radius: 8px;
+        background: linear-gradient(180deg, #ff7a3d, var(--orange));
+        box-shadow: 0 8px 22px rgba(232, 99, 57, 0.35);
+      }
+
+      .socials {
+        display: flex;
+        gap: 8px;
+        margin-left: 4px;
+      }
+
+      .socials span {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: #2a2a2a;
+        color: #9a9a9a;
+        display: grid;
+        place-items: center;
+        font-size: 10px;
+        font-weight: 700;
+      }
+
+      /* PAGES */
+      .page {
+        display: none;
+        min-height: 100vh;
+        padding-top: 68px;
+      }
+
+      .page.active {
+        display: block;
+      }
+
+      .page.scroll {
+        max-height: 100vh;
+        overflow: auto;
+      }
+
+      /* EMPLOYERS */
+      .emp-light {
+        background: var(--gray);
+        display: grid;
+        grid-template-columns: minmax(280px, 1.05fr) minmax(240px, 0.95fr);
+        gap: 40px;
+        align-items: center;
+        padding: 56px 48px 48px;
+        min-height: 420px;
+      }
+
+      .emp-dark {
+        background: var(--black);
+        color: #fff;
+        display: grid;
+        grid-template-columns: minmax(240px, 0.9fr) minmax(280px, 1.1fr);
+        gap: 40px;
+        align-items: center;
+        padding: 56px 48px 64px;
+        min-height: 400px;
+      }
+
+      .headline {
+        font-family: "Bebas Neue", Impact, sans-serif;
+        font-size: clamp(34px, 4.2vw, 52px);
+        line-height: 0.98;
+        letter-spacing: 0.02em;
+        margin: 0 0 18px;
+        font-weight: 400;
+      }
+
+      .headline .accent {
+        color: var(--orange);
+        display: block;
+      }
+
+      .emp-dark .headline .accent {
+        display: inline;
+      }
+
+      .emp-dark .headline .white {
+        color: #fff;
+      }
+
+      .copy {
+        font-size: 13.5px;
+        line-height: 1.65;
+        color: var(--muted);
+        margin: 0 0 12px;
+        max-width: 420px;
+      }
+
+      .emp-dark .copy {
+        color: #b8b8b8;
+      }
+
+      /* Laptop mock */
+      .laptop {
+        position: relative;
+        width: 100%;
+        max-width: 520px;
+        margin: 0 auto;
+        transform: perspective(900px) rotateY(8deg) rotateX(2deg);
+        filter: drop-shadow(0 28px 50px rgba(0, 0, 0, 0.28));
+      }
+
+      .emp-dark .laptop {
+        transform: perspective(900px) rotateY(-10deg) rotateX(3deg);
+        max-width: 480px;
+      }
+
+      .laptop-lid {
+        background: #1c1c1e;
+        border-radius: 12px 12px 0 0;
+        padding: 10px 10px 0;
+        border: 2px solid #2a2a2c;
+        border-bottom: 0;
+      }
+
+      .laptop-screen {
+        background: #fff;
+        border-radius: 4px 4px 0 0;
+        overflow: hidden;
+        aspect-ratio: 16 / 10;
+        position: relative;
+      }
+
+      .laptop-base {
+        height: 12px;
+        background: linear-gradient(180deg, #3a3a3c, #1f1f21);
+        border-radius: 0 0 10px 10px;
+        position: relative;
+      }
+
+      .laptop-base::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: 3px;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 4px;
+        background: #4a4a4c;
+        border-radius: 2px;
+      }
+
+      .dash-top {
+        background: #111;
+        color: #fff;
+        padding: 8px 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+      }
+
+      .dash-top .pill {
+        background: var(--orange);
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-size: 8px;
+      }
+
+      .dash-body {
+        padding: 10px;
+        background: #f7f7f8;
+        height: calc(100% - 32px);
+      }
+
+      .dash-banner {
+        background: linear-gradient(90deg, #1a1a1a, #333);
+        color: #fff;
+        padding: 8px 10px;
+        border-radius: 6px;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        margin-bottom: 8px;
+      }
+
+      .dash-table {
+        background: #fff;
+        border-radius: 6px;
+        border: 1px solid #e8e8e8;
+        overflow: hidden;
+        font-size: 8px;
+      }
+
+      .dash-table .th {
+        display: grid;
+        grid-template-columns: 1.4fr 0.7fr 1fr 0.8fr;
+        gap: 4px;
+        padding: 6px 8px;
+        background: #f3f3f3;
+        font-weight: 700;
+        color: #666;
+      }
+
+      .dash-table .tr {
+        display: grid;
+        grid-template-columns: 1.4fr 0.7fr 1fr 0.8fr;
+        gap: 4px;
+        padding: 7px 8px;
+        border-top: 1px solid #eee;
+        color: #333;
+        align-items: center;
+      }
+
+      .status-dot {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .status-dot::before {
+        content: "";
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: #2ecc71;
+      }
+
+      .chip {
+        display: inline-block;
+        background: #fff0e8;
+        color: var(--orange);
+        padding: 2px 5px;
+        border-radius: 3px;
+        font-weight: 700;
+        font-size: 7px;
+      }
+
+      .profile-modal {
+        position: absolute;
+        inset: 12% 10% auto;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+        padding: 12px;
+        z-index: 2;
+      }
+
+      .profile-modal h4 {
+        margin: 0 0 8px;
+        font-size: 11px;
+      }
+
+      .profile-row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+
+      .avatar-sm {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #666, #222);
+      }
+
+      .profile-modal .fields {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+      }
+
+      .field {
+        background: #f4f4f4;
+        border-radius: 4px;
+        height: 18px;
+      }
+
+      .field.lg {
+        grid-column: 1 / -1;
+        height: 28px;
+      }
+
+      /* DRIVERS */
+      #page-drivers {
+        background: #000;
+        color: #fff;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .drivers-hero {
+        position: relative;
+        min-height: calc(100vh - 68px);
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+        align-items: center;
+        padding: 48px 56px 80px;
+        background:
+          linear-gradient(90deg, rgba(0, 0, 0, 0.82) 0%, rgba(0, 0, 0, 0.55) 45%, rgba(0, 0, 0, 0.35) 100%),
+          url("https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=1600&q=80")
+            center / cover no-repeat;
+      }
+
+      .drivers-copy h1 {
+        font-family: "Bebas Neue", Impact, sans-serif;
+        font-size: clamp(36px, 4.6vw, 56px);
+        line-height: 0.95;
+        margin: 0 0 10px;
+        letter-spacing: 0.02em;
+        font-weight: 400;
+      }
+
+      .drivers-copy h2 {
+        margin: 0 0 16px;
+        font-size: 18px;
+        font-weight: 700;
+      }
+
+      .drivers-copy p {
+        margin: 0 0 10px;
+        font-size: 13.5px;
+        line-height: 1.6;
+        color: #d0d0d0;
+        max-width: 400px;
+      }
+
+      .store-row {
+        display: flex;
+        gap: 10px;
+        margin-top: 22px;
+        flex-wrap: wrap;
+      }
+
+      .store {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: #000;
+        border: 1px solid #444;
+        color: #fff;
+        border-radius: 8px;
+        padding: 8px 12px;
+        font-size: 11px;
+        line-height: 1.15;
+        cursor: pointer;
+        font-family: inherit;
+      }
+
+      .store strong {
+        display: block;
+        font-size: 13px;
+      }
+
+      .store svg {
+        width: 22px;
+        height: 22px;
+        flex: 0 0 auto;
+      }
+
+      .phones {
+        position: relative;
+        height: 460px;
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;
+      }
+
+      .phone-mock {
+        width: 210px;
+        height: 420px;
+        background: #111;
+        border-radius: 28px;
+        padding: 8px;
+        box-shadow: 0 24px 50px rgba(0, 0, 0, 0.45);
+        position: absolute;
+        border: 2px solid #2a2a2a;
+      }
+
+      .phone-mock.back {
+        right: 18%;
+        bottom: 20px;
+        transform: rotate(6deg) scale(0.92);
+        z-index: 1;
+        opacity: 0.95;
+      }
+
+      .phone-mock.front {
+        left: 12%;
+        bottom: 0;
+        z-index: 2;
+        transform: rotate(-3deg);
+      }
+
+      .phone-screen {
+        height: 100%;
+        border-radius: 22px;
+        overflow: hidden;
+        background: #0d1118;
+        color: #fff;
+        position: relative;
+      }
+
+      .ph-status {
+        height: 26px;
+        padding: 8px 12px 0;
+        font-size: 9px;
+        display: flex;
+        justify-content: space-between;
+        opacity: 0.8;
+      }
+
+      .ph-header {
+        padding: 6px 12px 8px;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .ph-banner {
+        margin: 0 10px 8px;
+        border-radius: 10px;
+        overflow: hidden;
+        height: 88px;
+        background:
+          linear-gradient(180deg, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.55)),
+          url("https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&w=600&q=70")
+            center / cover;
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        font-size: 10px;
+        font-weight: 700;
+      }
+
+      .ph-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+        padding: 0 10px;
+      }
+
+      .ph-card {
+        border-radius: 10px;
+        padding: 8px;
+        min-height: 58px;
+        font-size: 8px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+      }
+
+      .ph-card.orange {
+        background: var(--orange);
+      }
+      .ph-card.dark {
+        background: #1a2330;
+      }
+      .ph-card.green {
+        background: #2ecc71;
+        color: #0a2a14;
+      }
+      .ph-card.yellow {
+        background: #f1c40f;
+        color: #3a2e00;
+      }
+
+      .ph-card .face {
+        font-size: 16px;
+        margin-bottom: 4px;
+      }
+
+      .jobs-list {
+        padding: 8px 10px;
+      }
+
+      .jobs-list .item {
+        background: #161d28;
+        border-radius: 10px;
+        padding: 8px;
+        margin-bottom: 6px;
+        font-size: 9px;
+      }
+
+      .jobs-list .item strong {
+        display: block;
+        margin-bottom: 2px;
+        font-size: 10px;
+      }
+
+      .jobs-list .apply {
+        margin-top: 6px;
+        background: var(--orange);
+        border: 0;
+        color: #fff;
+        border-radius: 6px;
+        padding: 5px 8px;
+        font-size: 9px;
+        font-weight: 700;
+        float: right;
+      }
+
+      .site-footer {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: #000;
+        color: #888;
+        font-size: 11px;
+        padding: 12px 24px;
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        z-index: 5;
+      }
+
+      .site-footer a {
+        color: #aaa;
+        text-decoration: none;
+      }
+
+      /* 160 SCORE */
+      #page-score {
+        background: #fff;
+      }
+
+      .score-hero {
+        min-height: 58vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 56px 40px 48px;
+        background:
+          linear-gradient(180deg, rgba(0, 0, 0, 0.68), rgba(0, 0, 0, 0.58)),
+          url("https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&w=1600&q=80")
+            center 35% / cover no-repeat;
+        color: #fff;
+      }
+
+      .score-hero h1 {
+        font-family: "Bebas Neue", Impact, sans-serif;
+        font-size: clamp(34px, 4.4vw, 54px);
+        line-height: 0.98;
+        margin: 0 0 12px;
+        max-width: 760px;
+        letter-spacing: 0.02em;
+        font-weight: 400;
+      }
+
+      .score-hero p {
+        margin: 0 0 22px;
+        font-size: 16px;
+        font-weight: 500;
+      }
+
+      .score-body {
+        background: #f5f5f5;
+        display: grid;
+        grid-template-columns: 1fr 1.1fr;
+        gap: 40px;
+        align-items: center;
+        padding: 56px;
+      }
+
+      .score-photo {
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        border-radius: 4px;
+        object-fit: cover;
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
+      }
+
+      .score-body h2 {
+        font-family: "Bebas Neue", Impact, sans-serif;
+        font-size: clamp(28px, 3.2vw, 40px);
+        line-height: 1;
+        margin: 0 0 14px;
+        letter-spacing: 0.02em;
+        font-weight: 400;
+        color: #111;
+      }
+
+      .score-body h2 .accent {
+        color: var(--orange);
+      }
+
+      .score-body p {
+        margin: 0 0 10px;
+        font-size: 14px;
+        line-height: 1.65;
+        color: var(--muted);
+        max-width: 480px;
+      }
+
+      @media (max-width: 720px) {
+        .emp-light,
+        .emp-dark,
+        .drivers-hero,
+        .score-body {
+          grid-template-columns: 1fr;
+          padding: 36px 24px;
+          gap: 28px;
+        }
+
+        .phones {
+          height: 380px;
+        }
+
+        .nav-links {
+          gap: 10px;
+        }
+
+        .nav-links button {
+          font-size: 10px;
+        }
+
+        .socials {
+          display: none;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .tap-ripple {
+          animation: none !important;
+        }
+      }
+
+      body.is-embed {
+        margin: 0;
+        padding: 0;
+        min-height: 0;
+        width: 1280px;
+        height: 800px;
+        background: transparent;
+        display: block;
+        overflow: hidden;
+      }
+
+      body.is-embed .site {
+        width: 1280px;
+        min-height: 800px;
+        height: 800px;
+        margin: 0;
+        box-shadow: none;
+      }
+
+      body.is-embed .page {
+        min-height: 800px;
+      }
+
+      body.is-embed .page.scroll {
+        max-height: 800px;
+      }
+
+      body.is-embed .drivers-hero {
+        min-height: calc(800px - 68px);
+      }
+
+      body.is-still .tap-ripple,
+      body.is-still .toast {
+        transition: none !important;
+        animation: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="site" id="site">
+      <div class="tap-ripple" id="ripple" aria-hidden="true"></div>
+      <div class="toast" id="toast"></div>
+
+      <header class="nav">
+        <button class="logo" type="button" id="navLogo" aria-label="Truckers Network">
+          <svg viewBox="0 0 24 24" fill="none">
+            <rect x="2" y="9" width="14" height="8" rx="1.5" fill="#fff" />
+            <path d="M16 11h4l2 3v3h-6v-6z" fill="#ffe08a" />
+            <circle cx="7" cy="17.5" r="1.8" fill="#222" />
+            <circle cx="17.5" cy="17.5" r="1.8" fill="#222" />
+          </svg>
+        </button>
+        <nav class="nav-links">
+          <button type="button" class="active" id="navEmployers">EMPLOYERS</button>
+          <button type="button" id="navDrivers">DRIVERS</button>
+          <button type="button" id="navScore">160 SCORE</button>
+          <button type="button" id="navHelp">HELP</button>
+        </nav>
+        <div class="nav-actions">
+          <button class="btn-ghost" type="button" id="navPrimary">Login</button>
+          <button class="btn-orange" type="button" id="navSecondary">Signup</button>
+          <div class="socials" aria-hidden="true">
+            <span>f</span><span>ig</span><span>x</span><span>in</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- EMPLOYERS -->
+      <section class="page active scroll" id="page-employers">
+        <div class="emp-light">
+          <div class="laptop" aria-hidden="true">
+            <div class="laptop-lid">
+              <div class="laptop-screen">
+                <div class="dash-top">
+                  <span>TRUCKERS NETWORK</span>
+                  <span class="pill">LIVE</span>
+                </div>
+                <div class="dash-body">
+                  <div class="dash-banner">DRIVERS ARE APPLYING RIGHT NOW</div>
+                  <div class="dash-table">
+                    <div class="th">
+                      <span>Job Name</span><span>Status</span><span>New Applicants</span
+                      ><span>Messages</span>
+                    </div>
+                    <div class="tr">
+                      <span>CDL A Regional</span
+                      ><span class="status-dot">Active</span
+                      ><span><span class="chip">+12 new</span></span><span>4</span>
+                    </div>
+                    <div class="tr">
+                      <span>Local Tanker</span
+                      ><span class="status-dot">Active</span
+                      ><span><span class="chip">+7 new</span></span><span>2</span>
+                    </div>
+                    <div class="tr">
+                      <span>OTR Flatbed</span
+                      ><span class="status-dot">Active</span
+                      ><span><span class="chip">+19 new</span></span><span>9</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="laptop-base"></div>
+          </div>
+          <div>
+            <h1 class="headline">
+              HAVE YOUR JOBS VIEWED BY
+              <span class="accent">THOUSANDS OF DRIVERS</span>
+            </h1>
+            <p class="copy">
+              Post openings once and reach a network of active CDL drivers who
+              are ready to apply. Track applicants, messages, and job
+              performance from one employer dashboard.
+            </p>
+            <p class="copy">
+              Promote featured roles, review driver profiles in seconds, and
+              keep your recruiting pipeline moving without the usual back-and-forth.
+            </p>
+          </div>
+        </div>
+
+        <div class="emp-dark">
+          <div>
+            <h2 class="headline">
+              <span class="accent">SIMPLIFY YOUR RECRUITING</span>
+              <span class="white"> PROCESS</span>
+            </h2>
+            <p class="copy">
+              Review applications, chat with candidates, and shortlist the right
+              drivers without leaving the platform. Everything your recruiting
+              team needs sits in one clean workflow.
+            </p>
+            <p class="copy">
+              From first swipe to hired — stay in control of every conversation
+              and every hire.
+            </p>
+          </div>
+          <div class="laptop" aria-hidden="true">
+            <div class="laptop-lid">
+              <div class="laptop-screen" style="background: #ececec">
+                <div class="dash-top">
+                  <span>CANDIDATE PROFILE</span>
+                  <span class="pill">NEW</span>
+                </div>
+                <div class="profile-modal">
+                  <h4>Personal Information</h4>
+                  <div class="profile-row">
+                    <div class="avatar-sm"></div>
+                    <div>
+                      <strong style="font-size: 11px">Jimmy Hudson</strong>
+                      <div style="font-size: 8px; color: #777">CDL A · 6 yrs exp</div>
+                    </div>
+                  </div>
+                  <div class="fields">
+                    <div class="field"></div>
+                    <div class="field"></div>
+                    <div class="field lg"></div>
+                    <div class="field"></div>
+                    <div class="field"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="laptop-base"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- DRIVERS -->
+      <section class="page" id="page-drivers">
+        <div class="drivers-hero">
+          <div class="drivers-copy">
+            <h1>TRUCKERS NETWORK<br />FOR DRIVERS</h1>
+            <h2>Find your next job today</h2>
+            <p>
+              Browse top-quality openings from carriers that want serious
+              drivers — then apply with a single swipe.
+            </p>
+            <p>
+              Stay on top of applications, academy progress, and messages in one
+              app built for life on the road.
+            </p>
+            <div class="store-row">
+              <button class="store" type="button" id="btnPlay">
+                <svg viewBox="0 0 24 24" fill="#fff">
+                  <path d="M3 20.5V3.5L14 12 3 20.5zM15 12l6 3.5V8.5L15 12z" />
+                </svg>
+                <span>GET IT ON<br /><strong>Google Play</strong></span>
+              </button>
+              <button class="store" type="button" id="btnAppStore">
+                <svg viewBox="0 0 24 24" fill="#fff">
+                  <path
+                    d="M16.5 3.5c.4 1.3-.4 2.6-1.2 3.4-.9.8-2.2 1.5-3.4 1.4-.4-1.3.5-2.6 1.3-3.4.9-.9 2.3-1.5 3.3-1.4zM20 17.2c-.6 1.3-1.2 2.5-2.2 2.5-.9 0-1.2-.6-2.4-.6s-1.4.5-2.3.6c-1 0-1.7-1.3-2.4-2.5-1.3-2.3-1.1-5.3.6-6.9.8-.8 2-.1 2.6-.1.8 0 1.7-1.1 3-1 1.3.1 2.2.8 2.8 1.6-2.5 1.4-2.1 5 1.3 6.4z"
+                  />
+                </svg>
+                <span>Download on the<br /><strong>App Store</strong></span>
+              </button>
+            </div>
+          </div>
+
+          <div class="phones" aria-hidden="true">
+            <div class="phone-mock back">
+              <div class="phone-screen">
+                <div class="ph-status"><span>9:41</span><span>●●●</span></div>
+                <div class="ph-header">Jobs near you</div>
+                <div class="jobs-list">
+                  <div class="item">
+                    <strong>Truck Driver — Regional</strong>
+                    $1,800/wk · Dry Van
+                    <button class="apply" type="button">Apply</button>
+                    <div style="clear: both"></div>
+                  </div>
+                  <div class="item">
+                    <strong>CDL A Local</strong>
+                    Home daily · Benefits
+                    <button class="apply" type="button">Apply</button>
+                    <div style="clear: both"></div>
+                  </div>
+                  <div class="item">
+                    <strong>OTR Flatbed</strong>
+                    Sign-on bonus
+                    <button class="apply" type="button">Apply</button>
+                    <div style="clear: both"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="phone-mock front">
+              <div class="phone-screen">
+                <div class="ph-status"><span>9:41</span><span>●●●</span></div>
+                <div class="ph-header">Welcome back, Shila</div>
+                <div class="ph-banner">160 Driving Academy</div>
+                <div class="ph-grid">
+                  <div class="ph-card orange">
+                    <div class="face">☹</div>
+                    PRE-TRIPS<br />NEEDS IMPROVEMENT
+                  </div>
+                  <div class="ph-card dark">
+                    <div class="face" style="color: #2ecc71">◉</div>
+                    ATTENDANCE
+                  </div>
+                  <div class="ph-card green">
+                    <div class="face">☺</div>
+                    SKILLS<br />GOOD JOB
+                  </div>
+                  <div class="ph-card yellow">
+                    <div class="face">😐</div>
+                    ROAD<br />SATISFACTORY
+                  </div>
+                  <div class="ph-card dark" style="grid-column: 1 / -1">
+                    MESSAGES · 3 new
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <footer class="site-footer">
+          <span>© 2022 — the 160 Truckers Network</span>
+          <span
+            ><a href="#">Privacy Policy</a> · <a href="#">Terms of Service</a></span
+          >
+        </footer>
+      </section>
+
+      <!-- 160 SCORE -->
+      <section class="page scroll" id="page-score">
+        <div class="score-hero">
+          <h1>THE MOST RELIABLE WAY TO CERTIFY TRUCK DRIVING SKILLS</h1>
+          <p>What is Driver Score?</p>
+          <button class="btn-orange lg" type="button" id="btnFindOut">
+            Find out more
+          </button>
+        </div>
+        <div class="score-body">
+          <img
+            class="score-photo"
+            src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=900&q=80"
+            alt="Driver in truck cabin"
+          />
+          <div>
+            <h2>
+              WHAT IS <span class="accent">160 DRIVER SCORE</span> TEST?
+            </h2>
+            <p>
+              160 Driver Score is the best way to evaluate and certify truck
+              driving skills, helping carriers and academies measure readiness
+              with a trusted, standardized assessment.
+            </p>
+            <p>
+              From pre-trips to road performance, drivers get clear feedback —
+              and employers get confidence before the hire.
+            </p>
+            <button class="btn-orange" type="button" id="btnSchedule" style="margin-top: 10px">
+              Schedule a test
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      const params = new URLSearchParams(location.search);
+      const EMBED = params.has("embed");
+      const STILL = params.has("still");
+      if (EMBED) document.body.classList.add("is-embed");
+      if (STILL) document.body.classList.add("is-still");
+
+      const site = document.getElementById("site");
+      const ripple = document.getElementById("ripple");
+      const toast = document.getElementById("toast");
+      const pages = {
+        employers: document.getElementById("page-employers"),
+        drivers: document.getElementById("page-drivers"),
+        score: document.getElementById("page-score"),
+      };
+      const navButtons = {
+        employers: document.getElementById("navEmployers"),
+        drivers: document.getElementById("navDrivers"),
+        score: document.getElementById("navScore"),
+      };
+      const navPrimary = document.getElementById("navPrimary");
+      const navSecondary = document.getElementById("navSecondary");
+
+      let generation = 0;
+      let paused = false;
+      let toastTimer = null;
+
+      function wait(ms, gen) {
+        return new Promise((resolve, reject) => {
+          setTimeout(() => {
+            if (gen !== generation) reject(new Error("cancelled"));
+            else resolve();
+          }, ms);
+        });
+      }
+
+      function showToast(msg) {
+        toast.textContent = msg;
+        toast.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove("show"), 1200);
+      }
+
+      function showTapOn(el) {
+        const p = site.getBoundingClientRect();
+        const r = el.getBoundingClientRect();
+        ripple.style.left = `${r.left - p.left + r.width / 2}px`;
+        ripple.style.top = `${r.top - p.top + r.height / 2}px`;
+        ripple.classList.remove("show");
+        void ripple.offsetWidth;
+        ripple.classList.add("show");
+      }
+
+      async function tap(el, gen) {
+        await wait(220, gen);
+        showTapOn(el);
+        await wait(100, gen);
+        el.click();
+        await wait(220, gen);
+      }
+
+      function setNavChrome(page) {
+        Object.values(navButtons).forEach((b) => b.classList.remove("active"));
+        navButtons[page].classList.add("active");
+        if (page === "employers") {
+          navPrimary.textContent = "Login";
+          navSecondary.textContent = "Signup";
+          navSecondary.style.display = "";
+        } else if (page === "drivers") {
+          navPrimary.textContent = "Download now";
+          navSecondary.style.display = "none";
+        } else {
+          navPrimary.textContent = "Schedule a test";
+          navSecondary.style.display = "none";
+        }
+      }
+
+      function showPage(name) {
+        Object.values(pages).forEach((p) => p.classList.remove("active"));
+        pages[name].classList.add("active");
+        pages[name].scrollTop = 0;
+        setNavChrome(name);
+      }
+
+      document.getElementById("navEmployers").onclick = () => showPage("employers");
+      document.getElementById("navDrivers").onclick = () => showPage("drivers");
+      document.getElementById("navScore").onclick = () => showPage("score");
+      document.getElementById("navLogo").onclick = () => showPage("employers");
+      document.getElementById("navHelp").onclick = () =>
+        showToast("Help center opened");
+
+      navPrimary.onclick = () => {
+        if (navPrimary.textContent.includes("Download"))
+          showToast("Opening download options");
+        else if (navPrimary.textContent.includes("Schedule"))
+          showToast("Scheduling a Driver Score test");
+        else showToast("Employer login");
+      };
+      navSecondary.onclick = () => showToast("Create employer account");
+      document.getElementById("btnPlay").onclick = () =>
+        showToast("Google Play");
+      document.getElementById("btnAppStore").onclick = () =>
+        showToast("App Store");
+      document.getElementById("btnFindOut").onclick = () => {
+        pages.score.scrollTo({ top: 420, behavior: "smooth" });
+      };
+      document.getElementById("btnSchedule").onclick = () =>
+        showToast("Test scheduled");
+
+      site.addEventListener(
+        "pointerdown",
+        (e) => {
+          if (e.target === ripple) return;
+          const p = site.getBoundingClientRect();
+          ripple.style.left = `${e.clientX - p.left}px`;
+          ripple.style.top = `${e.clientY - p.top}px`;
+          ripple.classList.remove("show");
+          void ripple.offsetWidth;
+          ripple.classList.add("show");
+        },
+        true,
+      );
+
+      async function runLoop() {
+        const gen = ++generation;
+        try {
+          while (gen === generation) {
+            showPage("employers");
+            await wait(1600, gen);
+            pages.employers.scrollTo({ top: 320, behavior: "smooth" });
+            await wait(1800, gen);
+            pages.employers.scrollTo({ top: 0, behavior: "smooth" });
+            await wait(700, gen);
+
+            await tap(document.getElementById("navDrivers"), gen);
+            await wait(2600, gen);
+
+            await tap(document.getElementById("navScore"), gen);
+            await wait(1600, gen);
+            await tap(document.getElementById("btnFindOut"), gen);
+            await wait(1800, gen);
+            await tap(document.getElementById("btnSchedule"), gen);
+            await wait(900, gen);
+
+            await tap(document.getElementById("navEmployers"), gen);
+            await wait(900, gen);
+            await tap(document.getElementById("navSecondary"), gen);
+            await wait(800, gen);
+          }
+        } catch (e) {
+          if (e.message !== "cancelled") console.error(e);
+        }
+      }
+
+      function pauseDemo() {
+        generation++;
+        paused = true;
+        clearTimeout(toastTimer);
+        toast.classList.remove("show");
+        ripple.classList.remove("show");
+      }
+
+      function playDemo() {
+        if (!paused) return;
+        paused = false;
+        runLoop();
+      }
+
+      window.addEventListener("message", (e) => {
+        if (STILL) return;
+        if (e.data?.type === "truckersweb-pause") pauseDemo();
+        if (e.data?.type === "truckersweb-play") playDemo();
+      });
+
+      window.__truckerswebPause = pauseDemo;
+      window.__truckerswebPlay = playDemo;
+
+      function settleFinal() {
+        showPage("employers");
+        pages.employers.scrollTop = 0;
+      }
+
+      showPage("employers");
+
+      if (STILL) {
+        paused = true;
+        generation++;
+        settleFinal();
+        try {
+          window.parent?.postMessage({ type: "truckersweb-ready" }, "*");
+        } catch (_) {}
+      } else if (EMBED) {
+        paused = true;
+        try {
+          window.parent?.postMessage({ type: "truckersweb-ready" }, "*");
+        } catch (_) {}
+      } else {
+        runLoop();
+      }
+    </script>
+  </body>
+</html>

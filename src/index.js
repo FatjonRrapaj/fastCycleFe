@@ -8,11 +8,57 @@ import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 import { TransformControls } from "three/examples/jsm/controls/TransformControls";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment";
 import { initNav, initReveals } from "./nav";
+import { mountAllPhoneDemos } from "./demos/phone-embed";
 
 gsap.registerPlugin(ScrollTrigger);
 
 initNav();
 initReveals();
+mountAllPhoneDemos();
+initHeroCounters();
+
+function initHeroCounters() {
+  const root = document.querySelector(".hero-stats");
+  if (!root) return;
+
+  const values = root.querySelectorAll("[data-count]");
+  let started = false;
+
+  const animate = () => {
+    if (started) return;
+    started = true;
+
+    values.forEach((el) => {
+      const target = Number(el.dataset.count) || 0;
+      const prefix = el.dataset.prefix ?? "+";
+      const suffix = el.dataset.suffix ?? "";
+      const state = { n: 0 };
+
+      gsap.to(state, {
+        n: target,
+        duration: 1.45,
+        ease: "power2.out",
+        delay: 0.12,
+        onUpdate: () => {
+          el.textContent = `${prefix}${Math.round(state.n)}${suffix}`;
+        },
+      });
+    });
+  };
+
+  if (root.classList.contains("is-in")) {
+    animate();
+    return;
+  }
+
+  const observer = new MutationObserver(() => {
+    if (root.classList.contains("is-in")) {
+      animate();
+      observer.disconnect();
+    }
+  });
+  observer.observe(root, { attributes: true, attributeFilter: ["class"] });
+}
 
 const lenis = new Lenis({
   duration: 1.1,
