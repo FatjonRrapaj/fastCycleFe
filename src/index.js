@@ -668,9 +668,14 @@ function applyColorProgress(t) {
       asMaterialList(solid).forEach((mat) => {
         const isGlass = !!mat.userData?.isGlass;
         if (isGlass) {
-          mat.transparent = true;
-          mat.opacity = 0.35 + solidT * 0.55;
-          mat.depthWrite = false;
+          // Stay opaque while fading in — transmission/see-through was showing the arms.
+          mat.transparent = solidT < 1;
+          mat.opacity = 0.45 + solidT * 0.55;
+          mat.depthWrite = true;
+          if (solidT >= 1) {
+            mat.transparent = false;
+            mat.opacity = 1;
+          }
         } else if (solidT < 1) {
           mat.transparent = true;
           mat.opacity = 0.55 + solidT * 0.45;
@@ -732,32 +737,26 @@ loader.setDRACOLoader(dracoLoader);
 
 // 4-step luminance ramp for MeshToonMaterial — soft cel shading, not harsh bands.
 function isGlassSlot(matName, partName) {
-  if (matName === "material" || matName === "material.005") return true;
-  // Camera sphere authored as "color" should still read as a lens.
-  if (partName.includes("camera") && (matName === "color" || matName === "material.005")) {
-    return true;
-  }
-  return false;
+  // Canopy window only — camera globe stays solid dark, not glass.
+  if (partName.includes("camera")) return false;
+  return matName === "material";
 }
 
 function makeGlassMaterial(source) {
-  // Smoked lens / canopy — authored "Material" often defaults to white in glTF.
-  const hex = source?.color?.getHex?.() ?? 0xffffff;
-  const tint = hex >= 0xf0f0f0 || hex <= 0x050505 ? 0x1c2a2c : hex;
+  // Opaque glassy canopy/lens — clearcoat sheen, no see-through wings.
   const glass = new THREE.MeshPhysicalMaterial({
-    color: tint,
-    metalness: 0.15,
-    roughness: 0.18,
-    transmission: 0.35,
-    thickness: 0.35,
-    ior: 1.4,
-    transparent: true,
-    opacity: 0.9,
-    depthWrite: false,
+    color: 0x243f3c,
+    metalness: 0.12,
+    roughness: 0.06,
+    transmission: 0,
+    transparent: false,
+    opacity: 1,
+    depthWrite: true,
     side: THREE.FrontSide,
-    envMapIntensity: 0.55,
-    clearcoat: 0.4,
-    clearcoatRoughness: 0.2,
+    envMapIntensity: 1.35,
+    clearcoat: 1,
+    clearcoatRoughness: 0.04,
+    reflectivity: 0.85,
   });
   glass.name = source?.name || "glass";
   glass.userData.isGlass = true;
@@ -773,13 +772,27 @@ function styleSolidMaterial(mesh, source) {
     return makeGlassMaterial(source);
   }
 
-  // Keep the pack's authored low-poly colors (charcoal body, purple blades).
   const solid = source.clone();
   solid.name = source.name;
   solid.side = THREE.FrontSide;
   solid.transparent = false;
   solid.opacity = 1;
   solid.userData.isGlass = false;
+
+  // Propeller blades only (Material.001) → site mint. Hubs stay authored black ("color").
+  if (matName === "material.001") {
+    solid.color.setHex(0x12c4b0);
+    solid.metalness = 0.15;
+    solid.roughness = 0.35;
+  }
+
+  // Camera globe — matte dark shell, not a lens.
+  if (partName.includes("camera")) {
+    solid.color.setHex(0x141414);
+    solid.metalness = 0.35;
+    solid.roughness = 0.45;
+  }
+
   solid.needsUpdate = true;
   return solid;
 }
