@@ -755,7 +755,9 @@ loader.setDRACOLoader(dracoLoader);
 
 // 4-step luminance ramp for MeshToonMaterial — soft cel shading, not harsh bands.
 function isGlassSlot(matName, partName) {
-  // Canopy window only — camera globe stays solid dark, not glass.
+  // Camera lens disc (Material.005) — same glassy mint as the canopy.
+  if (partName.includes("camera") && matName === "material.005") return true;
+  // Canopy window only — camera ball/oval stay solid dark, not glass.
   if (partName.includes("camera")) return false;
   return matName === "material";
 }
@@ -763,7 +765,7 @@ function isGlassSlot(matName, partName) {
 function makeGlassMaterial(source) {
   // Opaque glassy canopy/lens — clearcoat sheen, no see-through wings.
   const glass = new THREE.MeshPhysicalMaterial({
-    color: 0x243f3c,
+    color: 0x3a3c3c,
     metalness: 0.12,
     roughness: 0.06,
     transmission: 0,
