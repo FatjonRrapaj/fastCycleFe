@@ -8,8 +8,53 @@
       name="description"
       content="Fatjon Rrapaj — Mobile & Frontend developer with 9 years of experience greenfielding and shipping real apps."
     />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* Kill FOUC — hide page until CSS + assets boot */
+      html {
+        background: #0f2d34;
+      }
+      body {
+        margin: 0;
+        visibility: hidden;
+      }
+      #boot-screen {
+        visibility: visible;
+        position: fixed;
+        inset: 0;
+        z-index: 10000;
+        display: grid;
+        place-items: center;
+        margin: 0;
+        background: #0f2d34;
+        color: rgba(243, 250, 248, 0.7);
+        font-family: "IBM Plex Mono", ui-monospace, monospace;
+      }
+      html.is-booted body {
+        visibility: visible;
+      }
+      html.is-booted #boot-screen {
+        pointer-events: none;
+      }
+    </style>
   </head>
   <body class="home-page">
+    <div id="boot-screen" role="status" aria-live="polite" aria-busy="true">
+      <div class="boot-panel">
+        <p class="boot-brand">FATJON RRAPAJ</p>
+        <div class="boot-track" aria-hidden="true">
+          <i id="boot-bar"></i>
+        </div>
+        <p class="boot-meta">
+          <span id="boot-pct">00</span>%&nbsp;&nbsp;//&nbsp;&nbsp;<span id="boot-status">BOOT</span>
+        </p>
+      </div>
+    </div>
         <header class="site-nav">
       <a class="brand" href="/">Fatjon <span>Rrapaj</span></a>
       <button class="nav-toggle" type="button" aria-label="Open menu">

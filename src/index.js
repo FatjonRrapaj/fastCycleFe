@@ -1424,103 +1424,240 @@ function styleSolidMaterial(mesh, source) {
   return solid;
 }
 
-loader.load(
-  "/noYUp.glb",
-  (gltf) => {
-    try {
-      droneModel = gltf.scene;
-      dronePivot.add(droneModel);
+function mountDroneGltf(gltf) {
+  droneModel = gltf.scene;
+  dronePivot.add(droneModel);
 
-      droneModel.traverse((object) => {
-        if (!object.isMesh) return;
+  droneModel.traverse((object) => {
+    if (!object.isMesh) return;
 
-        const materials = Array.isArray(object.material)
-          ? object.material
-          : [object.material];
-        const solids = materials.map((mat) => styleSolidMaterial(object, mat));
-        const wires = materials.map(() => {
-          const wire = new THREE.MeshStandardMaterial({
-            color: WIRE_COLOR,
-            wireframe: true,
-            transparent: true,
-            opacity: 0.72,
-            side: THREE.DoubleSide,
-            metalness: 0,
-            roughness: 1,
-          });
-          return wire;
-        });
-
-        object.material = wires.length === 1 ? wires[0] : wires;
-        meshRecords.push({
-          mesh: object,
-          wire: wires.length === 1 ? wires[0] : wires,
-          solid: solids.length === 1 ? solids[0] : solids,
-        });
+    const materials = Array.isArray(object.material)
+      ? object.material
+      : [object.material];
+    const solids = materials.map((mat) => styleSolidMaterial(object, mat));
+    const wires = materials.map(() => {
+      const wire = new THREE.MeshStandardMaterial({
+        color: WIRE_COLOR,
+        wireframe: true,
+        transparent: true,
+        opacity: 0.72,
+        side: THREE.DoubleSide,
+        metalness: 0,
+        roughness: 1,
       });
+      return wire;
+    });
 
-      mixer = new THREE.AnimationMixer(droneModel);
-      propellerActions = gltf.animations
-        .filter((clip) => /propeller/i.test(clip.name))
-        .map((clip) => {
-          const action = mixer.clipAction(clip);
-          action.setLoop(THREE.LoopRepeat, Infinity);
-          action.clampWhenFinished = false;
-          // A bit faster so shaft spin reads without a manual off-axis boost.
-          action.timeScale = 3.2;
-          const m = clip.name.match(/(\d+)/);
-          action.userData = {
-            propIndex: m ? Number(m[1]) : null,
-            isFront: false,
-          };
-          return action;
-        });
-      cameraActions = gltf.animations
-        .filter((clip) => /camera/i.test(clip.name))
-        .map((clip) => {
-          const action = mixer.clipAction(clip);
-          action.setLoop(THREE.LoopRepeat, Infinity);
-          action.clampWhenFinished = false;
-          return action;
-        });
+    object.material = wires.length === 1 ? wires[0] : wires;
+    meshRecords.push({
+      mesh: object,
+      wire: wires.length === 1 ? wires[0] : wires,
+      solid: solids.length === 1 ? solids[0] : solids,
+    });
+  });
 
-      propellerAxes = [];
-      cameraAxis = null;
-      droneModel.traverse((object) => {
-        if (/^p[1-4]Axis$/i.test(object.name)) {
-          object.userData.restQuat = object.quaternion.clone();
-          propellerAxes.push(object);
-        }
-        if (object.name === "droneCameraAxis") {
-          cameraAxis = object;
-          cameraAxis.userData.baseRotX = object.rotation.x;
-          cameraAxis.userData.restQuat = object.quaternion.clone();
-        }
-      });
+  mixer = new THREE.AnimationMixer(droneModel);
+  propellerActions = gltf.animations
+    .filter((clip) => /propeller/i.test(clip.name))
+    .map((clip) => {
+      const action = mixer.clipAction(clip);
+      action.setLoop(THREE.LoopRepeat, Infinity);
+      action.clampWhenFinished = false;
+      // A bit faster so shaft spin reads without a manual off-axis boost.
+      action.timeScale = 3.2;
+      const m = clip.name.match(/(\d+)/);
+      action.userData = {
+        propIndex: m ? Number(m[1]) : null,
+        isFront: false,
+      };
+      return action;
+    });
+  cameraActions = gltf.animations
+    .filter((clip) => /camera/i.test(clip.name))
+    .map((clip) => {
+      const action = mixer.clipAction(clip);
+      action.setLoop(THREE.LoopRepeat, Infinity);
+      action.clampWhenFinished = false;
+      return action;
+    });
 
-      fitDroneToSketch();
-      // fitDroneToSketch zeros pivot rotation — restore glass-first dock if story is done.
-      if (themeLocked) applyFinishedDockPose();
-      syncDebugPoseFromPivot();
-      propellersPlaying = false;
-      applyColorProgress(themeLocked ? 1 : 0);
-      window.__meshRecords = meshRecords;
-      window.__droneReady = true;
-      if (themeLocked && (takeoffPending || (!flight.active && !flight.staged))) {
-        takeoffPending = false;
-        scheduleTakeoff(0);
-      }
-    } catch (error) {
-      console.error("Failed to style drone model", error);
-      window.__droneError = String(error?.stack || error);
+  propellerAxes = [];
+  cameraAxis = null;
+  droneModel.traverse((object) => {
+    if (/^p[1-4]Axis$/i.test(object.name)) {
+      object.userData.restQuat = object.quaternion.clone();
+      propellerAxes.push(object);
     }
-  },
-  undefined,
-  (error) => {
-    console.error("Failed to load drone model", error);
-    window.__droneError = String(error?.stack || error);
+    if (object.name === "droneCameraAxis") {
+      cameraAxis = object;
+      cameraAxis.userData.baseRotX = object.rotation.x;
+      cameraAxis.userData.restQuat = object.quaternion.clone();
+    }
+  });
+
+  fitDroneToSketch();
+  // fitDroneToSketch zeros pivot rotation — restore glass-first dock if story is done.
+  if (themeLocked) applyFinishedDockPose();
+  syncDebugPoseFromPivot();
+  propellersPlaying = false;
+  applyColorProgress(themeLocked ? 1 : 0);
+  window.__meshRecords = meshRecords;
+  window.__droneReady = true;
+  if (themeLocked && (takeoffPending || (!flight.active && !flight.staged))) {
+    takeoffPending = false;
+    scheduleTakeoff(0);
   }
-);
+}
+
+function loadDroneModel() {
+  return new Promise((resolve, reject) => {
+    loader.load(
+      "/noYUp.glb",
+      (gltf) => {
+        try {
+          mountDroneGltf(gltf);
+          resolve(gltf);
+        } catch (error) {
+          console.error("Failed to style drone model", error);
+          window.__droneError = String(error?.stack || error);
+          reject(error);
+        }
+      },
+      undefined,
+      (error) => {
+        console.error("Failed to load drone model", error);
+        window.__droneError = String(error?.stack || error);
+        reject(error);
+      }
+    );
+  });
+}
+
+function setBootProgress(t, label) {
+  const bar = document.getElementById("boot-bar");
+  const pct = document.getElementById("boot-pct");
+  const status = document.getElementById("boot-status");
+  const clamped = Math.max(0, Math.min(1, t));
+  if (bar) bar.style.width = `${(clamped * 100).toFixed(1)}%`;
+  if (pct) pct.textContent = String(Math.round(clamped * 100)).padStart(2, "0");
+  if (status && label) status.textContent = label;
+}
+
+const PRELOAD_PAGES = [
+  "/experience.html",
+  "/projects.html",
+  "/contact.html",
+  "/about.html",
+  "/how-i-work.html",
+  "/site.bundle.js",
+];
+
+function preloadImage(src) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = img.onerror = () => resolve();
+    img.src = src;
+  });
+}
+
+function preloadFetch(url) {
+  return fetch(url, { credentials: "same-origin" })
+    .then((r) => (r.ok ? r.arrayBuffer() : null))
+    .catch(() => null);
+}
+
+function dismissBootScreen() {
+  const boot = document.getElementById("boot-screen");
+  document.documentElement.classList.add("is-booted");
+  document.body.classList.add("is-booted");
+  if (!boot) return;
+  boot.setAttribute("aria-busy", "false");
+  boot.classList.add("is-done");
+  window.setTimeout(() => boot.remove(), 400);
+}
+
+/** Keep the drone mounted under the SVG at opacity 0 — no pop-in on morph. */
+function seatHiddenDroneUnderSketch() {
+  if (!droneModel || themeLocked || flight.active || flight.staged) return;
+  dronePivot.rotation.set(0, 0, 0);
+  dronePivot.position.set(0, 0, 0);
+  fitDroneToSketch();
+  applyColorProgress(0);
+  threeContainer.style.opacity = "0";
+  threeContainer.style.pointerEvents = "none";
+  if (typeof renderer.compile === "function") {
+    renderer.compile(scene, camera);
+  }
+  renderer.render(scene, camera);
+  renderer.render(scene, camera);
+}
+
+function warmThreeScene() {
+  const width = threeContainer.clientWidth || window.innerWidth || 1;
+  const height = threeContainer.clientHeight || window.innerHeight || 1;
+  camera.aspect = width / height;
+  camera.updateProjectionMatrix();
+  renderer.setSize(width, height, false);
+  renderer.render(scene, camera);
+}
+
+async function runHomeBoot() {
+  setBootProgress(0.05, "TYPE");
+  if (document.fonts?.ready) {
+    await Promise.race([
+      document.fonts.ready,
+      new Promise((r) => setTimeout(r, 1800)),
+    ]);
+  }
+
+  setBootProgress(0.16, "SVG");
+  const svgSrcs = [
+    ...new Set(
+      [...document.querySelectorAll('img[src$=".svg"]')].map((img) => img.src)
+    ),
+  ];
+  const rasterSrcs = [
+    ...new Set(
+      [...document.querySelectorAll('img[src*="/projects/"]')].map(
+        (img) => img.src
+      )
+    ),
+  ];
+  await Promise.all([...svgSrcs, ...rasterSrcs].map(preloadImage));
+
+  setBootProgress(0.32, "PAGES");
+  await Promise.all(PRELOAD_PAGES.map(preloadFetch));
+
+  setBootProgress(0.44, "DECODER");
+  await Promise.all([
+    preloadFetch("/draco/draco_decoder.wasm"),
+    preloadFetch("/draco/draco_wasm_wrapper.js"),
+    preloadFetch("/draco/draco_decoder.js"),
+  ]);
+
+  setBootProgress(0.55, "SCENE");
+  warmThreeScene();
+
+  setBootProgress(0.66, "MODEL");
+  try {
+    await loadDroneModel();
+    // Drone is in the scene now — seated under the sketch, fully hidden.
+    seatHiddenDroneUnderSketch();
+  } catch (_) {
+    // Still reveal the page — sketch works without the GLB.
+  }
+
+  setBootProgress(1, "READY");
+  await new Promise((r) => setTimeout(r, 120));
+  dismissBootScreen();
+
+  requestAnimationFrame(() => {
+    resizeRenderer();
+    seatHiddenDroneUnderSketch();
+    ScrollTrigger.refresh();
+    startPageIntro();
+  });
+}
 
 const clock = new THREE.Clock();
 
@@ -1648,7 +1785,7 @@ function applySectionSequences() {
     threeContainer.style.opacity = "1";
     threeContainer.style.pointerEvents = "none";
   } else {
-    // Scroll creation owns opacity/pose until free-flight begins.
+    // Drone is already mounted under the SVG; opacity crossfades in with morph.
     svgEl.style.opacity = String(1 - morphT);
     threeContainer.style.opacity = String(morphT);
     threeContainer.style.pointerEvents = morphT > 0.05 ? "auto" : "none";
@@ -1782,14 +1919,14 @@ function playIntro() {
     );
 }
 
-requestAnimationFrame(() => {
-  ScrollTrigger.refresh();
-  startPageIntro();
-});
+runHomeBoot();
 
 window.addEventListener("load", () => {
-  fitDroneToSketch();
-  syncDebugPoseFromPivot();
+  if (droneModel) {
+    fitDroneToSketch();
+    if (themeLocked) applyFinishedDockPose();
+    syncDebugPoseFromPivot();
+  }
   ScrollTrigger.refresh();
   applySectionSequences();
 });

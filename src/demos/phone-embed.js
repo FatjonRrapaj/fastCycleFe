@@ -42,10 +42,9 @@ export function mountPhoneDemo(
   frame.title = title;
   frame.loading = "lazy";
   frame.setAttribute("scrolling", "no");
-  frame.setAttribute(
-    "sandbox",
-    "allow-scripts allow-same-origin allow-forms"
-  );
+  // allow-scripts only — pairing it with allow-same-origin lets the iframe
+  // escape its sandbox (Chrome warns). Demos talk via postMessage.
+  frame.setAttribute("sandbox", "allow-scripts allow-forms");
   frame.style.width = `${width}px`;
   frame.style.height = `${height}px`;
 
