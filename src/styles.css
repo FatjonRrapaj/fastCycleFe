@@ -316,11 +316,19 @@ body.nav-open .nav-toggle span::after {
 .drone-svg circle,
 .drone-svg rect {
   fill: none;
-  stroke: var(--stroke);
-  stroke-width: 0.45;
+  stroke: #ff2d2d;
+  stroke-width: 0.55;
   stroke-linecap: round;
   stroke-linejoin: round;
   vector-effect: non-scaling-stroke;
+}
+
+/* dat.GUI — top-left, clear of the nav */
+.dg.ac {
+  top: 200px !important;
+  left: 0 !important;
+  right: auto !important;
+  z-index: 80 !important;
 }
 
 .three-js-container {
