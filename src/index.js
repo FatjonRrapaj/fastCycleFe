@@ -796,13 +796,16 @@ function tagFrontPropellers() {
     entry.axis.userData.isFront = i < 2;
   });
   propellerActions.forEach((action) => {
-    const idx = action.userData.propIndex;
-    const axis =
-      idx != null
-        ? propellerAxes.find((a) => a.name === `p${idx}Axis`)
-        : null;
+    const axis = propAxisForAction(action);
     action.userData.isFront = !!axis?.userData.isFront;
   });
+}
+
+function propAxisForAction(action) {
+  const idx = action.userData?.propIndex;
+  if (idx == null) return null;
+  const want = `p${idx}axis`;
+  return propellerAxes.find((a) => a.name.toLowerCase() === want) || null;
 }
 
 function syncPropThrottles() {
@@ -814,18 +817,23 @@ function syncPropThrottles() {
   propellerActions.forEach((action) => {
     const isFront = !!action.userData.isFront;
 
-    let ts = 2.5;
-    if (climb > 0.18) {
-      ts = 4.4; // all four full for climb
-    } else if (climb < -0.18) {
-      ts = 1.7; // ease props on descent
-    } else if (fwd > 0.08) {
-      // Front (glass-side) motors spin harder when pushing forward
-      ts = isFront ? 2.6 + fwd * 3.2 : 2.3 + fwd * 0.55;
+    // Cruise baseline
+    let ts = 2.6;
+
+    // Vertical collective — up spins hard, down eases off
+    if (climb > 0.1) {
+      ts = 3.6 + Math.min(climb, 2.5) * 1.05; // ~3.6 → 6.2
+    } else if (climb < -0.1) {
+      ts = 2.3 + Math.max(climb, -2.5) * 0.55; // ~2.3 → 0.9
+    }
+
+    // Forward: glass-side (front) motors push harder — additive, not either/or
+    if (fwd > 0.05) {
+      ts += isFront ? 1.1 + fwd * 2.8 : 0.15 + fwd * 0.4;
     }
 
     const cur = action.getEffectiveTimeScale();
-    action.setEffectiveTimeScale(THREE.MathUtils.lerp(cur, ts, 0.12));
+    action.setEffectiveTimeScale(THREE.MathUtils.lerp(cur, ts, 0.28));
   });
 }
 
