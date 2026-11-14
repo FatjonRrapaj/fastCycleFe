@@ -6,7 +6,6 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment";
-import { GUI } from "dat.gui";
 import { initNav, initReveals } from "./nav";
 import { mountAllPhoneDemos } from "./demos/phone-embed";
 
@@ -272,137 +271,8 @@ scene.add(ambient, key, fill, rim, bounce);
 const dronePivot = new THREE.Group();
 scene.add(dronePivot);
 
-let debugHoldPose = false;
-const debugPose = {
-  lockPose: false,
-  showSketchOverlay: false,
-  posX: 0,
-  posY: 0,
-  posZ: 0,
-  rotX: 0,
-  rotY: 0,
-  rotZ: 0,
-  scale: 1,
-  sketchBoost: 1.05,
-};
-
-function syncDebugPoseFromPivot() {
-  debugPose.posX = dronePivot.position.x;
-  debugPose.posY = dronePivot.position.y;
-  debugPose.posZ = dronePivot.position.z;
-  debugPose.rotX = THREE.MathUtils.radToDeg(dronePivot.rotation.x);
-  debugPose.rotY = THREE.MathUtils.radToDeg(dronePivot.rotation.y);
-  debugPose.rotZ = THREE.MathUtils.radToDeg(dronePivot.rotation.z);
-  debugPose.scale = dronePivot.scale.x;
-}
-
-function refreshDebugGui() {
-  if (debugHoldPose || !window.__droneGui) return;
-  syncDebugPoseFromPivot();
-  window.__droneGui.updateDisplay();
-}
-
-function applyDebugPose() {
-  debugHoldPose = true;
-  debugPose.lockPose = true;
-  dronePivot.position.set(debugPose.posX, debugPose.posY, debugPose.posZ);
-  dronePivot.rotation.set(
-    THREE.MathUtils.degToRad(debugPose.rotX),
-    THREE.MathUtils.degToRad(debugPose.rotY),
-    THREE.MathUtils.degToRad(debugPose.rotZ)
-  );
-  dronePivot.scale.setScalar(debugPose.scale);
-}
-
-function initDroneDebugGui() {
-  const gui = new GUI({ name: "Drone tune", width: 280 });
-  gui.domElement.style.zIndex = "80";
-
-  const pose = gui.addFolder("Pose (XYZ)");
-  pose.add(debugPose, "posX", -2, 2, 0.001).name("pos X").onChange(applyDebugPose);
-  pose.add(debugPose, "posY", -2, 2, 0.001).name("pos Y").onChange(applyDebugPose);
-  pose.add(debugPose, "posZ", -2, 2, 0.001).name("pos Z").onChange(applyDebugPose);
-  pose.add(debugPose, "rotX", -180, 180, 0.1).name("rot X°").onChange(applyDebugPose);
-  pose.add(debugPose, "rotY", -180, 180, 0.1).name("rot Y°").onChange(applyDebugPose);
-  pose.add(debugPose, "rotZ", -180, 180, 0.1).name("rot Z°").onChange(applyDebugPose);
-  pose.add(debugPose, "scale", 0.2, 3, 0.001).name("scale").onChange(applyDebugPose);
-  pose.open();
-
-  const fit = gui.addFolder("Fit");
-  fit
-    .add(debugPose, "sketchBoost", 0.8, 1.4, 0.001)
-    .name("sketch boost")
-    .onChange(() => {
-      if (!debugPose.lockPose) fitDroneToSketch();
-      syncDebugPoseFromPivot();
-      gui.updateDisplay();
-    });
-  fit
-    .add(debugPose, "lockPose")
-    .name("lock pose")
-    .onChange((locked) => {
-      debugHoldPose = locked;
-      if (!locked) {
-        fitDroneToSketch();
-        syncDebugPoseFromPivot();
-        gui.updateDisplay();
-      }
-    });
-  fit
-    .add(
-      {
-        autoFit: () => {
-          debugHoldPose = false;
-          debugPose.lockPose = false;
-          fitDroneToSketch();
-          syncDebugPoseFromPivot();
-          gui.updateDisplay();
-        },
-      },
-      "autoFit"
-    )
-    .name("Auto fit to sketch");
-  fit
-    .add(
-      {
-        logPose: () => {
-          syncDebugPoseFromPivot();
-          console.log("[drone pose]", {
-            position: dronePivot.position.toArray(),
-            rotationDeg: [debugPose.rotX, debugPose.rotY, debugPose.rotZ],
-            scale: debugPose.scale,
-            sketchBoost: debugPose.sketchBoost,
-          });
-          gui.updateDisplay();
-        },
-      },
-      "logPose"
-    )
-    .name("Log pose");
-  fit.open();
-
-  gui
-    .add(debugPose, "showSketchOverlay")
-    .name("sketch overlay")
-    .onChange(() => applySectionSequences());
-
-  window.__droneGui = gui;
-  window.addEventListener("keydown", (event) => {
-    if (
-      event.target !== document.body &&
-      event.target !== document.documentElement
-    ) {
-      return;
-    }
-    if (event.key.toLowerCase() === "f") {
-      debugHoldPose = false;
-      debugPose.lockPose = false;
-      fitDroneToSketch();
-      syncDebugPoseFromPivot();
-      gui.updateDisplay();
-    }
-  });
-}
+/** Slight oversize so the 3D silhouette covers the SVG sketch. */
+const SKETCH_BOOST = 1.05;
 
 let droneModel = null;
 let mixer = null;
@@ -427,7 +297,6 @@ const droneState = {
 
 let themeLocked = false;
 let dockedScale = 1;
-let flyingLayout = false;
 let takeoffTimer = null;
 let takeoffPending = false;
 
@@ -451,8 +320,6 @@ function wasStoryCompleted() {
 
 const _flyDesired = new THREE.Vector3();
 const _flyQuat = new THREE.Quaternion();
-const _flyQuatBank = new THREE.Quaternion();
-const _flyPrevHeading = new THREE.Vector3(0, 0, 1);
 const _flyCross = new THREE.Vector3();
 const _flyScreen = new THREE.Vector3();
 const _flyRay = new THREE.Vector3();
@@ -490,13 +357,6 @@ const flight = {
   legBoost: 1,
   laneDir: 1,
 };
-
-function setFlyingLayout(active) {
-  if (!visualStage || active === flyingLayout) return;
-  flyingLayout = active;
-  visualStage.classList.toggle("is-flying", active);
-  requestAnimationFrame(() => resizeRenderer());
-}
 
 function flightBounds() {
   // Fullscreen canvas — deeper roam, a little past the edges.
@@ -550,12 +410,6 @@ function setFlightHint(bound) {
   flightHintText.textContent = bound
     ? "Release — let it fly"
     : "Hold — steer the drone";
-}
-
-function hideFlightHint() {
-  if (!flightHint) return;
-  flightHint.classList.remove("is-on", "is-bound");
-  flightHint.hidden = true;
 }
 
 function scheduleTakeoff(delayMs) {
@@ -719,7 +573,7 @@ function readGlassForward(out) {
 }
 
 function startFreeFlight() {
-  if (flight.active || flight.staged || !droneModel || debugHoldPose) return;
+  if (flight.active || flight.staged || !droneModel) return;
 
   // Keep the on-screen pose as-is — do not re-apply Euler (that snaps the tilt).
   matchSketchSize();
@@ -728,7 +582,6 @@ function startFreeFlight() {
   snap.beforeH = beforeRect.height;
 
   flight.staged = true;
-  flyingLayout = true;
   visualStage.classList.add("is-flying");
 
   // Wait a frame so fullscreen CSS applies, then pin to the same screen pixels + size.
@@ -1168,7 +1021,7 @@ function matchSketchSize() {
   const target = getSketchScreenRect();
   if (!target || !droneModel) return;
 
-  const boost = debugPose.sketchBoost || 1;
+  const boost = SKETCH_BOOST;
   const targetW = Math.max(target.maxX - target.minX, 0.0001) * boost;
   const targetH = Math.max(target.maxY - target.minY, 0.0001) * boost;
   const targetCx = (target.minX + target.maxX) / 2;
@@ -1343,11 +1196,6 @@ function stopPropellers() {
   propellersPlaying = false;
 }
 
-function spinPropellers(_delta) {
-  // noYUp clips already rotate p*Axis around the real motor shaft.
-  // Extra rotateOnAxis was tumbling hubs/caps off-axis — leave spin to the GLB only.
-}
-
 resizeRenderer();
 window.addEventListener("resize", () => {
   resizeRenderer();
@@ -1498,7 +1346,6 @@ function mountDroneGltf(gltf) {
   fitDroneToSketch();
   // fitDroneToSketch zeros pivot rotation — restore glass-first dock if story is done.
   if (themeLocked) applyFinishedDockPose();
-  syncDebugPoseFromPivot();
   propellersPlaying = false;
   applyColorProgress(themeLocked ? 1 : 0);
   window.__meshRecords = meshRecords;
@@ -1667,9 +1514,8 @@ function animate() {
   const t = clock.getElapsedTime();
 
   if (mixer) mixer.update(delta);
-  spinPropellers(delta);
 
-  if (droneModel && !debugHoldPose) {
+  if (droneModel) {
     if (flight.active) {
       updateFreeFlight(Math.min(delta, 0.05), t);
     } else if (flight.staged) {
@@ -1695,7 +1541,6 @@ function animate() {
       cameraAxis.rotation.x =
         (cameraAxis.userData.baseRotX || 0) + droneState.camTilt;
     }
-    refreshDebugGui();
   }
 
   renderer.render(scene, camera);
@@ -1775,11 +1620,7 @@ function applySectionSequences() {
   // Only after the full wireframe → tilt → color story is done.
   if (colorT >= 1) markStoryComplete();
 
-  if (debugPose.showSketchOverlay) {
-    svgEl.style.opacity = "1";
-    threeContainer.style.opacity = "1";
-    threeContainer.style.pointerEvents = "auto";
-  } else if (themeLocked || flight.active) {
+  if (themeLocked || flight.active) {
     // Drawing is finished — hide the sketch for free-flight.
     svgEl.style.opacity = "0";
     threeContainer.style.opacity = "1";
@@ -1925,10 +1766,7 @@ window.addEventListener("load", () => {
   if (droneModel) {
     fitDroneToSketch();
     if (themeLocked) applyFinishedDockPose();
-    syncDebugPoseFromPivot();
   }
   ScrollTrigger.refresh();
   applySectionSequences();
 });
-
-// Debug pane off for now — call initDroneDebugGui() to bring it back.
