@@ -429,6 +429,25 @@ let themeLocked = false;
 let dockedScale = 1;
 let flyingLayout = false;
 let takeoffTimer = null;
+let takeoffPending = false;
+
+const STORY_STORAGE_KEY = "fc-drone-story-complete";
+
+function persistStoryComplete() {
+  try {
+    sessionStorage.setItem(STORY_STORAGE_KEY, "1");
+  } catch (_) {
+    /* ignore */
+  }
+}
+
+function wasStoryCompleted() {
+  try {
+    return sessionStorage.getItem(STORY_STORAGE_KEY) === "1";
+  } catch (_) {
+    return false;
+  }
+}
 
 const _flyDesired = new THREE.Vector3();
 const _flyQuat = new THREE.Quaternion();
@@ -539,10 +558,33 @@ function hideFlightHint() {
   flightHint.hidden = true;
 }
 
-function markStoryComplete() {
-  if (themeLocked) return;
+function scheduleTakeoff(delayMs) {
+  if (takeoffTimer) clearTimeout(takeoffTimer);
+  const launch = () => {
+    takeoffTimer = null;
+    if (!droneModel) {
+      takeoffPending = true;
+      return;
+    }
+    takeoffPending = false;
+    startFreeFlight();
+  };
+  if (delayMs <= 0) {
+    launch();
+    return;
+  }
+  takeoffTimer = window.setTimeout(launch, delayMs);
+}
+
+function markStoryComplete(options = {}) {
+  const immediate = !!options.immediate;
+  if (themeLocked) {
+    if (immediate && !flight.active && !flight.staged) scheduleTakeoff(0);
+    return;
+  }
   // Theme only — do not touch layout/pose. Flight starts later on its own.
   themeLocked = true;
+  persistStoryComplete();
   applyThemeProgress(1);
   document.body.classList.add("theme-live", "story-complete");
   // Sketch drawing is done — clear it before free-flight.
@@ -556,11 +598,39 @@ function markStoryComplete() {
   droneState.floatY = dronePivot.position.y;
   flight.holdDock = true;
 
-  if (takeoffTimer) clearTimeout(takeoffTimer);
-  takeoffTimer = window.setTimeout(() => {
-    takeoffTimer = null;
-    startFreeFlight();
-  }, 1000);
+  scheduleTakeoff(immediate ? 0 : 1000);
+}
+
+/** Finished scroll attitude — glass tipped toward the viewer. */
+function applyFinishedDockPose() {
+  droneState.rotX = -1.35;
+  droneState.rotY = -0.55;
+  droneState.rotZ = 0;
+  droneState.floatY = 0.035;
+  droneState.camTilt = 0;
+  dronePivot.rotation.set(droneState.rotX, droneState.rotY, droneState.rotZ);
+  dronePivot.position.set(0, droneState.floatY, 0);
+  if (droneModel) matchSketchSize();
+}
+
+/** Returning home after a finished story — skip sketch, keep live theme + flight. */
+function restoreCompletedStory() {
+  if (!wasStoryCompleted()) return false;
+
+  introStarted = true;
+  intro.lines = 1;
+  intro.frame = 1;
+  if (introTl) introTl.kill();
+
+  sectionLocal.forEach((_, i) => {
+    sectionLocal[i] = 1;
+  });
+
+  applyFinishedDockPose();
+  markStoryComplete({ immediate: true });
+  if (droneModel) applyColorProgress(1);
+  applySectionSequences();
+  return true;
 }
 
 function pickFlightTarget(t) {
@@ -633,8 +703,8 @@ function pickFlightTarget(t) {
   }
 
   flight.target.set(x, y, z);
-  // Long enough to finish the cross before choosing the next leg.
-  flight.nextTargetAt = t + 4.2 + Math.random() * 2.8;
+  // Short legs — retarget soon so it doesn't hover in place.
+  flight.nextTargetAt = t + 1.6 + Math.random() * 1.1;
 }
 
 /**
@@ -865,7 +935,12 @@ function updateFreeFlight(dt, t) {
     );
     flight.target.copy(flight.mouseWorld);
   } else if (t >= flight.nextTargetAt) {
-    // Timer-gated legs only — avoids mid-pass U-turns and dock-hold spam.
+    pickFlightTarget(t);
+  } else if (
+    flight.pos.distanceToSquared(flight.target) < 0.09 &&
+    flight.vel.lengthSq() < 0.05
+  ) {
+    // Arrived early — leave immediately instead of parking until the timer.
     pickFlightTarget(t);
   }
 
@@ -1222,6 +1297,8 @@ function applyColorProgress(t) {
 }
 
 function startPropellers() {
+  // Don't latch "playing" before clips exist (restore can call color before load).
+  if (!propellerActions.length) return;
   if (propellersPlaying) return;
   propellerActions.forEach((action) => {
     action.enabled = true;
@@ -1414,10 +1491,17 @@ loader.load(
       });
 
       fitDroneToSketch();
+      // fitDroneToSketch zeros pivot rotation — restore glass-first dock if story is done.
+      if (themeLocked) applyFinishedDockPose();
       syncDebugPoseFromPivot();
-      applyColorProgress(0);
+      propellersPlaying = false;
+      applyColorProgress(themeLocked ? 1 : 0);
       window.__meshRecords = meshRecords;
       window.__droneReady = true;
+      if (themeLocked && (takeoffPending || (!flight.active && !flight.staged))) {
+        takeoffPending = false;
+        scheduleTakeoff(0);
+      }
     } catch (error) {
       console.error("Failed to style drone model", error);
       window.__droneError = String(error?.stack || error);
@@ -1625,6 +1709,20 @@ function forceDroneReady() {
   applySectionSequences();
 }
 
+function startPageIntro() {
+  if (introStarted) return;
+  // Finished story in this tab — come back to live theme + flying drone.
+  if (restoreCompletedStory()) return;
+  introStarted = true;
+  if (window.scrollY > 80) {
+    intro.lines = 1;
+    intro.frame = 1;
+    applySectionSequences();
+    return;
+  }
+  playIntro();
+}
+
 window.__forceDroneReady = forceDroneReady;
 
 applySectionSequences();
@@ -1674,18 +1772,6 @@ function playIntro() {
       },
       "+=0.35"
     );
-}
-
-function startPageIntro() {
-  if (introStarted) return;
-  introStarted = true;
-  if (window.scrollY > 80) {
-    intro.lines = 1;
-    intro.frame = 1;
-    applySectionSequences();
-    return;
-  }
-  playIntro();
 }
 
 requestAnimationFrame(() => {
