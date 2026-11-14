@@ -244,7 +244,7 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setClearColor(0x000000, 0);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.05;
+renderer.toneMappingExposure = 1.35;
 threeContainer.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
@@ -256,14 +256,16 @@ const pmrem = new THREE.PMREMGenerator(renderer);
 scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
 pmrem.dispose();
 
-const ambient = new THREE.AmbientLight(0xffffff, 0.95);
-const key = new THREE.DirectionalLight(0xffffff, 1.15);
+const ambient = new THREE.AmbientLight(0xffffff, 1.45);
+const key = new THREE.DirectionalLight(0xffffff, 2.1);
 key.position.set(2.2, 3.4, 4.2);
-const fill = new THREE.DirectionalLight(0xb8fff4, 0.55);
+const fill = new THREE.DirectionalLight(0xd8fff8, 1.15);
 fill.position.set(-2.5, 1.2, 2);
-const rim = new THREE.DirectionalLight(0xffffff, 0.4);
+const rim = new THREE.DirectionalLight(0xffffff, 0.95);
 rim.position.set(0, -2.2, -3);
-scene.add(ambient, key, fill, rim);
+const bounce = new THREE.DirectionalLight(0xb8fff4, 0.7);
+bounce.position.set(0, 4.5, -1.5);
+scene.add(ambient, key, fill, rim, bounce);
 
 const dronePivot = new THREE.Group();
 scene.add(dronePivot);
@@ -403,6 +405,7 @@ function initDroneDebugGui() {
 let droneModel = null;
 let mixer = null;
 let propellerActions = [];
+let cameraActions = [];
 let propellerAxes = [];
 let cameraAxis = null;
 let propellersPlaying = false;
@@ -701,6 +704,14 @@ function startPropellers() {
     action.setEffectiveWeight(1);
     action.play();
   });
+  cameraActions.forEach((action) => {
+    action.enabled = true;
+    action.reset();
+    action.setLoop(THREE.LoopRepeat, Infinity);
+    action.setEffectiveTimeScale(1);
+    action.setEffectiveWeight(1);
+    action.play();
+  });
   propellersPlaying = true;
 }
 
@@ -710,6 +721,13 @@ function stopPropellers() {
     action.stop();
     action.reset();
   });
+  cameraActions.forEach((action) => {
+    action.stop();
+    action.reset();
+  });
+  if (cameraAxis?.userData.restQuat) {
+    cameraAxis.quaternion.copy(cameraAxis.userData.restQuat);
+  }
   propellersPlaying = false;
 }
 
@@ -779,11 +797,11 @@ function styleSolidMaterial(mesh, source) {
   solid.opacity = 1;
   solid.userData.isGlass = false;
 
-  // Propeller blades only (Material.001) → site mint. Hubs stay authored black ("color").
+  // Propeller blades only (Material.001) → deeper mint so they read on light paper.
   if (matName === "material.001") {
-    solid.color.setHex(0x12c4b0);
-    solid.metalness = 0.15;
-    solid.roughness = 0.35;
+    solid.color.setHex(0x0a8f82);
+    solid.metalness = 0.12;
+    solid.roughness = 0.4;
   }
 
   // Camera globe — matte dark shell, not a lens.
@@ -841,6 +859,14 @@ loader.load(
           action.clampWhenFinished = false;
           return action;
         });
+      cameraActions = gltf.animations
+        .filter((clip) => /camera/i.test(clip.name))
+        .map((clip) => {
+          const action = mixer.clipAction(clip);
+          action.setLoop(THREE.LoopRepeat, Infinity);
+          action.clampWhenFinished = false;
+          return action;
+        });
 
       propellerAxes = [];
       cameraAxis = null;
@@ -852,6 +878,7 @@ loader.load(
         if (object.name === "droneCameraAxis") {
           cameraAxis = object;
           cameraAxis.userData.baseRotX = object.rotation.x;
+          cameraAxis.userData.restQuat = object.quaternion.clone();
         }
       });
 
@@ -888,7 +915,8 @@ function animate() {
     dronePivot.rotation.y =
       droneState.rotY + Math.sin(t * 0.35) * 0.03 * live;
     dronePivot.rotation.z = droneState.rotZ;
-    if (cameraAxis) {
+    // Camera gimbal motion comes from the GLB clips — don't overwrite while playing.
+    if (cameraAxis && !propellersPlaying) {
       cameraAxis.rotation.x =
         (cameraAxis.userData.baseRotX || 0) + droneState.camTilt;
     }

@@ -54,7 +54,7 @@
   --font-body: "IBM Plex Sans", "IBM Plex Mono", system-ui, sans-serif;
   --nav-h: 4.5rem;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --stage-w: min(46vw, 620px);
+  --stage-w: min(56vmin, 720px);
 }
 
 .inner-page {
@@ -85,14 +85,10 @@ body {
   background-image:
     linear-gradient(var(--grid-line) 1px, transparent 1px),
     linear-gradient(90deg, var(--grid-line) 1px, transparent 1px),
-    radial-gradient(1200px 700px at 85% 18%, var(--glow), transparent 55%),
-    radial-gradient(900px 500px at 12% 82%, rgba(0, 183, 166, calc(0.08 * var(--theme-t))), transparent 52%),
     linear-gradient(165deg, var(--paper) 0%, var(--paper-mid) 48%, var(--paper-deep) 100%);
   background-size:
     32px 32px,
     32px 32px,
-    auto,
-    auto,
     auto;
   background-position: center top;
   font-family: var(--font-body);
@@ -255,48 +251,30 @@ body.nav-open .nav-toggle span::after {
   transform: rotate(-45deg);
 }
 
-/* ——— Sticky visual stage ——— */
+/* ——— Sticky visual stage (full-page) ——— */
 .visual-stage {
   position: fixed;
-  top: var(--nav-h);
-  right: 0;
-  bottom: 0;
-  width: 52%;
+  inset: 0;
+  width: 100%;
   z-index: 1;
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: var(--nav-h) clamp(1rem, 4vw, 3rem) 2rem;
   pointer-events: none;
   isolation: isolate;
 }
 
 .visual-stage::before {
-  content: "";
-  position: absolute;
-  inset: 12% 8% 18% 4%;
-  border-radius: 40% 60% 55% 45% / 45% 40% 60% 55%;
-  background:
-    radial-gradient(circle at 40% 35%, rgba(255, 255, 255, calc(0.08 + 0.45 * var(--theme-t))), transparent 55%),
-    radial-gradient(circle at 70% 70%, var(--glow), transparent 60%);
-  filter: blur(2px);
-  opacity: calc(0.45 + 0.45 * var(--theme-t));
-  animation: stagePulse 8s ease-in-out infinite alternate;
-}
-
-@keyframes stagePulse {
-  from {
-    transform: scale(0.96) rotate(-2deg);
-  }
-  to {
-    transform: scale(1.04) rotate(2deg);
-  }
+  display: none;
 }
 
 .visual-frame {
   position: relative;
   width: var(--stage-w);
   height: var(--stage-w);
-  max-width: 90%;
-  max-height: min(70vh, 620px);
+  max-width: min(92vw, 780px);
+  max-height: min(78vh, 780px);
 }
 
 .drone-svg,
@@ -344,9 +322,10 @@ body.nav-open .nav-toggle span::after {
 
 .drone-story {
   position: absolute;
-  top: 6%;
-  left: 50%;
-  transform: translateX(-50%);
+  top: calc(var(--nav-h) + 4%);
+  right: clamp(1rem, 8vw, 6rem);
+  left: auto;
+  transform: none;
   z-index: 3;
   width: min(90%, 280px);
   text-align: center;
@@ -2244,9 +2223,23 @@ body.demo-modal-open {
 /* ——— Responsive ——— */
 @media (max-width: 980px) {
   .visual-stage {
+    inset: 0;
     width: 100%;
-    height: 46vh;
-    bottom: auto;
+    height: 100%;
+    justify-content: center;
+    align-items: flex-start;
+    padding: calc(var(--nav-h) + 0.5rem) 1rem 0;
+  }
+
+  .visual-frame {
+    max-height: min(42vh, 420px);
+    max-width: min(92vw, 420px);
+  }
+
+  .drone-story {
+    top: calc(var(--nav-h) + 0.35rem);
+    right: 50%;
+    transform: translateX(50%);
   }
 
   .page-shell {
