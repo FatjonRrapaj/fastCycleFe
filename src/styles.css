@@ -320,6 +320,15 @@ body.nav-open .nav-toggle span::after {
   display: block;
 }
 
+/* Free-roam drone after the story completes */
+.visual-stage.is-flying .three-js-container {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 2;
+}
+
 .drone-story {
   position: absolute;
   top: calc(var(--nav-h) + 4%);
