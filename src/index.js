@@ -292,6 +292,12 @@ function syncDebugPoseFromPivot() {
   debugPose.scale = dronePivot.scale.x;
 }
 
+function refreshDebugGui() {
+  if (debugHoldPose || !window.__droneGui) return;
+  syncDebugPoseFromPivot();
+  window.__droneGui.updateDisplay();
+}
+
 function applyDebugPose() {
   debugHoldPose = true;
   debugPose.lockPose = true;
@@ -536,7 +542,8 @@ function centerModelInPivot() {
   droneModel.rotation.set(0, 0, 0);
   droneModel.scale.set(1, 1, 1);
 
-  droneModel.rotation.x = Math.PI / 2;
+  // noYUp.glb already has +90° X on body/camera nodes — leave scene at identity
+  // so the flat fit is top-down on the sketch (extra tip made it edge-on / belly-up).
   droneModel.updateMatrixWorld(true);
 
   const box = getSilhouetteBox(_fitBox);
@@ -879,6 +886,7 @@ function animate() {
     );
     // Keep the projected drone exactly on the sketch, including after the tilt.
     matchSketchSize();
+    refreshDebugGui();
   }
 
   renderer.render(scene, camera);
@@ -966,8 +974,9 @@ function applySectionSequences() {
   }
   applyColorProgress(colorT);
 
+  // Pitch matches the old upright tilt; yaw is mirrored so the camera end faces the user.
   droneState.rotX = gsap.utils.interpolate(0, -1.35, tiltT);
-  droneState.rotY = gsap.utils.interpolate(0, 0.55, tiltT);
+  droneState.rotY = gsap.utils.interpolate(0, -0.55, tiltT);
   droneState.camTilt = 0;
   droneState.floatY = gsap.utils.interpolate(0, 0.035, colorT);
 
