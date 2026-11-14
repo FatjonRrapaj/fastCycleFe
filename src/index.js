@@ -244,7 +244,7 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setClearColor(0x000000, 0);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.2;
+renderer.toneMappingExposure = 1.05;
 threeContainer.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
@@ -256,12 +256,12 @@ const pmrem = new THREE.PMREMGenerator(renderer);
 scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
 pmrem.dispose();
 
-const ambient = new THREE.AmbientLight(0xffffff, 1.15);
-const key = new THREE.DirectionalLight(0xffffff, 1.75);
+const ambient = new THREE.AmbientLight(0xffffff, 0.95);
+const key = new THREE.DirectionalLight(0xffffff, 1.15);
 key.position.set(2.2, 3.4, 4.2);
-const fill = new THREE.DirectionalLight(0xb8fff4, 0.85);
+const fill = new THREE.DirectionalLight(0xb8fff4, 0.55);
 fill.position.set(-2.5, 1.2, 2);
-const rim = new THREE.DirectionalLight(0xffffff, 0.55);
+const rim = new THREE.DirectionalLight(0xffffff, 0.4);
 rim.position.set(0, -2.2, -3);
 scene.add(ambient, key, fill, rim);
 
@@ -659,11 +659,10 @@ function applyColorProgress(t) {
     const solidT = (colorT - 0.55) / 0.45;
     meshRecords.forEach(({ solid }) => {
       asMaterialList(solid).forEach((mat) => {
-        const isGlass = !!mat.userData?.isGlass || mat.transmission > 0;
+        const isGlass = !!mat.userData?.isGlass;
         if (isGlass) {
-          // Transmission only reads correctly while transparent stays on.
           mat.transparent = true;
-          mat.opacity = 0.35 + solidT * 0.65;
+          mat.opacity = 0.35 + solidT * 0.55;
           mat.depthWrite = false;
         } else if (solidT < 1) {
           mat.transparent = true;
@@ -724,102 +723,62 @@ dracoLoader.setDecoderPath("/draco/");
 const loader = new GLTFLoader();
 loader.setDRACOLoader(dracoLoader);
 
-function makeGlassMaterial(source) {
-  const glass = new THREE.MeshPhysicalMaterial();
-  glass.name = source?.name || "glass";
-  glass.wireframe = false;
-  glass.map = null;
-  glass.normalMap = null;
-  glass.roughnessMap = null;
-  glass.metalnessMap = null;
-  glass.color.set(0xdffaf4);
-  glass.metalness = 0;
-  glass.roughness = 0.02;
-  glass.transmission = 1;
-  glass.thickness = 1.1;
-  glass.ior = 1.5;
-  glass.transparent = true;
-  glass.opacity = 1;
-  glass.depthWrite = false;
-  glass.side = THREE.FrontSide;
-  glass.envMapIntensity = 2.2;
-  if ("attenuationColor" in glass) {
-    glass.attenuationColor.set(0x9fe8df);
-    glass.attenuationDistance = 0.6;
+// 4-step luminance ramp for MeshToonMaterial — soft cel shading, not harsh bands.
+function isGlassSlot(matName, partName) {
+  if (matName === "material" || matName === "material.005") return true;
+  // Camera sphere authored as "color" should still read as a lens.
+  if (partName.includes("camera") && (matName === "color" || matName === "material.005")) {
+    return true;
   }
-  glass.emissive.setHex(0x000000);
-  glass.emissiveIntensity = 0;
+  return false;
+}
+
+function makeGlassMaterial(source) {
+  // Smoked lens / canopy — authored "Material" often defaults to white in glTF.
+  const hex = source?.color?.getHex?.() ?? 0xffffff;
+  const tint = hex >= 0xf0f0f0 || hex <= 0x050505 ? 0x1c2a2c : hex;
+  const glass = new THREE.MeshPhysicalMaterial({
+    color: tint,
+    metalness: 0.15,
+    roughness: 0.18,
+    transmission: 0.35,
+    thickness: 0.35,
+    ior: 1.4,
+    transparent: true,
+    opacity: 0.9,
+    depthWrite: false,
+    side: THREE.FrontSide,
+    envMapIntensity: 0.55,
+    clearcoat: 0.4,
+    clearcoatRoughness: 0.2,
+  });
+  glass.name = source?.name || "glass";
   glass.userData.isGlass = true;
   glass.needsUpdate = true;
   return glass;
 }
 
-function paintSolid(solid, hex, { metalness = 0.25, roughness = 0.42 } = {}) {
-  solid.wireframe = false;
-  solid.map = null;
-  solid.normalMap = null;
-  solid.roughnessMap = null;
-  solid.metalnessMap = null;
+function styleSolidMaterial(mesh, source) {
+  const matName = (source.name || "").toLowerCase();
+  const partName = `${mesh.name || ""} ${mesh.parent?.name || ""}`.toLowerCase();
+
+  if (isGlassSlot(matName, partName)) {
+    return makeGlassMaterial(source);
+  }
+
+  // Keep the pack's authored low-poly colors (charcoal body, purple blades).
+  const solid = source.clone();
+  solid.name = source.name;
   solid.side = THREE.FrontSide;
   solid.transparent = false;
   solid.opacity = 1;
-  solid.color.setHex(hex);
-  solid.metalness = metalness;
-  solid.roughness = roughness;
-  solid.emissive.setHex(0x000000);
-  solid.emissiveIntensity = 0;
   solid.userData.isGlass = false;
   solid.needsUpdate = true;
   return solid;
 }
 
-function styleSolidMaterial(mesh, solid, index = 0) {
-  const matName = (solid.name || "").toLowerCase();
-  // GLTFLoader splits multi-materials into Mesh002 / Mesh002_1 children under the node.
-  const partName = `${mesh.name || ""} ${mesh.parent?.name || ""}`.toLowerCase();
-
-  // Explicit glass slots from the authored materials
-  if (matName === "material" || matName === "material.005") {
-    return makeGlassMaterial(solid);
-  }
-
-  // Propellers: Material.001 blades + hub
-  if (/(?:^|\s)p[1-4](?:\s|$)/.test(partName) || matName === "material.001") {
-    if (matName === "color") {
-      return paintSolid(solid, 0x3d6a70, { metalness: 0.45, roughness: 0.36 });
-    }
-    return paintSolid(solid, 0x8af0e4, { metalness: 0.08, roughness: 0.32 });
-  }
-
-  // Camera: the large sphere is authored as "color" — that should read as glass.
-  if (partName.includes("camera")) {
-    if (matName === "color" || matName === "material.005") {
-      return makeGlassMaterial(solid);
-    }
-    if (matName === "material.004") {
-      return paintSolid(solid, 0xb8ebe3, { metalness: 0.22, roughness: 0.3 });
-    }
-    return makeGlassMaterial(solid);
-  }
-
-  // Body: "color" is the large shell (majority of tris); Material.003 is a small trim.
-  if (matName === "color") {
-    return paintSolid(solid, 0xf5fffb, { metalness: 0.08, roughness: 0.36 });
-  }
-
-  if (matName === "material.003") {
-    return paintSolid(solid, 0x8aebd9, { metalness: 0.2, roughness: 0.34 });
-  }
-
-  if (matName === "material.004") {
-    return paintSolid(solid, 0x8ec9c0, { metalness: 0.3, roughness: 0.36 });
-  }
-
-  return paintSolid(solid, 0xd2efe8, { metalness: 0.22, roughness: 0.44 });
-}
-
 loader.load(
-  "/drone.glb",
+  "/noYUp.glb",
   (gltf) => {
     try {
       droneModel = gltf.scene;
@@ -831,13 +790,7 @@ loader.load(
         const materials = Array.isArray(object.material)
           ? object.material
           : [object.material];
-        const solids = materials.map((mat, index) => {
-          const solid = mat.isMeshPhysicalMaterial
-            ? mat.clone()
-            : new THREE.MeshStandardMaterial().copy(mat);
-          solid.name = mat.name;
-          return styleSolidMaterial(object, solid, index);
-        });
+        const solids = materials.map((mat) => styleSolidMaterial(object, mat));
         const wires = materials.map(() => {
           const wire = new THREE.MeshStandardMaterial({
             color: WIRE_COLOR,
@@ -881,18 +834,6 @@ loader.load(
           cameraAxis.userData.baseRotX = object.rotation.x;
         }
       });
-
-      // Dock the camera sphere into the body connector (mesh space offset).
-      const cameraMesh = droneModel.getObjectByName("droneCamera");
-      if (cameraMesh) {
-        cameraMesh.traverse((object) => {
-          if (!object.isMesh || !object.geometry) return;
-          object.geometry = object.geometry.clone();
-          object.geometry.translate(0, -2.6, 0);
-          object.geometry.computeBoundingBox();
-          object.geometry.computeBoundingSphere();
-        });
-      }
 
       fitDroneToSketch();
       syncDebugPoseFromPivot();

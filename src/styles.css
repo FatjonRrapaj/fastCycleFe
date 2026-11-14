@@ -316,8 +316,8 @@ body.nav-open .nav-toggle span::after {
 .drone-svg circle,
 .drone-svg rect {
   fill: none;
-  stroke: #ff2d2d;
-  stroke-width: 0.55;
+  stroke: var(--stroke);
+  stroke-width: 0.45;
   stroke-linecap: round;
   stroke-linejoin: round;
   vector-effect: non-scaling-stroke;
