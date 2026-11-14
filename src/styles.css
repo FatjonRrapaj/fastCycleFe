@@ -67,6 +67,15 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+input,
+textarea,
+[contenteditable="true"] {
+  -webkit-user-select: text;
+  user-select: text;
 }
 
 html {
@@ -260,7 +269,8 @@ body.nav-open .nav-toggle span::after {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  padding: var(--nav-h) clamp(1rem, 4vw, 3rem) 2rem;
+  /* Nudge sketch + drone left of the far-right edge, still clear of hero copy */
+  padding: var(--nav-h) clamp(2.75rem, 9vw, 7rem) 2rem clamp(1rem, 4vw, 3rem);
   pointer-events: none;
   isolation: isolate;
 }
@@ -332,11 +342,13 @@ body.nav-open .nav-toggle span::after {
 .drone-story {
   position: absolute;
   top: calc(var(--nav-h) + 4%);
-  right: clamp(1rem, 8vw, 6rem);
+  /* Same right inset + width as .visual-frame so copy sits centered over the sketch */
+  right: clamp(2.75rem, 9vw, 7rem);
   left: auto;
   transform: none;
   z-index: 3;
-  width: min(90%, 280px);
+  width: var(--stage-w);
+  max-width: min(92vw, 780px);
   text-align: center;
   pointer-events: none;
 }
@@ -748,10 +760,54 @@ body.nav-open .nav-toggle span::after {
   font-weight: 500;
 }
 
+body.story-complete .scroll-hint {
+  display: none;
+}
+
 .scroll-hint i {
   display: block;
   width: 1px;
   height: 2.2rem;
+  background: linear-gradient(var(--accent), transparent);
+  animation: hintPulse 1.6s ease-in-out infinite;
+}
+
+.flight-hint {
+  position: fixed;
+  left: 50%;
+  bottom: clamp(1.25rem, 4vh, 2.5rem);
+  transform: translateX(-50%);
+  z-index: 6;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin: 0;
+  padding: 0.55rem 0.9rem;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  background: color-mix(in srgb, var(--paper) 82%, transparent);
+  border: 1px solid var(--line);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.45s var(--ease);
+}
+
+.flight-hint.is-on {
+  opacity: 1;
+}
+
+.flight-hint.is-bound {
+  color: var(--accent-deep);
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+}
+
+.flight-hint i {
+  display: block;
+  width: 1px;
+  height: 1.6rem;
   background: linear-gradient(var(--accent), transparent);
   animation: hintPulse 1.6s ease-in-out infinite;
 }

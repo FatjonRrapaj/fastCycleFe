@@ -179,6 +179,8 @@ const threeContainer = document.querySelector(".three-js-container");
 const visualStage = document.querySelector(".visual-stage");
 const droneStoryTitle = document.querySelector(".drone-story-title");
 const droneStorySub = document.querySelector(".drone-story-sub");
+const flightHint = document.querySelector(".flight-hint");
+const flightHintText = document.querySelector(".flight-hint__text");
 
 const DRONE_STAGES = {
   blank: {
@@ -435,23 +437,39 @@ const _flyPrevHeading = new THREE.Vector3(0, 0, 1);
 const _flyCross = new THREE.Vector3();
 const _flyScreen = new THREE.Vector3();
 const _flyRay = new THREE.Vector3();
+const _flyWorldUp = new THREE.Vector3(0, 1, 0);
+const _flyFacing = new THREE.Vector3();
+const _flyRight = new THREE.Vector3();
+const _flyPitchQ = new THREE.Quaternion();
+const _flyRollQ = new THREE.Quaternion();
+const _flyTmp = new THREE.Vector3();
+const _flyVel = new THREE.Vector3();
 
 const flight = {
   active: false,
   staged: false,
   holdDock: false,
+  mouseBound: false,
+  bindDepth: 0,
+  pointerX: 0,
+  pointerY: 0,
   pos: new THREE.Vector3(),
-  heading: new THREE.Vector3(0, 0, 1),
+  vel: new THREE.Vector3(),
   dockHeading: new THREE.Vector3(0, 0, 1),
+  dockFlat: new THREE.Vector3(0, 0, 1),
   dockQuat: new THREE.Quaternion(),
   dockPos: new THREE.Vector3(),
   dockScale: 1,
   target: new THREE.Vector3(),
-  speed: 0,
+  mouseWorld: new THREE.Vector3(),
+  yaw: 0,
+  pitch: 0,
+  roll: 0,
   yawRate: 0,
   nextTargetAt: 0,
   scale: 1,
   legBoost: 1,
+  laneDir: 1,
 };
 
 function setFlyingLayout(active) {
@@ -462,16 +480,16 @@ function setFlyingLayout(active) {
 }
 
 function flightBounds() {
-  // Fullscreen canvas — allow a little past the edges, with real depth range.
+  // Fullscreen canvas — deeper roam, a little past the edges.
   const dist = Math.max(camera.position.z, 0.5);
   const halfH = Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2) * dist;
   const aspect = Math.max(camera.aspect || 1, 0.7);
-  const pad = 0.92;
+  const pad = 0.95;
   return {
     x: halfH * aspect * pad,
-    y: halfH * pad * 0.88,
-    zNear: -0.95,
-    zFar: 1.45,
+    y: halfH * pad * 0.92,
+    zNear: -1.55,
+    zFar: 1.75,
   };
 }
 
@@ -505,17 +523,44 @@ function placePivotAtScreen(snap) {
   dronePivot.scale.setScalar(snap.scale);
 }
 
+function setFlightHint(bound) {
+  if (!flightHint || !flightHintText) return;
+  flightHint.hidden = false;
+  flightHint.classList.add("is-on");
+  flightHint.classList.toggle("is-bound", !!bound);
+  flightHintText.textContent = bound
+    ? "Release — let it fly"
+    : "Hold — steer the drone";
+}
+
+function hideFlightHint() {
+  if (!flightHint) return;
+  flightHint.classList.remove("is-on", "is-bound");
+  flightHint.hidden = true;
+}
+
 function markStoryComplete() {
   if (themeLocked) return;
   // Theme only — do not touch layout/pose. Flight starts later on its own.
   themeLocked = true;
   applyThemeProgress(1);
-  document.body.classList.add("theme-live");
+  document.body.classList.add("theme-live", "story-complete");
+  // Sketch drawing is done — clear it before free-flight.
+  if (svgEl) svgEl.style.opacity = "0";
+  // Scroll prompt is done once the sketch is fully real.
+  document.querySelectorAll(".scroll-hint").forEach((el) => {
+    el.hidden = true;
+  });
+  // Freeze the finished scroll pose (drop idle bob) so takeoff doesn't snap-tilt.
+  droneState.rotY = dronePivot.rotation.y;
+  droneState.floatY = dronePivot.position.y;
+  flight.holdDock = true;
+
   if (takeoffTimer) clearTimeout(takeoffTimer);
   takeoffTimer = window.setTimeout(() => {
     takeoffTimer = null;
     startFreeFlight();
-  }, 3000);
+  }, 1000);
 }
 
 function pickFlightTarget(t) {
@@ -527,55 +572,69 @@ function pickFlightTarget(t) {
   let y = y0;
   let z = z0;
 
-  // Side / diagonal + stronger toward-user / away depth legs.
+  // Keep sweeping the same way until we near an edge — then flip for the next pass.
+  if (x0 > b.x * 0.62) flight.laneDir = -1;
+  else if (x0 < -b.x * 0.62) flight.laneDir = 1;
+  else if (!flight.laneDir) flight.laneDir = Math.random() > 0.5 ? 1 : -1;
+
+  // Mostly long lateral / diagonal passes continuing in laneDir (no mid-pass U-turns).
   const roll = Math.random();
   let mode = "side";
-  if (roll < 0.28) mode = "side";
-  else if (roll < 0.48) mode = "diagonal";
-  else if (roll < 0.7) mode = "approach";
-  else if (roll < 0.9) mode = "deep";
-  else if (roll < 0.95) mode = "climb";
+  if (roll < 0.38) mode = "side";
+  else if (roll < 0.6) mode = "diagonal";
+  else if (roll < 0.72) mode = "approach";
+  else if (roll < 0.84) mode = "deep";
+  else if (roll < 0.92) mode = "climb";
   else mode = "descend";
 
-  const oppositeX = -Math.sign(Math.abs(x0) > 0.08 ? x0 : Math.random() - 0.5);
-
   if (mode === "side") {
-    x = oppositeX * b.x * (0.75 + Math.random() * 0.28);
-    y = THREE.MathUtils.clamp(y0 + (Math.random() - 0.5) * 0.16, -b.y * 0.75, b.y * 0.75);
-    z = THREE.MathUtils.clamp(z0 + (Math.random() - 0.5) * 0.35, b.zNear * 0.45, b.zFar * 0.75);
-    flight.legBoost = 1.12;
+    x = flight.laneDir * b.x * (0.78 + Math.random() * 0.22);
+    y = THREE.MathUtils.clamp(y0 + (Math.random() - 0.5) * 0.18, -b.y * 0.85, b.y * 0.85);
+    z = THREE.MathUtils.clamp(z0 + (Math.random() - 0.5) * 0.65, b.zNear * 0.6, b.zFar * 0.85);
+    flight.legBoost = 1.35;
   } else if (mode === "diagonal") {
-    const oppositeY = -Math.sign(Math.abs(y0) > 0.08 ? y0 : Math.random() - 0.5);
-    x = oppositeX * b.x * (0.7 + Math.random() * 0.28);
-    y = oppositeY * b.y * (0.5 + Math.random() * 0.4);
-    z = gsap.utils.interpolate(b.zNear * 0.55, b.zFar * 0.85, Math.random());
-    flight.legBoost = 1.08;
+    const ySign =
+      Math.abs(y0) > 0.12 ? -Math.sign(y0) : Math.random() > 0.5 ? 1 : -1;
+    x = flight.laneDir * b.x * (0.72 + Math.random() * 0.26);
+    y = ySign * b.y * (0.4 + Math.random() * 0.5);
+    z = gsap.utils.interpolate(b.zNear * 0.65, b.zFar * 0.9, Math.random());
+    flight.legBoost = 1.3;
   } else if (mode === "approach") {
-    // Come closer to the user
-    x = THREE.MathUtils.clamp(x0 * 0.35 + (Math.random() - 0.5) * 0.25, -b.x * 0.55, b.x * 0.55);
-    y = THREE.MathUtils.clamp(y0 * 0.35 + (Math.random() - 0.5) * 0.16, -b.y * 0.4, b.y * 0.4);
-    z = gsap.utils.interpolate(0.7, b.zFar, 0.4 + Math.random() * 0.6);
-    flight.legBoost = 1.0;
+    // Drift closer while still finishing the lateral direction.
+    x = THREE.MathUtils.clamp(
+      x0 + flight.laneDir * b.x * (0.35 + Math.random() * 0.4),
+      -b.x * 0.9,
+      b.x * 0.9
+    );
+    y = THREE.MathUtils.clamp(y0 + (Math.random() - 0.5) * 0.2, -b.y * 0.55, b.y * 0.55);
+    z = gsap.utils.interpolate(0.9, b.zFar, 0.4 + Math.random() * 0.6);
+    flight.legBoost = 1.25;
   } else if (mode === "deep") {
-    // Push away into the page
-    x = (Math.random() - 0.5) * b.x * 0.85;
+    x = THREE.MathUtils.clamp(
+      x0 + flight.laneDir * b.x * (0.4 + Math.random() * 0.45),
+      -b.x * 0.95,
+      b.x * 0.95
+    );
     y = (Math.random() - 0.5) * b.y * 0.55;
-    z = gsap.utils.interpolate(b.zNear, -0.15, Math.random());
-    flight.legBoost = 1.0;
+    z = gsap.utils.interpolate(b.zNear, b.zNear * 0.4, Math.random());
+    flight.legBoost = 1.25;
   } else if (mode === "climb") {
-    x = THREE.MathUtils.clamp(x0 + (Math.random() - 0.5) * 0.2, -b.x * 0.75, b.x * 0.75);
-    y = b.y * (0.55 + Math.random() * 0.4);
-    z = THREE.MathUtils.clamp(z0 + (Math.random() - 0.5) * 0.35, b.zNear * 0.35, b.zFar * 0.7);
-    flight.legBoost = 0.95;
+    // Straight up — hold horizontal station.
+    x = x0;
+    y = b.y * (0.65 + Math.random() * 0.32);
+    z = z0;
+    flight.legBoost = 1.2;
   } else {
-    x = THREE.MathUtils.clamp(x0 + (Math.random() - 0.5) * 0.2, -b.x * 0.75, b.x * 0.75);
-    y = -b.y * (0.5 + Math.random() * 0.4);
-    z = THREE.MathUtils.clamp(z0 + (Math.random() - 0.5) * 0.35, b.zNear * 0.35, b.zFar * 0.7);
-    flight.legBoost = 0.95;
+    // Straight down.
+    x = x0;
+    y = -b.y * (0.6 + Math.random() * 0.35);
+    z = z0;
+    flight.legBoost = 1.2;
   }
 
   flight.target.set(x, y, z);
-  flight.nextTargetAt = t + 4.5 + Math.random() * 3.2;
+  // Long enough to finish the cross before choosing the next leg.
+  flight.nextTargetAt = t + 4.2 + Math.random() * 2.8;
 }
 
 /**
@@ -592,9 +651,7 @@ function readGlassForward(out) {
 function startFreeFlight() {
   if (flight.active || flight.staged || !droneModel || debugHoldPose) return;
 
-  // Exact finished scroll pose in the sketch frame (pixel size + screen pos).
-  dronePivot.rotation.set(droneState.rotX, droneState.rotY, droneState.rotZ);
-  dronePivot.position.set(0, droneState.floatY, 0);
+  // Keep the on-screen pose as-is — do not re-apply Euler (that snaps the tilt).
   matchSketchSize();
   const beforeRect = threeContainer.getBoundingClientRect();
   const snap = capturePivotScreen();
@@ -623,91 +680,268 @@ function startFreeFlight() {
     flight.dockQuat.copy(dronePivot.quaternion);
     flight.dockScale = flight.scale;
     dockedScale = flight.scale;
-    flight.holdDock = false;
 
     readGlassForward(flight.dockHeading);
-    flight.heading.copy(flight.dockHeading);
-    _flyPrevHeading.copy(flight.heading);
+    flight.dockFlat.set(flight.dockHeading.x, 0, flight.dockHeading.z);
+    if (flight.dockFlat.lengthSq() < 1e-6) flight.dockFlat.set(0, 0, 1);
+    else flight.dockFlat.normalize();
     flight.pos.copy(dronePivot.position);
-    flight.speed = 0;
+    flight.vel.set(0, 0, 0);
+    flight.yaw = 0;
+    flight.pitch = 0;
+    flight.roll = 0;
     flight.yawRate = 0;
     flight.legBoost = 1;
+    flight.laneDir = Math.random() > 0.5 ? 1 : -1;
+    flight.mouseBound = false;
+    tagFrontPropellers();
+    flight.holdDock = false;
     flight.active = true;
+    setFlightHint(false);
 
-    // Hold the exact dock for a beat — no immediate move/zoom.
+    // Hold the exact dock briefly, then roam from this same pose.
     flight.target.copy(flight.pos);
-    flight.nextTargetAt = clock.getElapsedTime() + 1.25;
+    flight.nextTargetAt = clock.getElapsedTime() + 0.85;
   });
 }
+
+/** Mark the two prop axes on the glass-forward side as front motors. */
+function tagFrontPropellers() {
+  const body = droneModel?.getObjectByName("droneBody") || droneModel;
+  if (!body || !propellerAxes.length) return;
+  body.updateWorldMatrix(true, true);
+  _flyFacing.copy(flight.dockFlat);
+  if (_flyFacing.lengthSq() < 1e-8) return;
+  body.getWorldPosition(_flyScreen);
+
+  const scored = propellerAxes.map((axis) => {
+    axis.getWorldPosition(_flyRay);
+    return {
+      axis,
+      score: _flyTmp.copy(_flyRay).sub(_flyScreen).dot(_flyFacing),
+    };
+  });
+  scored.sort((a, b) => b.score - a.score);
+  scored.forEach((entry, i) => {
+    entry.axis.userData.isFront = i < 2;
+  });
+  propellerActions.forEach((action) => {
+    const idx = action.userData.propIndex;
+    const axis =
+      idx != null
+        ? propellerAxes.find((a) => a.name === `p${idx}Axis`)
+        : null;
+    action.userData.isFront = !!axis?.userData.isFront;
+  });
+}
+
+function syncPropThrottles() {
+  if (!propellersPlaying || !propellerActions.length) return;
+  getFlightFacing(_flyFacing);
+  const fwd = Math.max(0, flight.vel.dot(_flyFacing));
+  const climb = flight.vel.y;
+
+  propellerActions.forEach((action) => {
+    const isFront = !!action.userData.isFront;
+
+    let ts = 2.5;
+    if (climb > 0.18) {
+      ts = 4.4; // all four full for climb
+    } else if (climb < -0.18) {
+      ts = 1.7; // ease props on descent
+    } else if (fwd > 0.08) {
+      // Front (glass-side) motors spin harder when pushing forward
+      ts = isFront ? 2.6 + fwd * 3.2 : 2.3 + fwd * 0.55;
+    }
+
+    const cur = action.getEffectiveTimeScale();
+    action.setEffectiveTimeScale(THREE.MathUtils.lerp(cur, ts, 0.12));
+  });
+}
+
+function getFlightFacing(out) {
+  return out
+    .copy(flight.dockFlat)
+    .applyAxisAngle(_flyWorldUp, flight.yaw)
+    .normalize();
+}
+
+function shortestAngleDelta(from, to) {
+  let d = to - from;
+  while (d > Math.PI) d -= Math.PI * 2;
+  while (d < -Math.PI) d += Math.PI * 2;
+  return d;
+}
+
+function clientToWorldOnDepth(clientX, clientY, depthZ, out) {
+  const rect = threeContainer.getBoundingClientRect();
+  const ndcX = ((clientX - rect.left) / Math.max(rect.width, 1)) * 2 - 1;
+  const ndcY = -(((clientY - rect.top) / Math.max(rect.height, 1)) * 2 - 1);
+  _flyScreen.set(ndcX, ndcY, 0.5).unproject(camera);
+  _flyRay.copy(_flyScreen).sub(camera.position).normalize();
+  const t =
+    Math.abs(_flyRay.z) > 1e-5
+      ? (depthZ - camera.position.z) / _flyRay.z
+      : 0;
+  out.copy(camera.position).addScaledVector(_flyRay, t);
+  out.z = depthZ;
+  return out;
+}
+
+/** Dock pose + smooth yaw, with forward pitch and side bank. */
+function applyQuadAttitude() {
+  getFlightFacing(_flyFacing);
+  if (Math.abs(flight.yaw) < 1e-4) {
+    _flyQuat.copy(flight.dockQuat);
+  } else {
+    _flyQuat
+      .setFromUnitVectors(flight.dockFlat, _flyFacing)
+      .multiply(flight.dockQuat);
+  }
+
+  _flyRight.crossVectors(_flyWorldUp, _flyFacing);
+  if (_flyRight.lengthSq() < 1e-6) _flyRight.set(1, 0, 0);
+  else _flyRight.normalize();
+
+  _flyPitchQ.setFromAxisAngle(_flyRight, flight.pitch);
+  _flyRollQ.setFromAxisAngle(_flyFacing, flight.roll);
+  dronePivot.quaternion
+    .copy(_flyRollQ)
+    .multiply(_flyPitchQ)
+    .multiply(_flyQuat);
+}
+
+function bindDroneToPointer(clientX, clientY) {
+  if (!flight.active) return;
+  flight.mouseBound = true;
+  flight.bindDepth = flight.pos.z;
+  flight.pointerX = clientX;
+  flight.pointerY = clientY;
+  flight.vel.set(0, 0, 0);
+  setFlightHint(true);
+}
+
+function releaseDroneFromPointer() {
+  if (!flight.mouseBound) return;
+  flight.mouseBound = false;
+  flight.target.copy(flight.pos);
+  flight.nextTargetAt = clock.getElapsedTime() + 1.1;
+  setFlightHint(false);
+}
+
+function onFlightPointerDown(e) {
+  if (!flight.active || e.button !== 0) return;
+  // Don't steal clicks from links / UI.
+  if (e.target?.closest?.("a, button, input, textarea, .dg")) return;
+  bindDroneToPointer(e.clientX, e.clientY);
+}
+
+function onFlightPointerMove(e) {
+  if (!flight.active || !flight.mouseBound) return;
+  flight.pointerX = e.clientX;
+  flight.pointerY = e.clientY;
+}
+
+function onFlightPointerUp(e) {
+  if (e.button != null && e.button !== 0) return;
+  releaseDroneFromPointer();
+}
+
+window.addEventListener("pointerdown", onFlightPointerDown);
+window.addEventListener("pointermove", onFlightPointerMove);
+window.addEventListener("pointerup", onFlightPointerUp);
+window.addEventListener("pointercancel", onFlightPointerUp);
 
 function updateFreeFlight(dt, t) {
   if (!flight.active) return;
   const b = flightBounds();
 
-  if (t >= flight.nextTargetAt || flight.pos.distanceToSquared(flight.target) < 0.045) {
+  if (flight.mouseBound) {
+    clientToWorldOnDepth(
+      flight.pointerX,
+      flight.pointerY,
+      flight.bindDepth,
+      flight.mouseWorld
+    );
+    flight.target.copy(flight.mouseWorld);
+  } else if (t >= flight.nextTargetAt) {
+    // Timer-gated legs only — avoids mid-pass U-turns and dock-hold spam.
     pickFlightTarget(t);
   }
 
   _flyDesired.subVectors(flight.target, flight.pos);
-  if (_flyDesired.lengthSq() < 1e-6) _flyDesired.copy(flight.heading);
-  else _flyDesired.normalize();
+  const dist = _flyDesired.length();
 
-  // Soft edge avoidance — allow a little past the window, then steer back.
-  if (Math.abs(flight.pos.x) > b.x * 0.92) {
-    _flyDesired.x -= Math.sign(flight.pos.x) * 0.65;
-  }
-  if (Math.abs(flight.pos.y) > b.y * 0.92) {
-    _flyDesired.y -= Math.sign(flight.pos.y) * 0.65;
-  }
-  if (flight.pos.z < b.zNear + 0.12) _flyDesired.z += 0.85;
-  if (flight.pos.z > b.zFar - 0.12) _flyDesired.z -= 0.85;
-  _flyDesired.normalize();
-
-  // Smooth glass-led turns — velocity follows the lens.
-  const turn = 1 - Math.exp(-dt * 1.25);
-  flight.heading.lerp(_flyDesired, turn).normalize();
-
-  // Yaw rate from heading swing (for light banking only).
-  const headingDot = THREE.MathUtils.clamp(
-    _flyPrevHeading.dot(flight.heading),
-    -1,
-    1
-  );
-  const ang = Math.acos(headingDot) / Math.max(dt, 1e-4);
-  _flyCross.crossVectors(_flyPrevHeading, flight.heading);
-  const side = Math.sign(_flyCross.y || 0.0001);
-  const instantYawRate = side * ang;
-  flight.yawRate += (instantYawRate - flight.yawRate) * (1 - Math.exp(-dt * 4.5));
-  _flyPrevHeading.copy(flight.heading);
-
-  const align = THREE.MathUtils.clamp(flight.heading.dot(_flyDesired), 0, 1);
-  const targetSpeed =
-    gsap.utils.interpolate(0.4, 0.98, align * align) * (flight.legBoost || 1);
-  flight.speed += (targetSpeed - flight.speed) * (1 - Math.exp(-dt * 1.15));
-
-  // Move only where the glass points.
-  flight.pos.addScaledVector(flight.heading, flight.speed * dt);
-  flight.pos.x = THREE.MathUtils.clamp(flight.pos.x, -b.x, b.x);
-  flight.pos.y = THREE.MathUtils.clamp(flight.pos.y, -b.y, b.y);
-  flight.pos.z = THREE.MathUtils.clamp(flight.pos.z, b.zNear, b.zFar);
-
-  // Attitude: keep the exact dock quaternion until we actually turn.
-  const headingDotDock = THREE.MathUtils.clamp(
-    flight.dockHeading.dot(flight.heading),
-    -1,
-    1
-  );
-  if (headingDotDock > 0.999) {
-    dronePivot.quaternion.copy(flight.dockQuat);
+  // Desired velocity — arrive gently, vertical can be direct.
+  const maxSpd = flight.mouseBound
+    ? 3.4
+    : 3.2 * (flight.legBoost || 1);
+  const desiredSpd = Math.min(maxSpd, dist * (flight.mouseBound ? 2.4 : 1.55));
+  if (dist > 1e-5) {
+    _flyVel.copy(_flyDesired).multiplyScalar(desiredSpd / dist);
   } else {
-    _flyQuat.setFromUnitVectors(flight.dockHeading, flight.heading);
-    const bank = THREE.MathUtils.clamp(-flight.yawRate * 0.18, -0.35, 0.35);
-    _flyQuatBank.setFromAxisAngle(flight.heading, bank);
-    dronePivot.quaternion
-      .copy(_flyQuat)
-      .multiply(flight.dockQuat)
-      .premultiply(_flyQuatBank);
+    _flyVel.set(0, 0, 0);
   }
+
+  // Smooth accel — mouse chase snaps harder; free roam still eased.
+  const horizLerp = 1 - Math.exp(-dt * (flight.mouseBound ? 3.6 : 1.85));
+  const vertLerp = 1 - Math.exp(-dt * (flight.mouseBound ? 4.2 : 2.8));
+  flight.vel.x += (_flyVel.x - flight.vel.x) * horizLerp;
+  flight.vel.z += (_flyVel.z - flight.vel.z) * horizLerp;
+  flight.vel.y += (_flyVel.y - flight.vel.y) * vertLerp;
+
+  flight.pos.addScaledVector(flight.vel, dt);
+
+  if (flight.mouseBound) {
+    flight.pos.z = flight.bindDepth;
+    flight.vel.z = 0;
+  } else {
+    flight.pos.z = THREE.MathUtils.clamp(flight.pos.z, b.zNear, b.zFar);
+  }
+  flight.pos.x = THREE.MathUtils.clamp(flight.pos.x, -b.x * 1.12, b.x * 1.12);
+  flight.pos.y = THREE.MathUtils.clamp(flight.pos.y, -b.y * 1.12, b.y * 1.12);
+
+  // Slow yaw toward horizontal travel — never snap 180°.
+  _flyCross.set(flight.vel.x, 0, flight.vel.z);
+  const horizSpeed = _flyCross.length();
+  if (horizSpeed > 0.12) {
+    _flyCross.multiplyScalar(1 / horizSpeed);
+    const desiredYaw = Math.atan2(
+      flight.dockFlat.x * _flyCross.z - flight.dockFlat.z * _flyCross.x,
+      flight.dockFlat.dot(_flyCross)
+    );
+    const dyaw = shortestAngleDelta(flight.yaw, desiredYaw);
+    const maxTurn = (flight.mouseBound ? 2.4 : 1.45) * dt;
+    const stepYaw = THREE.MathUtils.clamp(dyaw, -maxTurn, maxTurn);
+    flight.yaw += stepYaw;
+    flight.yawRate = stepYaw / Math.max(dt, 1e-4);
+  } else {
+    flight.yawRate *= 1 - Math.exp(-dt * 4);
+  }
+
+  getFlightFacing(_flyFacing);
+  _flyRight.crossVectors(_flyWorldUp, _flyFacing);
+  if (_flyRight.lengthSq() < 1e-6) _flyRight.set(1, 0, 0);
+  else _flyRight.normalize();
+
+  const fwdSpd = flight.vel.dot(_flyFacing);
+  const latSpd = flight.vel.dot(_flyRight);
+  // Tip glass-forward a little when pushing ahead; stay flat on pure vertical.
+  let targetPitch = THREE.MathUtils.clamp(-fwdSpd * 0.28, -0.42, 0.1);
+  let targetRoll = THREE.MathUtils.clamp(
+    -latSpd * 0.22 - flight.yawRate * 0.12,
+    -0.34,
+    0.34
+  );
+  if (Math.abs(flight.vel.y) > 0.35 && horizSpeed < 0.22) {
+    targetPitch = 0;
+    targetRoll *= 0.2;
+  }
+  flight.pitch += (targetPitch - flight.pitch) * (1 - Math.exp(-dt * 2.4));
+  flight.roll += (targetRoll - flight.roll) * (1 - Math.exp(-dt * 2.2));
+
+  applyQuadAttitude();
+  syncPropThrottles();
   dronePivot.position.copy(flight.pos);
   dronePivot.scale.setScalar(flight.scale);
 }
@@ -1149,6 +1383,11 @@ loader.load(
           action.clampWhenFinished = false;
           // A bit faster so shaft spin reads without a manual off-axis boost.
           action.timeScale = 3.2;
+          const m = clip.name.match(/(\d+)/);
+          action.userData = {
+            propIndex: m ? Number(m[1]) : null,
+            isFront: false,
+          };
           return action;
         });
       cameraActions = gltf.animations
@@ -1204,8 +1443,10 @@ function animate() {
   if (droneModel && !debugHoldPose) {
     if (flight.active) {
       updateFreeFlight(Math.min(delta, 0.05), t);
+    } else if (flight.staged) {
+      // Fullscreen handoff — leave captured pose alone until flight owns it.
     } else {
-      const live = droneState.colorT;
+      const live = flight.holdDock ? 0 : droneState.colorT;
       dronePivot.rotation.x = droneState.rotX;
       dronePivot.rotation.y =
         droneState.rotY + Math.sin(t * 0.35) * 0.03 * live;
@@ -1309,8 +1550,9 @@ function applySectionSequences() {
     svgEl.style.opacity = "1";
     threeContainer.style.opacity = "1";
     threeContainer.style.pointerEvents = "auto";
-  } else if (flight.active) {
-    svgEl.style.opacity = "0.35";
+  } else if (themeLocked || flight.active) {
+    // Drawing is finished — hide the sketch for free-flight.
+    svgEl.style.opacity = "0";
     threeContainer.style.opacity = "1";
     threeContainer.style.pointerEvents = "none";
   } else {
@@ -1323,8 +1565,8 @@ function applySectionSequences() {
   // Theme can lock for the page chrome; color/pose stay scroll-driven until flight.
   applyColorProgress(themeLocked ? 1 : colorT);
 
-  if (flight.active) {
-    // Free-flight owns the pose.
+  if (flight.active || flight.staged || flight.holdDock) {
+    // Dock hold / free-flight owns the pose — don't let scroll rewrite it.
   } else {
     // Pure scroll story: morph → tilt wireframe → color. No flight layout mixed in.
     droneState.rotX = gsap.utils.interpolate(0, -1.35, tiltT);
@@ -1342,6 +1584,13 @@ function applySectionSequences() {
   else if (aboutT > 0.05 || intro.frame >= 1) stage = DRONE_STAGES.napkin;
   else if (intro.frame > 0.15) stage = DRONE_STAGES.frame;
   setDroneStory(stage);
+
+  if (flight.active && droneStoryTitle) {
+    // Flight hint replaces the story captions once the drone is free.
+    if (droneStoryTitle.parentElement) {
+      droneStoryTitle.parentElement.style.opacity = "0";
+    }
+  }
 
   if (themeLocked) {
     visualStage.style.opacity = "1";
@@ -1451,4 +1700,4 @@ window.addEventListener("load", () => {
   applySectionSequences();
 });
 
-initDroneDebugGui();
+// Debug pane off for now — call initDroneDebugGui() to bring it back.
