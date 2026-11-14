@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
     <style>
@@ -41,7 +41,29 @@
       html.is-booted #boot-screen {
         pointer-events: none;
       }
+      /* Revisit: hide loader before the JS bundle even runs */
+      html.is-warm-return #boot-screen {
+        display: none !important;
+      }
+      html.is-warm-return.story-complete,
+      html.is-warm-return.is-live-return {
+        background: #eef8f6;
+      }
     </style>
+    <script>
+      try {
+        if (sessionStorage.getItem("fc-home-warmed") === "1") {
+          document.documentElement.classList.add("is-warm-return");
+        }
+        if (sessionStorage.getItem("fc-drone-story-complete") === "1") {
+          document.documentElement.classList.add(
+            "is-warm-return",
+            "is-live-return",
+            "story-complete"
+          );
+        }
+      } catch (e) {}
+    </script>
   </head>
   <body class="home-page">
     <div id="boot-screen" role="status" aria-live="polite" aria-busy="true">

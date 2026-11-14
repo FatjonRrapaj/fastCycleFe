@@ -102,7 +102,6 @@ body {
   font-size: 1.05rem;
   line-height: 1.6;
   overflow-x: hidden;
-  transition: color 0.05s linear;
 }
 
 img {
@@ -248,7 +247,7 @@ html.is-booted body {
   border: 1px solid color-mix(in srgb, transparent calc(var(--theme-t) * 100%), var(--stroke) calc(var(--theme-inv) * 100%));
   background: color-mix(in srgb, transparent calc(var(--theme-inv) * 100%), var(--l-ink) calc(var(--theme-t) * 100%));
   color: color-mix(in srgb, var(--stroke) calc(var(--theme-inv) * 100%), #fff calc(var(--theme-t) * 100%)) !important;
-  font-family: "IBM Plex Mono", "IBM Plex Sans", monospace;
+  font-family: var(--font-display);
   font-size: 0.82rem;
   font-weight: 500;
   letter-spacing: 0.04em;
@@ -414,7 +413,7 @@ body.nav-open .nav-toggle span::after {
 
 .drone-story-sub {
   margin-top: 0.35rem;
-  font-family: "IBM Plex Mono", monospace;
+  font-family: var(--font-display);
   font-size: 0.7rem;
   letter-spacing: 0.06em;
   color: var(--muted);
@@ -513,7 +512,7 @@ body.nav-open .nav-toggle span::after {
   align-items: center;
   gap: 0.55rem;
   margin-bottom: 1.25rem;
-  font-family: "IBM Plex Mono", monospace;
+  font-family: var(--font-display);
   font-size: 0.74rem;
   font-weight: 500;
   letter-spacing: 0.18em;
@@ -603,7 +602,7 @@ body.nav-open .nav-toggle span::after {
 
 .hero-stat__label {
   display: block;
-  font-family: "IBM Plex Mono", monospace;
+  font-family: var(--font-display);
   font-size: 0.68rem;
   font-weight: 500;
   letter-spacing: 0.1em;
@@ -651,7 +650,7 @@ body.nav-open .nav-toggle span::after {
   background: color-mix(in srgb, transparent calc(var(--theme-inv) * 100%), var(--accent) calc(var(--theme-t) * 100%));
   border: 1px solid color-mix(in srgb, var(--stroke) calc(var(--theme-inv) * 100%), var(--accent) calc(var(--theme-t) * 100%));
   color: color-mix(in srgb, var(--stroke) calc(var(--theme-inv) * 100%), #fff calc(var(--theme-t) * 100%));
-  font-family: "IBM Plex Mono", "IBM Plex Sans", monospace;
+  font-family: var(--font-display);
   font-size: 0.88rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -697,7 +696,7 @@ body.nav-open .nav-toggle span::after {
 }
 
 .step-num {
-  font-family: "IBM Plex Mono", monospace;
+  font-family: var(--font-display);
   font-weight: 500;
   font-size: 0.85rem;
   color: var(--accent);
@@ -789,7 +788,7 @@ body.nav-open .nav-toggle span::after {
   gap: 1rem;
   color: var(--muted);
   font-size: 0.88rem;
-  font-family: "IBM Plex Mono", "IBM Plex Sans", monospace;
+  font-family: var(--font-display);
 }
 
 .scroll-hint {
@@ -797,7 +796,7 @@ body.nav-open .nav-toggle span::after {
   align-items: center;
   gap: 0.6rem;
   margin-top: 2.5rem;
-  font-family: "IBM Plex Mono", monospace;
+  font-family: var(--font-display);
   font-size: 0.74rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -828,7 +827,7 @@ body.story-complete .scroll-hint {
   gap: 0.65rem;
   margin: 0;
   padding: 0.55rem 0.9rem;
-  font-family: "IBM Plex Mono", monospace;
+  font-family: var(--font-display);
   font-size: 0.72rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -953,7 +952,7 @@ body.story-complete .scroll-hint {
 }
 
 .contact-channel__kind {
-  font-family: "IBM Plex Mono", monospace;
+  font-family: var(--font-display);
   font-size: 0.68rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -969,7 +968,7 @@ body.story-complete .scroll-hint {
 }
 
 .contact-channel__hint {
-  font-family: "IBM Plex Mono", monospace;
+  font-family: var(--font-display);
   font-size: 0.72rem;
   color: var(--muted);
 }
@@ -977,7 +976,7 @@ body.story-complete .scroll-hint {
 .contact-note {
   margin: 1.75rem auto 0;
   max-width: 36ch;
-  font-family: "IBM Plex Mono", monospace;
+  font-family: var(--font-display);
   font-size: 0.74rem;
   letter-spacing: 0.04em;
   color: var(--muted);
@@ -1001,7 +1000,7 @@ body.story-complete .scroll-hint {
   margin: 0 0 0.9rem;
   padding-bottom: 0.55rem;
   border-bottom: 1px solid var(--line);
-  font-family: "IBM Plex Mono", monospace;
+  font-family: var(--font-display);
   font-size: 0.7rem;
   font-weight: 500;
   letter-spacing: 0.16em;
@@ -1072,7 +1071,7 @@ body.story-complete .scroll-hint {
 }
 
 .placeholder-card span {
-  font-family: "IBM Plex Mono", monospace;
+  font-family: var(--font-display);
   font-size: 0.72rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -1168,7 +1167,7 @@ body.story-complete .scroll-hint {
   grid-column: 1 / -1;
   margin: 0.5rem 0 0;
   text-align: center;
-  font-family: "IBM Plex Mono", monospace;
+  font-family: var(--font-display);
   font-size: 0.85rem;
   letter-spacing: 0.06em;
   color: var(--muted);
@@ -1230,7 +1229,7 @@ body.story-complete .scroll-hint {
 }
 
 .project-tag {
-  font-family: "IBM Plex Mono", monospace;
+  font-family: var(--font-display);
   font-size: 0.68rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -1240,7 +1239,7 @@ body.story-complete .scroll-hint {
 }
 
 .project-stack {
-  font-family: "IBM Plex Mono", monospace;
+  font-family: var(--font-display);
   font-size: 0.72rem;
   letter-spacing: 0.04em;
   color: var(--muted);
@@ -1289,7 +1288,7 @@ body.story-complete .scroll-hint {
 }
 
 .project-link {
-  font-family: "IBM Plex Mono", monospace;
+  font-family: var(--font-display);
   font-size: 0.78rem;
   letter-spacing: 0.04em;
   color: var(--accent);
@@ -1333,7 +1332,7 @@ body.story-complete .scroll-hint {
 }
 
 .timeline-when {
-  font-family: "IBM Plex Mono", monospace;
+  font-family: var(--font-display);
   font-size: 0.72rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -1351,7 +1350,7 @@ body.story-complete .scroll-hint {
 }
 
 .timeline-org {
-  font-family: "IBM Plex Mono", monospace;
+  font-family: var(--font-display);
   font-size: 0.86rem;
   color: var(--accent);
   margin-bottom: 0.75rem;
@@ -1392,7 +1391,7 @@ body.story-complete .scroll-hint {
   padding: 0.28rem 0.55rem;
   border: 1px solid var(--line);
   background: var(--card-bg);
-  font-family: "IBM Plex Mono", monospace;
+  font-family: var(--font-display);
   font-size: 0.68rem;
   letter-spacing: 0.02em;
   line-height: 1.2;
@@ -1446,7 +1445,7 @@ body.story-complete .scroll-hint {
 }
 
 .skill-grid span {
-  font-family: "IBM Plex Mono", monospace;
+  font-family: var(--font-display);
   font-size: 0.58rem;
   letter-spacing: 0.02em;
   color: var(--ink-soft);
@@ -1530,7 +1529,7 @@ body.story-complete .scroll-hint {
 }
 
 .skill-marquee__track span {
-  font-family: "IBM Plex Mono", monospace;
+  font-family: var(--font-display);
   font-size: 0.62rem;
   letter-spacing: 0.03em;
   color: var(--ink-soft);
@@ -1651,7 +1650,7 @@ body.story-complete .scroll-hint {
 }
 
 .skills-modal__grid span {
-  font-family: "IBM Plex Mono", monospace;
+  font-family: var(--font-display);
   font-size: 0.62rem;
   letter-spacing: 0.03em;
   color: var(--ink-soft);
@@ -1736,7 +1735,7 @@ body.skills-modal-open {
   align-items: flex-end;
   gap: 0.14rem;
   white-space: nowrap;
-  font-family: "IBM Plex Mono", monospace;
+  font-family: var(--font-display);
   color: var(--accent);
   background: color-mix(in srgb, var(--paper) 72%, transparent);
   border: 1px solid color-mix(in srgb, var(--accent) 65%, var(--line));
@@ -1810,111 +1809,6 @@ body.skills-modal-open {
 
 .work-copy .win-list li {
   font-size: 0.84rem;
-}
-
-/* ——— iPhone frame ——— */
-.iphone {
-  --iphone-w: 168px;
-  --iphone-h: 344px;
-  position: relative;
-  width: var(--iphone-w);
-  height: var(--iphone-h);
-  flex-shrink: 0;
-  filter: drop-shadow(0 18px 28px rgba(8, 24, 28, 0.22));
-}
-
-.iphone-bezel {
-  position: absolute;
-  inset: 0;
-  border-radius: 34px;
-  background:
-    linear-gradient(145deg, #3a3d42 0%, #1a1c1f 42%, #0c0d0f 100%);
-  padding: 9px;
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.16),
-    inset 0 0 0 3px #111,
-    0 0 0 1px rgba(0, 0, 0, 0.35);
-}
-
-.iphone-island {
-  position: absolute;
-  top: 16px;
-  left: 50%;
-  z-index: 5;
-  width: 58px;
-  height: 16px;
-  transform: translateX(-50%);
-  border-radius: 999px;
-  background: #050505;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
-}
-
-.iphone-island::after {
-  content: "";
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  width: 6px;
-  height: 6px;
-  transform: translateY(-50%);
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, #2a3d55, #0a1018 70%);
-}
-
-.iphone-screen {
-  width: 100%;
-  height: 100%;
-  border-radius: 26px;
-  overflow: hidden;
-  background: #fff;
-  position: relative;
-}
-
-.iphone-home {
-  position: absolute;
-  left: 50%;
-  bottom: 13px;
-  z-index: 4;
-  width: 62px;
-  height: 3px;
-  transform: translateX(-50%);
-  border-radius: 999px;
-  background: rgba(0, 0, 0, 0.28);
-}
-
-.iphone-btn {
-  position: absolute;
-  background: linear-gradient(90deg, #2c2f34, #141618);
-  border-radius: 2px;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
-}
-
-.iphone-btn.silent {
-  left: -2px;
-  top: 78px;
-  width: 3px;
-  height: 18px;
-}
-
-.iphone-btn.vol-up {
-  left: -2px;
-  top: 112px;
-  width: 3px;
-  height: 28px;
-}
-
-.iphone-btn.vol-down {
-  left: -2px;
-  top: 148px;
-  width: 3px;
-  height: 28px;
-}
-
-.iphone-btn.power {
-  right: -2px;
-  top: 124px;
-  width: 3px;
-  height: 46px;
 }
 
 /* ——— Live device demos (phones + Cinolla tablet — own chrome, scaled) ——— */
@@ -2133,7 +2027,7 @@ body.skills-modal-open {
   margin: 0;
   max-width: min(90vw, 36rem);
   text-align: center;
-  font-family: "IBM Plex Mono", monospace;
+  font-family: var(--font-display);
   font-size: 0.68rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -2217,7 +2111,7 @@ body.demo-modal-open {
 }
 
 .ui-bar {
-  font-family: "IBM Plex Mono", monospace;
+  font-family: var(--font-display);
   font-size: 0.58rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -2238,7 +2132,7 @@ body.demo-modal-open {
 .ui-cta {
   margin-top: auto;
   text-align: center;
-  font-family: "IBM Plex Mono", monospace;
+  font-family: var(--font-display);
   font-size: 0.55rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -2298,7 +2192,6 @@ body.demo-modal-open {
     grid-template-columns: 1fr;
   }
 
-  .iphone,
   .phone-demo-stage,
   .takein-stage,
   .truckup-stage,

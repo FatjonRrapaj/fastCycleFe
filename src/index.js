@@ -241,7 +241,7 @@ const renderer = new THREE.WebGLRenderer({
   antialias: true,
   alpha: true,
 });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
 renderer.setClearColor(0x000000, 0);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -301,6 +301,7 @@ let takeoffTimer = null;
 let takeoffPending = false;
 
 const STORY_STORAGE_KEY = "fc-drone-story-complete";
+const HOME_WARMED_KEY = "fc-home-warmed";
 
 function persistStoryComplete() {
   try {
@@ -313,6 +314,22 @@ function persistStoryComplete() {
 function wasStoryCompleted() {
   try {
     return sessionStorage.getItem(STORY_STORAGE_KEY) === "1";
+  } catch (_) {
+    return false;
+  }
+}
+
+function markHomeWarmed() {
+  try {
+    sessionStorage.setItem(HOME_WARMED_KEY, "1");
+  } catch (_) {
+    /* ignore */
+  }
+}
+
+function isHomeWarmed() {
+  try {
+    return sessionStorage.getItem(HOME_WARMED_KEY) === "1";
   } catch (_) {
     return false;
   }
@@ -480,9 +497,10 @@ function restoreCompletedStory() {
     sectionLocal[i] = 1;
   });
 
+  // Color BEFORE takeoff — otherwise one frame of wireframe flashes on screen.
   applyFinishedDockPose();
-  markStoryComplete({ immediate: true });
   if (droneModel) applyColorProgress(1);
+  markStoryComplete({ immediate: true });
   applySectionSequences();
   return true;
 }
@@ -1344,13 +1362,18 @@ function mountDroneGltf(gltf) {
   });
 
   fitDroneToSketch();
-  // fitDroneToSketch zeros pivot rotation — restore glass-first dock if story is done.
-  if (themeLocked) applyFinishedDockPose();
   propellersPlaying = false;
-  applyColorProgress(themeLocked ? 1 : 0);
+  // Returning to a finished story: mount already solid (never flash wireframe).
+  const liveReturn = themeLocked || wasStoryCompleted();
+  if (liveReturn) {
+    applyFinishedDockPose();
+    applyColorProgress(1);
+  } else {
+    applyColorProgress(0);
+  }
   window.__meshRecords = meshRecords;
   window.__droneReady = true;
-  if (themeLocked && (takeoffPending || (!flight.active && !flight.staged))) {
+  if (liveReturn && (takeoffPending || (!flight.active && !flight.staged))) {
     takeoffPending = false;
     scheduleTakeoff(0);
   }
@@ -1390,7 +1413,8 @@ function setBootProgress(t, label) {
   if (status && label) status.textContent = label;
 }
 
-const PRELOAD_PAGES = [
+/** Block boot until these are in the HTTP cache — keeps later navigation/scroll smooth. */
+const BOOT_PAGES = [
   "/experience.html",
   "/projects.html",
   "/contact.html",
@@ -1399,18 +1423,44 @@ const PRELOAD_PAGES = [
   "/site.bundle.js",
 ];
 
-function preloadImage(src) {
-  return new Promise((resolve) => {
-    const img = new Image();
-    img.onload = img.onerror = () => resolve();
-    img.src = src;
-  });
-}
+const BOOT_DECODERS = [
+  "/draco/draco_decoder.wasm",
+  "/draco/draco_wasm_wrapper.js",
+  "/draco/draco_decoder.js",
+];
 
 function preloadFetch(url) {
   return fetch(url, { credentials: "same-origin" })
     .then((r) => (r.ok ? r.arrayBuffer() : null))
     .catch(() => null);
+}
+
+/** Load + decode so the bitmap is ready before first scroll. */
+function preloadImage(src) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.decoding = "sync";
+    img.onload = () => {
+      if (img.decode) {
+        img.decode().then(resolve).catch(resolve);
+      } else {
+        resolve();
+      }
+    };
+    img.onerror = () => resolve();
+    img.src = src;
+  });
+}
+
+function collectHomeImageSrcs() {
+  return [
+    ...new Set(
+      [
+        ...document.querySelectorAll('img[src$=".svg"]'),
+        ...document.querySelectorAll('img[src*="/projects/"]'),
+      ].map((img) => img.getAttribute("src")).filter(Boolean)
+    ),
+  ].map((src) => new URL(src, window.location.href).href);
 }
 
 function dismissBootScreen() {
@@ -1436,7 +1486,6 @@ function seatHiddenDroneUnderSketch() {
     renderer.compile(scene, camera);
   }
   renderer.render(scene, camera);
-  renderer.render(scene, camera);
 }
 
 function warmThreeScene() {
@@ -1448,54 +1497,89 @@ function warmThreeScene() {
   renderer.render(scene, camera);
 }
 
+function hideBootScreenImmediate() {
+  const boot = document.getElementById("boot-screen");
+  if (boot) {
+    boot.hidden = true;
+    boot.style.display = "none";
+    boot.setAttribute("aria-busy", "false");
+  }
+}
+
 async function runHomeBoot() {
-  setBootProgress(0.05, "TYPE");
+  const returningLive = wasStoryCompleted();
+  const warmed = isHomeWarmed();
+
+  // Any return to home in this tab: no loader UI (assets already cached).
+  if (warmed || returningLive) {
+    hideBootScreenImmediate();
+    document.documentElement.classList.add("is-warm-return");
+    if (returningLive) {
+      document.documentElement.classList.add("is-live-return", "story-complete");
+      document.body.classList.add("theme-live", "story-complete");
+      applyThemeProgress(1);
+    }
+    warmThreeScene();
+    try {
+      await loadDroneModel();
+      if (returningLive) {
+        applyFinishedDockPose();
+        applyColorProgress(1);
+      } else {
+        seatHiddenDroneUnderSketch();
+      }
+    } catch (_) {
+      /* page still usable */
+    }
+    markHomeWarmed();
+    dismissBootScreen();
+    requestAnimationFrame(() => {
+      resizeRenderer();
+      if (!returningLive) seatHiddenDroneUnderSketch();
+      ScrollTrigger.refresh();
+      startPageIntro();
+    });
+    return;
+  }
+
+  // First visit only — block until everything is cached for smooth scroll.
+  setBootProgress(0.06, "TYPE");
   if (document.fonts?.ready) {
     await Promise.race([
       document.fonts.ready,
-      new Promise((r) => setTimeout(r, 1800)),
+      new Promise((r) => setTimeout(r, 1600)),
     ]);
   }
 
-  setBootProgress(0.16, "SVG");
-  const svgSrcs = [
-    ...new Set(
-      [...document.querySelectorAll('img[src$=".svg"]')].map((img) => img.src)
-    ),
-  ];
-  const rasterSrcs = [
-    ...new Set(
-      [...document.querySelectorAll('img[src*="/projects/"]')].map(
-        (img) => img.src
-      )
-    ),
-  ];
-  await Promise.all([...svgSrcs, ...rasterSrcs].map(preloadImage));
+  setBootProgress(0.18, "SVG");
+  const imageSrcs = collectHomeImageSrcs();
+  await Promise.all(imageSrcs.map(preloadImage));
+  await Promise.all(
+    [...document.images].map((img) =>
+      img.decode ? img.decode().catch(() => {}) : Promise.resolve()
+    )
+  );
 
-  setBootProgress(0.32, "PAGES");
-  await Promise.all(PRELOAD_PAGES.map(preloadFetch));
+  setBootProgress(0.36, "PAGES");
+  await Promise.all(BOOT_PAGES.map(preloadFetch));
 
-  setBootProgress(0.44, "DECODER");
-  await Promise.all([
-    preloadFetch("/draco/draco_decoder.wasm"),
-    preloadFetch("/draco/draco_wasm_wrapper.js"),
-    preloadFetch("/draco/draco_decoder.js"),
-  ]);
+  setBootProgress(0.48, "DECODER");
+  await Promise.all(BOOT_DECODERS.map(preloadFetch));
 
-  setBootProgress(0.55, "SCENE");
+  setBootProgress(0.6, "SCENE");
   warmThreeScene();
 
-  setBootProgress(0.66, "MODEL");
+  setBootProgress(0.72, "MODEL");
   try {
     await loadDroneModel();
-    // Drone is in the scene now — seated under the sketch, fully hidden.
     seatHiddenDroneUnderSketch();
   } catch (_) {
-    // Still reveal the page — sketch works without the GLB.
+    /* sketch still works without the GLB */
   }
 
   setBootProgress(1, "READY");
-  await new Promise((r) => setTimeout(r, 120));
+  markHomeWarmed();
+  await new Promise((r) => setTimeout(r, 80));
   dismissBootScreen();
 
   requestAnimationFrame(() => {
