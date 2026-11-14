@@ -791,6 +791,51 @@ body.nav-open .nav-toggle span::after {
   font-family: var(--font-display);
 }
 
+.site-footer--mark {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.15rem;
+  text-align: center;
+  padding-top: 2.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.site-footer__copy {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.65rem 1.5rem;
+}
+
+.footer-mark {
+  display: block;
+  width: min(7.5rem, 28vw);
+  color: color-mix(in srgb, var(--ink) 55%, var(--muted));
+  transition: color 0.2s var(--ease), transform 0.25s var(--ease);
+}
+
+.footer-mark:hover {
+  color: var(--accent-deep);
+  transform: translateY(-2px);
+}
+
+.footer-mark__svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.footer-mark__svg path,
+.footer-mark__svg circle,
+.footer-mark__svg rect {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
 .scroll-hint {
   display: inline-flex;
   align-items: center;
