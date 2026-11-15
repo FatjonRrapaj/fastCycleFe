@@ -1,0 +1,11 @@
+# Preserve old Netlify URLs + clean aliases
+/blog          /blog.html          301
+/blog/         /blog.html          301
+/about         /                   301
+/about/        /                   301
+/how-i-work    /                   301
+/how-i-work/   /                   301
+/faqs          /                   301
+/projects      /projects.html      301
+/experience    /experience.html    301
+/contact       /contact.html       301
