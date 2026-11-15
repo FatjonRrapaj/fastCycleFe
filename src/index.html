@@ -3,11 +3,59 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Fatjon Rrapaj — Mobile Developer</title>
+    <title>Fatjon Rrapaj — Mobile Developer | React Native</title>
     <meta
       name="description"
-      content="Fatjon Rrapaj — Mobile & Frontend developer with 9 years of experience greenfielding and shipping real apps."
+      content="Fatjon Rrapaj — mobile &amp; frontend developer with 9 years greenfielding and shipping React Native, TypeScript, and native apps. Based in Tirana, remote-friendly."
     />
+    <meta
+      name="robots"
+      content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    />
+    <meta name="author" content="Fatjon Rrapaj" />
+    <meta name="theme-color" content="#0f2d34" />
+    <link rel="canonical" href="https://fatjonrrapaj.dev/" />
+    <link rel="icon" href="/favicon.png?v=5" type="image/png" sizes="32x32" />
+    <link rel="icon" href="/favicon.svg?v=5" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=5" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="author" type="text/plain" href="/humans.txt" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Fatjon Rrapaj" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:url" content="https://fatjonrrapaj.dev/" />
+    <meta
+      property="og:title"
+      content="Fatjon Rrapaj — Mobile Developer | React Native"
+    />
+    <meta
+      property="og:description"
+      content="Mobile &amp; frontend developer with 9 years greenfielding and shipping React Native, TypeScript, and native apps."
+    />
+    <meta property="og:image" content="https://fatjonrrapaj.dev/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="Fatjon Rrapaj — Mobile Developer"
+    />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="Fatjon Rrapaj — Mobile Developer | React Native"
+    />
+    <meta
+      name="twitter:description"
+      content="Mobile &amp; frontend developer with 9 years greenfielding and shipping React Native, TypeScript, and native apps."
+    />
+    <meta name="twitter:image" content="https://fatjonrrapaj.dev/og-image.png" />
+    <meta
+      name="twitter:image:alt"
+      content="Fatjon Rrapaj — Mobile Developer"
+    />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -15,12 +63,14 @@
       rel="stylesheet"
     />
     <style>
-      /* Kill FOUC — hide page until CSS + assets boot */
+      /* Kill FOUC — only when JS is present (crawlers without JS still see content) */
       html {
         background: #0f2d34;
       }
       body {
         margin: 0;
+      }
+      html.js body {
         visibility: hidden;
       }
       #boot-screen {
@@ -41,7 +91,6 @@
       html.is-booted #boot-screen {
         pointer-events: none;
       }
-      /* Revisit: hide loader before the JS bundle even runs */
       html.is-warm-return #boot-screen {
         display: none !important;
       }
@@ -50,7 +99,18 @@
         background: #eef8f6;
       }
     </style>
+    <noscript>
+      <style>
+        body {
+          visibility: visible !important;
+        }
+        #boot-screen {
+          display: none !important;
+        }
+      </style>
+    </noscript>
     <script>
+      document.documentElement.classList.add("js");
       try {
         if (sessionStorage.getItem("fc-home-warmed") === "1") {
           document.documentElement.classList.add("is-warm-return");
@@ -63,6 +123,60 @@
           );
         }
       } catch (e) {}
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "https://fatjonrrapaj.dev/#website",
+            "url": "https://fatjonrrapaj.dev/",
+            "name": "Fatjon Rrapaj",
+            "description": "Mobile & frontend developer with 9 years greenfielding and shipping React Native, TypeScript, and native apps.",
+            "inLanguage": "en",
+            "publisher": { "@id": "https://fatjonrrapaj.dev/#person" }
+          },
+          {
+            "@type": "Person",
+            "@id": "https://fatjonrrapaj.dev/#person",
+            "name": "Fatjon Rrapaj",
+            "url": "https://fatjonrrapaj.dev/",
+            "image": "https://fatjonrrapaj.dev/og-image.png",
+            "jobTitle": "Mobile Developer",
+            "description": "Mobile & frontend developer with 9 years experience building React Native and native apps.",
+            "email": "mailto:fatjonrrapaj@live.com",
+            "address": {
+              "@type": "PostalAddress",
+              "addressLocality": "Tirana",
+              "addressCountry": "AL"
+            },
+            "sameAs": [
+              "https://www.linkedin.com/in/fatjon-rrapaj-358032135/"
+            ],
+            "knowsAbout": [
+              "React Native",
+              "TypeScript",
+              "Expo",
+              "React",
+              "Next.js",
+              "iOS",
+              "Android",
+              "Mobile app development"
+            ]
+          },
+          {
+            "@type": "WebPage",
+            "@id": "https://fatjonrrapaj.dev/#webpage",
+            "url": "https://fatjonrrapaj.dev/",
+            "name": "Fatjon Rrapaj — Mobile Developer | React Native",
+            "isPartOf": { "@id": "https://fatjonrrapaj.dev/#website" },
+            "about": { "@id": "https://fatjonrrapaj.dev/#person" },
+            "description": "Fatjon Rrapaj — mobile & frontend developer with 9 years greenfielding and shipping React Native, TypeScript, and native apps.",
+            "inLanguage": "en"
+          }
+        ]
+      }
     </script>
   </head>
   <body class="home-page">
@@ -85,7 +199,7 @@
       <ul class="nav-links">
         <li><a href="/experience.html">Experience</a></li>
         <li><a href="/projects.html">Projects</a></li>
-        <li><a class="nav-cta" href="/contact.html">Hire me</a></li>
+        <li><a class="nav-cta" href="/contact.html">Let’s talk</a></li>
       </ul>
     </header>
 
@@ -170,7 +284,7 @@
               data-count="100"
               data-prefix="+"
               data-suffix="k"
-              >+0k</span
+              >+100k</span
             >
             <span class="hero-stat__label">App downloads</span>
           </li>
@@ -179,7 +293,7 @@
               class="hero-stat__value"
               data-count="20"
               data-prefix="+"
-              >+0</span
+              >+20</span
             >
             <span class="hero-stat__label">Apps created</span>
           </li>
@@ -188,7 +302,7 @@
               class="hero-stat__value"
               data-count="9"
               data-prefix="+"
-              >+0</span
+              >+9</span
             >
             <span class="hero-stat__label">Years of experience</span>
           </li>
@@ -197,7 +311,7 @@
               class="hero-stat__value"
               data-count="12"
               data-prefix="+"
-              >+0</span
+              >+12</span
             >
             <span class="hero-stat__label">Companies helped</span>
           </li>
@@ -653,6 +767,12 @@
       </section>
 
       <footer class="site-footer">
+        <nav aria-label="Site">
+          <ul class="site-footer__nav">
+            <li><a href="/experience.html">Experience</a></li>
+            <li><a href="/projects.html">Projects</a></li>
+          </ul>
+        </nav>
         <p>© Fatjon Rrapaj</p>
         <p>Sketch fast. Ship faster.</p>
       </footer>

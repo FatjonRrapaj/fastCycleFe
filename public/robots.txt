@@ -1,0 +1,8 @@
+# https://fatjonrrapaj.dev
+User-agent: *
+Allow: /
+
+# Thin iframe demos — keep out of the index
+Disallow: /demos/
+
+Sitemap: https://fatjonrrapaj.dev/sitemap.xml

@@ -1,0 +1,29 @@
+{
+  "name": "Fatjon Rrapaj — Mobile Developer",
+  "short_name": "Fatjon Rrapaj",
+  "description": "Mobile & frontend developer with 9 years greenfielding and shipping real apps. React Native, TypeScript, native when needed.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "lang": "en",
+  "background_color": "#0f2d34",
+  "theme_color": "#0f2d34",
+  "icons": [
+    {
+      "src": "/favicon-64.png",
+      "sizes": "64x64",
+      "type": "image/png"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "/og-image.png",
+      "sizes": "1200x630",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

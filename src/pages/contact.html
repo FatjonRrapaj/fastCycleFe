@@ -3,11 +3,44 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Contact — Fatjon Rrapaj</title>
+    <title>Contact — Fatjon Rrapaj | Let’s Talk</title>
     <meta
       name="description"
-      content="Contact Fatjon Rrapaj — React Native / mobile developer. Email, LinkedIn, or download the CV."
+      content="Contact Fatjon Rrapaj — React Native / mobile developer. Email, LinkedIn, or download the CV. Tirana · remote-friendly."
     />
+    <meta
+      name="robots"
+      content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    />
+    <meta name="author" content="Fatjon Rrapaj" />
+    <meta name="theme-color" content="#eef8f6" />
+    <link rel="canonical" href="https://fatjonrrapaj.dev/contact.html" />
+    <link rel="icon" href="/favicon.png?v=5" type="image/png" sizes="32x32" />
+    <link rel="icon" href="/favicon.svg?v=5" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=5" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Fatjon Rrapaj" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:url" content="https://fatjonrrapaj.dev/contact.html" />
+    <meta property="og:title" content="Contact — Fatjon Rrapaj | Let’s Talk" />
+    <meta
+      property="og:description"
+      content="Email, LinkedIn, or download the CV. Hiring for React Native / mobile — Tirana · remote-friendly."
+    />
+    <meta property="og:image" content="https://fatjonrrapaj.dev/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Contact — Fatjon Rrapaj | Let’s Talk" />
+    <meta
+      name="twitter:description"
+      content="Email, LinkedIn, or download the CV. Hiring for React Native / mobile — Tirana · remote-friendly."
+    />
+    <meta name="twitter:image" content="https://fatjonrrapaj.dev/og-image.png" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -15,11 +48,41 @@
       rel="stylesheet"
     />
     <style>
-      /* Kill FOUC — hide until CSS bundle applies */
       html { background: #eef8f6; }
-      body { margin: 0; visibility: hidden; }
+      body { margin: 0; }
+      html.js body { visibility: hidden; }
       html.is-booted body { visibility: visible; }
     </style>
+    <noscript><style>body { visibility: visible !important; }</style></noscript>
+    <script>document.documentElement.classList.add("js");</script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "ContactPage",
+        "@id": "https://fatjonrrapaj.dev/contact.html#webpage",
+        "url": "https://fatjonrrapaj.dev/contact.html",
+        "name": "Contact — Fatjon Rrapaj | Let’s Talk",
+        "description": "Contact Fatjon Rrapaj — React Native / mobile developer. Email, LinkedIn, or download the CV.",
+        "isPartOf": { "@id": "https://fatjonrrapaj.dev/#website" },
+        "about": { "@id": "https://fatjonrrapaj.dev/#person" },
+        "inLanguage": "en",
+        "mainEntity": {
+          "@type": "Person",
+          "@id": "https://fatjonrrapaj.dev/#person",
+          "name": "Fatjon Rrapaj",
+          "email": "mailto:fatjonrrapaj@live.com",
+          "url": "https://fatjonrrapaj.dev/",
+          "sameAs": ["https://www.linkedin.com/in/fatjon-rrapaj-358032135/"]
+        },
+        "breadcrumb": {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://fatjonrrapaj.dev/" },
+            { "@type": "ListItem", "position": 2, "name": "Contact", "item": "https://fatjonrrapaj.dev/contact.html" }
+          ]
+        }
+      }
+    </script>
   </head>
   <body class="inner-page">
     <header class="site-nav">
@@ -30,7 +93,7 @@
       <ul class="nav-links">
         <li><a href="/experience.html">Experience</a></li>
         <li><a href="/projects.html">Projects</a></li>
-        <li><a class="nav-cta" href="/contact.html">Hire me</a></li>
+        <li><a class="nav-cta" href="/contact.html">Let’s talk</a></li>
       </ul>
     </header>
 
@@ -78,6 +141,13 @@
       </section>
 
       <footer class="site-footer">
+        <nav aria-label="Site">
+          <ul class="site-footer__nav">
+            <li><a href="/">Home</a></li>
+            <li><a href="/experience.html">Experience</a></li>
+            <li><a href="/projects.html">Projects</a></li>
+          </ul>
+        </nav>
         <p>© Fatjon Rrapaj</p>
         <p>Sketch fast. Ship faster.</p>
       </footer>

@@ -12,3 +12,14 @@ initReveals();
 mountAllPhoneDemos();
 initDemoModal();
 mountFooterMark();
+
+// Warm decode so skill/project images aren't blank after back/forward.
+requestAnimationFrame(() => {
+  [...document.images].forEach((img) => {
+    if (img.decode) img.decode().catch(() => {});
+    if (!img.complete && img.src) {
+      const warm = new Image();
+      warm.src = img.currentSrc || img.src;
+    }
+  });
+});

@@ -1418,8 +1418,6 @@ const BOOT_PAGES = [
   "/experience.html",
   "/projects.html",
   "/contact.html",
-  "/about.html",
-  "/how-i-work.html",
   "/site.bundle.js",
 ];
 
@@ -1519,6 +1517,13 @@ async function runHomeBoot() {
       document.body.classList.add("theme-live", "story-complete");
       applyThemeProgress(1);
     }
+    // Still re-decode from cache so icons/photos aren't blank after back/forth.
+    await Promise.all([
+      ...collectHomeImageSrcs().map(preloadImage),
+      ...[...document.images].map((img) =>
+        img.decode ? img.decode().catch(() => {}) : Promise.resolve()
+      ),
+    ]);
     warmThreeScene();
     try {
       await loadDroneModel();
