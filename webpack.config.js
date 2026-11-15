@@ -2,7 +2,7 @@ const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 
-const pages = ["projects", "experience", "contact"];
+const pages = ["projects", "experience", "contact", "blog"];
 
 module.exports = {
   entry: {

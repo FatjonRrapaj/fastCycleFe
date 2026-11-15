@@ -2400,6 +2400,220 @@ body.demo-modal-open {
   }
 }
 
+/* ——— Notes / teaching blog ——— */
+.notes-shell {
+  width: min(920px, 100%);
+}
+
+.notes-hero .lead {
+  max-width: 42rem;
+}
+
+.notes-jump {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem 1.35rem;
+  margin-top: 1.75rem;
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.notes-jump a {
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  padding-bottom: 0.15rem;
+  transition: color 0.2s var(--ease), border-color 0.2s var(--ease);
+}
+
+.notes-jump a:hover {
+  color: var(--accent-deep);
+  border-bottom-color: color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+.notes-track {
+  padding-top: 2.75rem;
+  padding-bottom: 1.25rem;
+  border-top: 1px solid var(--line);
+}
+
+.notes-track__head {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: 1.75rem 2rem;
+  align-items: end;
+  margin-bottom: 0.35rem;
+}
+
+.notes-track__copy h2 {
+  margin: 0.35rem 0 0.75rem;
+  max-width: 12ch;
+}
+
+.notes-track__copy p {
+  margin: 0;
+  max-width: 32rem;
+  color: var(--ink-soft);
+  font-size: 1.02rem;
+  line-height: 1.55;
+}
+
+.notes-track__visual {
+  display: block;
+  width: 100%;
+  height: clamp(10rem, 28vw, 15.5rem);
+  object-fit: cover;
+  object-position: center;
+  filter: saturate(0.92) contrast(1.04);
+  mix-blend-mode: multiply;
+  opacity: 0.92;
+}
+
+.notes-list {
+  list-style: none;
+  margin: 1.5rem 0 0;
+  padding: 0;
+}
+
+.notes-item {
+  display: grid;
+  gap: 0.45rem;
+  padding: 1.45rem 0 1.55rem;
+  border-top: 1px solid var(--line);
+  color: inherit;
+  text-decoration: none;
+  transition: transform 0.28s var(--ease);
+}
+
+.notes-list li:last-child .notes-item {
+  border-bottom: 1px solid var(--line);
+}
+
+.notes-item:hover {
+  transform: translateX(0.35rem);
+}
+
+.notes-item:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.notes-item time {
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.notes-item h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.05rem, 2.2vw, 1.28rem);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+  color: var(--ink);
+}
+
+.notes-item h3 em {
+  font-style: normal;
+  font-weight: 500;
+  color: var(--accent-deep);
+  font-size: 0.78em;
+  letter-spacing: 0.04em;
+}
+
+.notes-item p {
+  margin: 0;
+  max-width: 40rem;
+  color: var(--ink-soft);
+  font-size: 0.98rem;
+  line-height: 1.55;
+}
+
+.notes-item__cta {
+  margin-top: 0.35rem;
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent-deep);
+}
+
+.notes-item:hover .notes-item__cta {
+  color: var(--ink);
+}
+
+.notes-videos {
+  padding-top: 3rem;
+  border-top: 1px solid var(--line);
+}
+
+.notes-videos .lead {
+  max-width: 38rem;
+}
+
+.notes-video {
+  position: relative;
+  margin-top: 1.75rem;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: color-mix(in srgb, var(--paper-deep) 55%, #0f2d34);
+  overflow: hidden;
+}
+
+.notes-video iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.notes-video__link {
+  margin-top: 1rem;
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.notes-video__link a {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.notes-video__link a:hover {
+  color: var(--accent-deep);
+}
+
+.notes-aside {
+  padding: 2.5rem 0 0.5rem;
+  border-top: 0;
+}
+
+.notes-aside__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 0.85rem;
+}
+
+@media (max-width: 820px) {
+  .notes-track__head {
+    grid-template-columns: 1fr;
+    gap: 1.15rem;
+    align-items: start;
+  }
+
+  .notes-track__visual {
+    order: -1;
+    height: clamp(8.5rem, 42vw, 12rem);
+  }
+}
+
 @media (max-width: 760px) {
   .nav-toggle {
     display: grid;

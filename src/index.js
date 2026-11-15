@@ -1418,6 +1418,7 @@ const BOOT_PAGES = [
   "/experience.html",
   "/projects.html",
   "/contact.html",
+  "/blog.html",
   "/site.bundle.js",
 ];
 
