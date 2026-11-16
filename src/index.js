@@ -75,37 +75,55 @@ function initSkillsModal(lenis) {
   });
   if (!skills.length) return;
 
-  const dialog = document.createElement("dialog");
-  dialog.className = "skills-modal";
-  dialog.setAttribute("aria-label", "Full technologies list");
-  dialog.innerHTML = `
-    <button type="button" class="skills-modal__close" aria-label="Close skills">
-      <span aria-hidden="true">×</span>
-    </button>
-    <ul class="skills-modal__grid">
-      ${skills
-        .map(
-          (s, i) =>
-            `<li style="--i:${i}"><img src="${s.src}" alt="" /><span>${s.label}</span></li>`
-        )
-        .join("")}
-    </ul>
+  // Plain fixed overlay — native <dialog> swallows / blocks touch-scroll on iOS.
+  const modal = document.createElement("div");
+  modal.className = "skills-modal";
+  modal.setAttribute("role", "dialog");
+  modal.setAttribute("aria-modal", "true");
+  modal.setAttribute("aria-label", "Full technologies list");
+  modal.hidden = true;
+  modal.innerHTML = `
+    <div class="skills-modal__backdrop" data-skills-close></div>
+    <div class="skills-modal__sheet" tabindex="-1">
+      <div class="skills-modal__toolbar">
+        <button type="button" class="skills-modal__close" aria-label="Close skills">
+          <span aria-hidden="true">×</span>
+        </button>
+      </div>
+      <ul class="skills-modal__grid">
+        ${skills
+          .map(
+            (s, i) =>
+              `<li style="--i:${i}"><img src="${s.src}" alt="" /><span>${s.label}</span></li>`
+          )
+          .join("")}
+      </ul>
+    </div>
   `;
-  document.body.appendChild(dialog);
+  document.body.appendChild(modal);
 
-  const closeBtn = dialog.querySelector(".skills-modal__close");
+  const sheet = modal.querySelector(".skills-modal__sheet");
+  const closeBtn = modal.querySelector(".skills-modal__close");
   let lastFocus = null;
+  let lockScrollY = 0;
 
   const setScrollLock = (locked) => {
     document.documentElement.classList.toggle("skills-modal-open", locked);
     document.body.classList.toggle("skills-modal-open", locked);
-    if (locked) lenis?.stop();
-    else lenis?.start();
+    if (locked) {
+      lockScrollY = window.scrollY || window.pageYOffset || 0;
+      document.body.style.top = `-${lockScrollY}px`;
+      lenis?.stop();
+    } else {
+      document.body.style.top = "";
+      lenis?.start();
+      window.scrollTo(0, lockScrollY);
+    }
   };
 
   const close = () => {
-    dialog.classList.remove("is-open");
-    if (dialog.open) dialog.close();
+    modal.classList.remove("is-open");
+    modal.hidden = true;
     setScrollLock(false);
     lastFocus?.focus?.();
     lastFocus = null;
@@ -113,25 +131,39 @@ function initSkillsModal(lenis) {
 
   const open = () => {
     lastFocus = document.activeElement;
+    if (typeof releaseDroneFromPointer === "function") {
+      releaseDroneFromPointer();
+    }
     setScrollLock(true);
-    dialog.classList.remove("is-open");
-    if (typeof dialog.showModal === "function") dialog.showModal();
-    else dialog.setAttribute("open", "");
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => dialog.classList.add("is-open"));
-    });
+    modal.hidden = false;
+    sheet.scrollTop = 0;
+    // force reflow then animate in
+    void modal.offsetHeight;
+    modal.classList.add("is-open");
     closeBtn.focus();
   };
 
   trigger.addEventListener("click", open);
-  closeBtn.addEventListener("click", close);
-  dialog.addEventListener("click", (e) => {
-    if (e.target === dialog) close();
-  });
-  dialog.addEventListener("cancel", (e) => {
+  closeBtn.addEventListener("click", (e) => {
     e.preventDefault();
+    e.stopPropagation();
     close();
   });
+  modal.addEventListener("click", (e) => {
+    if (e.target?.hasAttribute?.("data-skills-close")) close();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && modal.classList.contains("is-open")) close();
+  });
+
+  // Keep touch scrolling on the sheet — never let it bubble to the page/drone
+  sheet.addEventListener(
+    "touchmove",
+    (e) => {
+      e.stopPropagation();
+    },
+    { passive: true }
+  );
 }
 
 const lenis = new Lenis({
@@ -376,16 +408,17 @@ const flight = {
 };
 
 function flightBounds() {
-  // Fullscreen canvas — deeper roam, a little past the edges.
+  // Keep roam inside the frame — only a thin margin past the edges.
   const dist = Math.max(camera.position.z, 0.5);
   const halfH = Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2) * dist;
   const aspect = Math.max(camera.aspect || 1, 0.7);
-  const pad = 0.95;
+  const pad = 0.68;
   return {
     x: halfH * aspect * pad,
-    y: halfH * pad * 0.92,
-    zNear: -1.55,
-    zFar: 1.75,
+    y: halfH * pad * 0.78,
+    // Lower z = deeper into the page (away from the camera).
+    zNear: -1.45,
+    zFar: 2.35,
   };
 }
 
@@ -514,69 +547,74 @@ function pickFlightTarget(t) {
   let y = y0;
   let z = z0;
 
-  // Keep sweeping the same way until we near an edge — then flip for the next pass.
-  if (x0 > b.x * 0.62) flight.laneDir = -1;
-  else if (x0 < -b.x * 0.62) flight.laneDir = 1;
+  // Turn around before leaving the visible frame.
+  if (x0 > b.x * 0.48) flight.laneDir = -1;
+  else if (x0 < -b.x * 0.48) flight.laneDir = 1;
   else if (!flight.laneDir) flight.laneDir = Math.random() > 0.5 ? 1 : -1;
 
-  // Mostly long lateral / diagonal passes continuing in laneDir (no mid-pass U-turns).
+  // Mix close passes with real deep retreats into the page.
   const roll = Math.random();
   let mode = "side";
-  if (roll < 0.38) mode = "side";
-  else if (roll < 0.6) mode = "diagonal";
-  else if (roll < 0.72) mode = "approach";
-  else if (roll < 0.84) mode = "deep";
-  else if (roll < 0.92) mode = "climb";
+  if (roll < 0.26) mode = "side";
+  else if (roll < 0.42) mode = "diagonal";
+  else if (roll < 0.58) mode = "approach";
+  else if (roll < 0.82) mode = "deep";
+  else if (roll < 0.91) mode = "climb";
   else mode = "descend";
 
   if (mode === "side") {
-    x = flight.laneDir * b.x * (0.78 + Math.random() * 0.22);
-    y = THREE.MathUtils.clamp(y0 + (Math.random() - 0.5) * 0.18, -b.y * 0.85, b.y * 0.85);
-    z = THREE.MathUtils.clamp(z0 + (Math.random() - 0.5) * 0.65, b.zNear * 0.6, b.zFar * 0.85);
-    flight.legBoost = 1.35;
+    x = flight.laneDir * b.x * (0.45 + Math.random() * 0.35);
+    y = THREE.MathUtils.clamp(y0 + (Math.random() - 0.5) * 0.16, -b.y * 0.7, b.y * 0.7);
+    z = THREE.MathUtils.clamp(
+      z0 + (Math.random() - 0.55) * 1.1,
+      b.zNear + 0.15,
+      b.zFar * 0.95
+    );
+    flight.legBoost = 1.05;
   } else if (mode === "diagonal") {
     const ySign =
       Math.abs(y0) > 0.12 ? -Math.sign(y0) : Math.random() > 0.5 ? 1 : -1;
-    x = flight.laneDir * b.x * (0.72 + Math.random() * 0.26);
-    y = ySign * b.y * (0.4 + Math.random() * 0.5);
-    z = gsap.utils.interpolate(b.zNear * 0.65, b.zFar * 0.9, Math.random());
-    flight.legBoost = 1.3;
+    x = flight.laneDir * b.x * (0.4 + Math.random() * 0.35);
+    y = ySign * b.y * (0.28 + Math.random() * 0.4);
+    z = gsap.utils.interpolate(b.zNear + 0.2, b.zFar * 0.9, Math.random());
+    flight.legBoost = 1.05;
   } else if (mode === "approach") {
     // Drift closer while still finishing the lateral direction.
     x = THREE.MathUtils.clamp(
-      x0 + flight.laneDir * b.x * (0.35 + Math.random() * 0.4),
-      -b.x * 0.9,
-      b.x * 0.9
+      x0 + flight.laneDir * b.x * (0.22 + Math.random() * 0.28),
+      -b.x * 0.75,
+      b.x * 0.75
     );
-    y = THREE.MathUtils.clamp(y0 + (Math.random() - 0.5) * 0.2, -b.y * 0.55, b.y * 0.55);
-    z = gsap.utils.interpolate(0.9, b.zFar, 0.4 + Math.random() * 0.6);
-    flight.legBoost = 1.25;
+    y = THREE.MathUtils.clamp(y0 + (Math.random() - 0.5) * 0.18, -b.y * 0.5, b.y * 0.5);
+    z = gsap.utils.interpolate(1.35, b.zFar, 0.45 + Math.random() * 0.55);
+    flight.legBoost = 1.0;
   } else if (mode === "deep") {
+    // Retreat far from the camera — deep into the page.
     x = THREE.MathUtils.clamp(
-      x0 + flight.laneDir * b.x * (0.4 + Math.random() * 0.45),
-      -b.x * 0.95,
-      b.x * 0.95
+      x0 + flight.laneDir * b.x * (0.2 + Math.random() * 0.35),
+      -b.x * 0.75,
+      b.x * 0.75
     );
-    y = (Math.random() - 0.5) * b.y * 0.55;
-    z = gsap.utils.interpolate(b.zNear, b.zNear * 0.4, Math.random());
-    flight.legBoost = 1.25;
+    y = (Math.random() - 0.5) * b.y * 0.45;
+    z = gsap.utils.interpolate(b.zNear, -0.15, 0.15 + Math.random() * 0.85);
+    flight.legBoost = 0.95;
   } else if (mode === "climb") {
     // Straight up — hold horizontal station.
     x = x0;
-    y = b.y * (0.65 + Math.random() * 0.32);
-    z = z0;
-    flight.legBoost = 1.2;
+    y = b.y * (0.45 + Math.random() * 0.28);
+    z = THREE.MathUtils.clamp(z0 + (Math.random() - 0.5) * 0.6, b.zNear + 0.3, b.zFar * 0.85);
+    flight.legBoost = 0.95;
   } else {
     // Straight down.
     x = x0;
-    y = -b.y * (0.6 + Math.random() * 0.35);
-    z = z0;
-    flight.legBoost = 1.2;
+    y = -b.y * (0.4 + Math.random() * 0.28);
+    z = THREE.MathUtils.clamp(z0 + (Math.random() - 0.5) * 0.6, b.zNear + 0.3, b.zFar * 0.85);
+    flight.legBoost = 0.95;
   }
 
   flight.target.set(x, y, z);
-  // Short legs — retarget soon so it doesn't hover in place.
-  flight.nextTargetAt = t + 1.6 + Math.random() * 1.1;
+  // Linger at each waypoint before choosing the next.
+  flight.nextTargetAt = t + 3.4 + Math.random() * 2.2;
 }
 
 /**
@@ -614,7 +652,8 @@ function startFreeFlight() {
     const afterRect = threeContainer.getBoundingClientRect();
     // Taller fullscreen viewport would otherwise look like a sudden zoom-in.
     const scaleFix = snap.beforeH / Math.max(afterRect.height, 1);
-    flight.scale = snap.scale * scaleFix;
+    // Slightly larger in free flight so it doesn’t feel stuck far away.
+    flight.scale = snap.scale * scaleFix * 1.12;
     dronePivot.scale.setScalar(flight.scale);
 
     flight.dockPos.copy(dronePivot.position);
@@ -760,8 +799,21 @@ function applyQuadAttitude() {
     .multiply(_flyQuat);
 }
 
+function uiBlocksFlight(target) {
+  if (
+    document.body.classList.contains("skills-modal-open") ||
+    document.body.classList.contains("nav-open")
+  ) {
+    return true;
+  }
+  return !!target?.closest?.(
+    "a, button, input, textarea, select, dialog, .skills-modal, .skills-modal__sheet, .site-nav, .demo-modal, .dg"
+  );
+}
+
 function bindDroneToPointer(clientX, clientY) {
   if (!flight.active) return;
+  if (document.body.classList.contains("skills-modal-open")) return;
   flight.mouseBound = true;
   flight.bindDepth = flight.pos.z;
   flight.pointerX = clientX;
@@ -780,13 +832,17 @@ function releaseDroneFromPointer() {
 
 function onFlightPointerDown(e) {
   if (!flight.active || e.button !== 0) return;
-  // Don't steal clicks from links / UI.
-  if (e.target?.closest?.("a, button, input, textarea, .dg")) return;
+  // Don't steal touches from skills modal / nav / links.
+  if (uiBlocksFlight(e.target)) return;
   bindDroneToPointer(e.clientX, e.clientY);
 }
 
 function onFlightPointerMove(e) {
   if (!flight.active || !flight.mouseBound) return;
+  if (document.body.classList.contains("skills-modal-open")) {
+    releaseDroneFromPointer();
+    return;
+  }
   flight.pointerX = e.clientX;
   flight.pointerY = e.clientY;
 }
@@ -819,8 +875,8 @@ function updateFreeFlight(dt, t) {
     flight.pos.distanceToSquared(flight.target) < 0.09 &&
     flight.vel.lengthSq() < 0.05
   ) {
-    // Arrived early — leave immediately instead of parking until the timer.
-    pickFlightTarget(t);
+    // Arrived early — hover a beat, then leave on the scheduled timer.
+    flight.vel.multiplyScalar(0.82);
   }
 
   _flyDesired.subVectors(flight.target, flight.pos);
@@ -829,8 +885,8 @@ function updateFreeFlight(dt, t) {
   // Desired velocity — arrive gently, vertical can be direct.
   const maxSpd = flight.mouseBound
     ? 3.4
-    : 3.2 * (flight.legBoost || 1);
-  const desiredSpd = Math.min(maxSpd, dist * (flight.mouseBound ? 2.4 : 1.55));
+    : 2.35 * (flight.legBoost || 1);
+  const desiredSpd = Math.min(maxSpd, dist * (flight.mouseBound ? 2.4 : 1.15));
   if (dist > 1e-5) {
     _flyVel.copy(_flyDesired).multiplyScalar(desiredSpd / dist);
   } else {
@@ -838,8 +894,8 @@ function updateFreeFlight(dt, t) {
   }
 
   // Smooth accel — mouse chase snaps harder; free roam still eased.
-  const horizLerp = 1 - Math.exp(-dt * (flight.mouseBound ? 3.6 : 1.85));
-  const vertLerp = 1 - Math.exp(-dt * (flight.mouseBound ? 4.2 : 2.8));
+  const horizLerp = 1 - Math.exp(-dt * (flight.mouseBound ? 3.6 : 1.45));
+  const vertLerp = 1 - Math.exp(-dt * (flight.mouseBound ? 4.2 : 2.1));
   flight.vel.x += (_flyVel.x - flight.vel.x) * horizLerp;
   flight.vel.z += (_flyVel.z - flight.vel.z) * horizLerp;
   flight.vel.y += (_flyVel.y - flight.vel.y) * vertLerp;
@@ -852,8 +908,9 @@ function updateFreeFlight(dt, t) {
   } else {
     flight.pos.z = THREE.MathUtils.clamp(flight.pos.z, b.zNear, b.zFar);
   }
-  flight.pos.x = THREE.MathUtils.clamp(flight.pos.x, -b.x * 1.12, b.x * 1.12);
-  flight.pos.y = THREE.MathUtils.clamp(flight.pos.y, -b.y * 1.12, b.y * 1.12);
+  // Hard cap just inside the frame so free flight rarely leaves view.
+  flight.pos.x = THREE.MathUtils.clamp(flight.pos.x, -b.x * 0.92, b.x * 0.92);
+  flight.pos.y = THREE.MathUtils.clamp(flight.pos.y, -b.y * 0.92, b.y * 0.92);
 
   // Slow yaw toward horizontal travel — never snap 180°.
   _flyCross.set(flight.vel.x, 0, flight.vel.z);
