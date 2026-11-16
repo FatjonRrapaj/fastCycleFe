@@ -255,15 +255,16 @@ html.is-booted body {
   justify-content: center;
   flex-shrink: 0;
   z-index: 2;
-  padding: 0.7rem 1.15rem;
+  padding: 0.65rem 1.05rem;
   border-radius: calc(2px + 998px * var(--theme-t));
   border: 1px solid color-mix(in srgb, transparent calc(var(--theme-t) * 100%), var(--stroke) calc(var(--theme-inv) * 100%));
   background: color-mix(in srgb, transparent calc(var(--theme-inv) * 100%), var(--l-ink) calc(var(--theme-t) * 100%));
   color: color-mix(in srgb, var(--stroke) calc(var(--theme-inv) * 100%), #fff calc(var(--theme-t) * 100%)) !important;
   font-family: var(--font-display);
-  font-size: 0.82rem;
+  font-size: 0.72rem;
   font-weight: 500;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
+  word-spacing: 0.02em;
   text-transform: uppercase;
   transition: transform 0.25s var(--ease), background 0.2s ease, border-radius 0.2s ease;
   white-space: nowrap;
@@ -892,14 +893,6 @@ body.story-complete .scroll-hint {
   display: none;
 }
 
-.scroll-hint i {
-  display: block;
-  width: 1px;
-  height: 2.2rem;
-  background: linear-gradient(var(--accent), transparent);
-  animation: hintPulse 1.6s ease-in-out infinite;
-}
-
 .flight-hint {
   position: fixed;
   left: 50%;
@@ -940,8 +933,18 @@ body.story-complete .scroll-hint {
   animation: none;
 }
 
+.flight-hint.is-bound .flight-hint__text,
+.flight-hint.is-bound i {
+  animation: none;
+  opacity: 1;
+}
+
+.flight-hint.is-on:not(.is-bound) {
+  animation: flightHintPulse 1.8s ease-in-out infinite;
+}
+
 .flight-hint.is-on:not(.is-bound) .flight-hint__text {
-  animation: flightHintMint 2.8s ease-in-out infinite;
+  animation: flightHintMint 1.8s ease-in-out infinite;
 }
 
 .flight-hint i {
@@ -949,37 +952,51 @@ body.story-complete .scroll-hint {
   width: 1px;
   height: 1.1rem;
   background: linear-gradient(var(--accent), transparent);
-  animation: hintPulse 1.8s ease-in-out infinite;
+  transform-origin: center top;
 }
 
-@keyframes hintPulse {
+.flight-hint.is-on:not(.is-bound) i {
+  animation: flightHintLine 1.8s ease-in-out infinite;
+}
+
+@keyframes flightHintPulse {
   0%,
   100% {
-    transform: scaleY(0.55);
-    opacity: 0.35;
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes flightHintLine {
+  0%,
+  100% {
+    transform: scaleY(0.45);
+    opacity: 0;
   }
   50% {
     transform: scaleY(1);
-    opacity: 0.9;
+    opacity: 1;
   }
 }
 
 @keyframes flightHintMint {
   0%,
   100% {
-    color: color-mix(in srgb, var(--accent) 62%, var(--ink-soft));
-    text-shadow: 0 0 12px transparent;
-    opacity: 0.78;
+    color: color-mix(in srgb, var(--accent) 48%, var(--ink-soft));
+    text-shadow: 0 0 10px transparent;
   }
   50% {
     color: var(--accent);
-    text-shadow: 0 0 18px color-mix(in srgb, var(--accent) 42%, transparent);
-    opacity: 1;
+    text-shadow: 0 0 22px color-mix(in srgb, var(--accent) 55%, transparent);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .flight-hint.is-on:not(.is-bound) .flight-hint__text {
+  .flight-hint.is-on:not(.is-bound),
+  .flight-hint.is-on:not(.is-bound) .flight-hint__text,
+  .flight-hint.is-on:not(.is-bound) i {
     animation: none;
     opacity: 1;
   }
@@ -3054,9 +3071,10 @@ body.demo-modal-open {
 
   .nav-cta {
     margin-left: auto;
-    padding: 0.5rem 0.75rem;
-    font-size: 0.68rem;
-    letter-spacing: 0.04em;
+    padding: 0.48rem 0.7rem;
+    font-size: 0.62rem;
+    letter-spacing: 0.015em;
+    word-spacing: 0;
   }
 
   .site-nav {

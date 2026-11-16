@@ -415,13 +415,51 @@ const flight = {
   phase: "cruise",
   // level = flat attitude · tilt = pitch/roll into travel · bank = stronger rolls
   attitude: "tilt",
+  // Props-up cruise heading (rad). Not always facing the user.
+  holdYaw: 0,
   route: null,
   lastRouteKind: "",
   pauseUntil: 0,
   offscreenT: 0,
+  // After pointer steer — don't clamp/yank until free-flight resumes.
+  steerGraceUntil: 0,
   // 0 = still in finished-scroll pose · 1 = free-flight attitude
   takeoffBlend: 1,
 };
+
+/** Props-up headings — favor 45° / 90° so the glass isn't always at the user. */
+const CRUISE_YAW_CHOICES = [
+  { yaw: 0, w: 0.7 },
+  { yaw: Math.PI / 4, w: 1.5 },
+  { yaw: -Math.PI / 4, w: 1.5 },
+  { yaw: Math.PI / 2, w: 1.8 },
+  { yaw: -Math.PI / 2, w: 1.8 },
+  { yaw: (Math.PI * 3) / 4, w: 0.9 },
+  { yaw: (-Math.PI * 3) / 4, w: 0.9 },
+  { yaw: Math.PI, w: 0.75 },
+];
+
+function pickCruiseYaw(kind = "") {
+  // Orbits / axes look best crabbing on a fixed 45° / 90° heading.
+  const preferSide =
+    kind.startsWith("orbit") ||
+    kind === "figure8" ||
+    kind === "pedestal" ||
+    kind === "slider" ||
+    kind === "edgeSweep" ||
+    kind === "diagonal" ||
+    kind === "racetrack";
+  const pool = preferSide
+    ? CRUISE_YAW_CHOICES.filter((e) => Math.abs(e.yaw) > 0.2)
+    : CRUISE_YAW_CHOICES;
+  const total = pool.reduce((s, e) => s + e.w, 0);
+  let r = Math.random() * total;
+  for (const e of pool) {
+    r -= e.w;
+    if (r <= 0) return e.yaw;
+  }
+  return Math.PI / 2;
+}
 
 /**
  * Full mix: circles, axes, diagonals, depth, turn→dash, 360s, edge sweeps.
@@ -508,15 +546,20 @@ function pickPauseDuration() {
 }
 
 function flightBounds() {
-  // Frustum at the home depth, plus room for deep retreats.
-  const dist = Math.max(camera.position.z, 0.5);
+  // Route planning uses the home-depth frustum.
+  return flightBoundsAtDepth(0);
+}
+
+/** Visible half-extents at a world Z (grows as the drone goes farther away). */
+function flightBoundsAtDepth(z) {
+  const dist = Math.max(camera.position.z - z, 0.35);
   const halfH = Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2) * dist;
   const aspect = Math.max(camera.aspect || 1, 0.7);
   const pad = 1.08;
   return {
     x: halfH * aspect * pad,
     y: halfH * pad * 0.92,
-    zNear: -14.5, // very far from the camera
+    zNear: -14.5,
     zFar: Math.min(camera.position.z * 0.78, 2.45),
   };
 }
@@ -532,7 +575,7 @@ function flightHome(out = _flyHome) {
 }
 
 function clampToPatrol(x, y, z) {
-  const b = flightBounds();
+  const b = flightBoundsAtDepth(z);
   return new THREE.Vector3(
     THREE.MathUtils.clamp(x, -b.x * 0.98, b.x * 0.98),
     THREE.MathUtils.clamp(y, -b.y * 0.95, b.y * 0.95),
@@ -612,7 +655,8 @@ function startDashFromScan(t) {
   };
   flight.route = route;
   flight.lastRouteKind = "turnDash";
-  flight.attitude = Math.random() < 0.35 ? "level" : "tilt";
+  flight.attitude = Math.random() < 0.55 ? "level" : "tilt";
+  flight.holdYaw = flight.yaw;
   flight.legBoost = route.speedBoost;
   flight.phase = "cruise";
   flight.pauseUntil = 0;
@@ -809,9 +853,9 @@ function pickRouteKind() {
 function startFlightRoute(t) {
   const b = flightBounds();
   const home = flightHome(_flyHome);
-  // First move after scroll: lift gently from the exact dock position.
+  // First move after scroll / pointer steer: continue from the exact spot.
   let kind = pickRouteKind();
-  if (!flight.lastRouteKind) {
+  if (!flight.lastRouteKind || flight.lastRouteKind === "steer") {
     kind = Math.random() < 0.55 ? "hover" : "pedestal";
   } else if (flight.pos.x < -b.x * 0.55 && Math.random() < 0.5) {
     // If parked far left, bias back toward the center-right base.
@@ -861,29 +905,31 @@ function startFlightRoute(t) {
     flight.attitude = "level";
     flight.legBoost = 1.25;
   } else if (kind === "hover") {
-    // First hover stays on the dock spot; later ones drift near home.
-    const fromDock = !flight.lastRouteKind;
-    const hold = clampToPatrol(
-      fromDock
-        ? flight.pos.x
-        : home.x + (Math.random() - 0.5) * b.x * 0.1,
-      fromDock
-        ? flight.pos.y + 0.04
-        : home.y + (Math.random() - 0.5) * b.y * 0.08,
-      fromDock ? flight.pos.z : home.z + (Math.random() - 0.5) * 0.12
-    );
+    // Stay put after dock takeoff or pointer release; otherwise drift near home.
+    const fromHere =
+      !flight.lastRouteKind || flight.lastRouteKind === "steer";
+    const hold = fromHere
+      ? new THREE.Vector3(flight.pos.x, flight.pos.y, flight.pos.z)
+      : clampToPatrol(
+          home.x + (Math.random() - 0.5) * b.x * 0.1,
+          home.y + (Math.random() - 0.5) * b.y * 0.08,
+          home.z + (Math.random() - 0.5) * 0.12
+        );
     route.points = [hold];
-    route.duration = fromDock ? 1.1 + Math.random() * 0.6 : 0.55 + Math.random() * 0.7;
+    route.duration = fromHere
+      ? 1.1 + Math.random() * 0.6
+      : 0.55 + Math.random() * 0.7;
     flight.attitude = "level";
     flight.legBoost = 1.05;
   } else if (kind === "pedestal") {
     // Full-frame vertical: bottom ↔ top on a nearly fixed X/Z.
     const goingUp = Math.random() > 0.5;
-    const fromDock = !flight.lastRouteKind;
-    const x = fromDock
+    const fromHere =
+      !flight.lastRouteKind || flight.lastRouteKind === "steer";
+    const x = fromHere
       ? flight.pos.x
       : THREE.MathUtils.lerp(flight.pos.x, home.x, 0.35);
-    const z = fromDock
+    const z = fromHere
       ? flight.pos.z
       : THREE.MathUtils.lerp(flight.pos.z, home.z, 0.4);
     const yTop = b.y * (0.82 + Math.random() * 0.12);
@@ -1130,6 +1176,16 @@ function startFlightRoute(t) {
   flight.legBoost = Math.max(0.45, (flight.legBoost || 1) * speed.boost);
   route.speedBoost = flight.legBoost;
 
+  // Props-up cruise heading: prefer 45° / 90° so glass isn't glued to the user.
+  if (kind === "flyThrough") {
+    flight.holdYaw = 0;
+  } else if (!FLIGHT_YAW_KINDS.has(kind)) {
+    flight.holdYaw = pickCruiseYaw(kind);
+    if (flight.attitude === "tilt" && Math.random() < 0.55) {
+      flight.attitude = "level";
+    }
+  }
+
   flight.route = route;
   flight.lastRouteKind = kind;
   flight.nextTargetAt = t + route.duration;
@@ -1229,6 +1285,8 @@ function beginFlightPause(t) {
   flight.nextTargetAt = flight.pauseUntil;
   flight.target.copy(flight.pos);
   flight.attitude = "level";
+  // Keep the current cruise heading while hovering (don't snap glass to user).
+  if (Math.random() < 0.35) flight.holdYaw = pickCruiseYaw("hover");
   flight.legBoost = 0.4;
   flight.phase = "cruise";
   flight.vel.multiplyScalar(0.35);
@@ -1326,6 +1384,7 @@ function startFreeFlight() {
     flight.pos.copy(dronePivot.position);
     flight.vel.set(0, 0, 0);
     flight.yaw = 0;
+    flight.holdYaw = 0;
     flight.pitch = 0;
     flight.roll = 0;
     flight.yawRate = 0;
@@ -1493,16 +1552,28 @@ function bindDroneToPointer(clientX, clientY) {
   flight.pointerX = clientX;
   flight.pointerY = clientY;
   flight.vel.set(0, 0, 0);
+  flight.route = null;
+  flight.pauseUntil = 0;
+  flight.offscreenT = 0;
   setFlightHint(true);
 }
 
 function releaseDroneFromPointer() {
   if (!flight.mouseBound) return;
+  const t = clock.getElapsedTime();
   flight.mouseBound = false;
+  // Resume free-flight from the exact steered pose — no mid-point snap.
   flight.target.copy(flight.pos);
+  flight.vel.set(0, 0, 0);
   flight.route = null;
+  flight.lastRouteKind = "steer";
+  flight.phase = "cruise";
+  flight.attitude = "level";
+  flight.holdYaw = flight.yaw;
   flight.pauseUntil = 0;
-  flight.nextTargetAt = clock.getElapsedTime() + 0.35;
+  flight.offscreenT = 0;
+  flight.steerGraceUntil = t + 1.4;
+  flight.nextTargetAt = t + 0.55;
   setFlightHint(false);
 }
 
@@ -1601,19 +1672,34 @@ function updateFreeFlight(dt, t) {
       b.zNear,
       pastCam ? camera.position.z + 2.8 : b.zFar + 0.15
     );
-    flight.pos.x = THREE.MathUtils.clamp(flight.pos.x, -b.x * 0.99, b.x * 0.99);
-    flight.pos.y = THREE.MathUtils.clamp(flight.pos.y, -b.y * 0.98, b.y * 0.98);
+
+    const inSteerGrace = t < flight.steerGraceUntil;
+    if (!inSteerGrace) {
+      // Clamp with the frustum at the drone's depth — never snap a far drone
+      // back into the home-depth box (that looked like a mid-point teleport).
+      const live = flightBoundsAtDepth(flight.pos.z);
+      flight.pos.x = THREE.MathUtils.clamp(
+        flight.pos.x,
+        -live.x * 0.99,
+        live.x * 0.99
+      );
+      flight.pos.y = THREE.MathUtils.clamp(
+        flight.pos.y,
+        -live.y * 0.98,
+        live.y * 0.98
+      );
+    }
 
     // Edge routes may graze off-frame — only recover if stuck there.
     const edgeRoute =
       flight.route && FLIGHT_EDGE_KINDS.has(flight.route.kind);
-    if (isDroneOffscreen()) {
+    if (!inSteerGrace && isDroneOffscreen()) {
       flight.offscreenT += dt;
       const limit = edgeRoute ? 1.35 : 0.65;
       if (flight.offscreenT > limit) {
         startReturnOnscreen(t);
       }
-    } else {
+    } else if (!inSteerGrace) {
       flight.offscreenT = 0;
     }
   }
@@ -1652,18 +1738,24 @@ function updateFreeFlight(dt, t) {
   } else if (flight.phase === "turnaround") {
     // Past the lens: spin so the glass faces the opposite side, then leave.
     desiredYaw = Math.PI;
-  } else if (style === "level") {
-    desiredYaw = 0;
-  } else if (horizSpeed > 0.12) {
-    _flyCross.multiplyScalar(1 / horizSpeed);
-    desiredYaw = Math.atan2(
-      flight.dockFlat.x * _flyCross.z - flight.dockFlat.z * _flyCross.x,
-      flight.dockFlat.dot(_flyCross)
-    );
   } else if (flight.phase === "inbound") {
     desiredYaw = 0;
   } else if (flight.phase === "outbound") {
     desiredYaw = Math.PI;
+  } else if (style === "level" || style === "bank") {
+    // Props up, glass on a cruise heading (often 45° / 90°).
+    desiredYaw = flight.holdYaw;
+  } else if (horizSpeed > 0.12) {
+    _flyCross.multiplyScalar(1 / horizSpeed);
+    const travelYaw = Math.atan2(
+      flight.dockFlat.x * _flyCross.z - flight.dockFlat.z * _flyCross.x,
+      flight.dockFlat.dot(_flyCross)
+    );
+    // Mix travel direction with the leg's cruise heading so it isn't always nose-in.
+    desiredYaw =
+      travelYaw + shortestAngleDelta(travelYaw, flight.holdYaw) * 0.55;
+  } else {
+    desiredYaw = flight.holdYaw;
   }
   if (style !== "level" && !yawing) {
     if (flight.phase === "inbound") {
@@ -1676,7 +1768,8 @@ function updateFreeFlight(dt, t) {
     yawing ||
     horizSpeed > 0.12 ||
     flight.phase !== "cruise" ||
-    style === "level"
+    style === "level" ||
+    style === "bank"
   ) {
     const dyaw = yawing
       ? desiredYaw - flight.yaw
@@ -2701,12 +2794,12 @@ function playIntro() {
   intro.frame = 0;
   applySectionSequences();
 
-  // Beat 1: rays. Hold. Beat 2: frame. Enough air that each read lands.
-  introTl = gsap.timeline({ delay: 0.85 });
+  // Beat 1: rays. Short beat. Beat 2: frame.
+  introTl = gsap.timeline({ delay: 0.28 });
   introTl
     .to(intro, {
       lines: 1,
-      duration: 1.7,
+      duration: 1.35,
       ease: "power1.inOut",
       onUpdate: applySectionSequences,
     })
@@ -2714,11 +2807,11 @@ function playIntro() {
       intro,
       {
         frame: 1,
-        duration: 1.35,
+        duration: 1.1,
         ease: "power1.inOut",
         onUpdate: applySectionSequences,
       },
-      "+=0.35"
+      "+=0.1"
     );
 }
 
