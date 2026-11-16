@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HTML Forms &amp; Form Elements — text, radio, select, checkbox | Fatjon Rrapaj Notes</title>
+    <meta
+      name="description"
+      content="HTML form elements explained: text, password, date, tel, number, radio buttons, select, checkboxes, and submit/reset buttons. Free teaching notes by Fatjon Rrapaj."
+    />
+    <meta
+      name="robots"
+      content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    />
+    <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="author" content="Fatjon Rrapaj" />
+    <meta name="creator" content="Fatjon Rrapaj" />
+    <meta name="publisher" content="Fatjon Rrapaj" />
+    <meta name="theme-color" content="#eef8f6" />
+    <meta name="keywords" content="HTML forms, input type text, HTML radio button, HTML select, HTML checkbox, form elements tutorial" />
+    <meta name="language" content="en" />
+    <meta name="geo.region" content="AL-11" />
+    <meta name="geo.placename" content="Tirana" />
+    <link
+      rel="canonical"
+      href="https://fatjonrrapaj.dev/notes/html-forms-and-form-elements.html"
+    />
+    <link
+      rel="alternate"
+      hreflang="en"
+      href="https://fatjonrrapaj.dev/notes/html-forms-and-form-elements.html"
+    />
+    <link
+      rel="alternate"
+      hreflang="x-default"
+      href="https://fatjonrrapaj.dev/notes/html-forms-and-form-elements.html"
+    />
+    <link rel="icon" href="/favicon.png?v=5" type="image/png" sizes="32x32" />
+    <link rel="icon" href="/favicon.svg?v=5" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=5" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="Fatjon Rrapaj" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale:alternate" content="sq_AL" />
+    <meta
+      property="og:url"
+      content="https://fatjonrrapaj.dev/notes/html-forms-and-form-elements.html"
+    />
+    <meta
+      property="og:title"
+      content="HTML Forms &amp; Form Elements — text, radio, select, checkbox | Fatjon Rrapaj Notes"
+    />
+    <meta
+      property="og:description"
+      content="HTML form elements — text, password, date, tel, number, radio, select, checkbox, and buttons with examples."
+    />
+    <meta property="og:image" content="https://fatjonrrapaj.dev/notes/html.png" />
+    <meta property="og:image:secure_url" content="https://fatjonrrapaj.dev/notes/html.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1204" />
+    <meta property="og:image:height" content="1068" />
+    <meta property="og:image:alt" content="HTML teaching notes cover — forms and form elements" />
+    <meta property="article:published_time" content="2023-02-09" />
+    <meta property="article:modified_time" content="2026-11-15" />
+    <meta property="article:author" content="Fatjon Rrapaj" />
+    <meta property="article:section" content="HTML" />
+    <meta property="article:tag" content="HTML forms" />
+    <meta property="article:tag" content="input types" />
+    <meta property="article:tag" content="radio buttons" />
+    <meta property="article:tag" content="select" />
+    <meta property="article:tag" content="checkbox" />
+    <meta property="article:tag" content="form buttons" />
+    <meta property="article:tag" content="label for attribute" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="HTML Forms &amp; Form Elements — text, radio, select, checkbox | Fatjon Rrapaj Notes" />
+    <meta
+      name="twitter:description"
+      content="HTML form elements — text, password, date, tel, number, radio, select, checkbox, and buttons with examples."
+    />
+    <meta name="twitter:image" content="https://fatjonrrapaj.dev/notes/html.png" />
+    <meta name="twitter:image:alt" content="HTML teaching notes cover — forms and form elements" />
+
+    <meta name="format-detection" content="telephone=no" />
+    <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
+
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      html { background: #eef8f6; }
+      body { margin: 0; }
+      a, a:link, a:visited { color: inherit; text-decoration: none; }
+      html.js body { visibility: hidden; }
+      html.is-booted body { visibility: visible; }
+    </style>
+    <noscript><style>body { visibility: visible !important; }</style></noscript>
+    <script>document.documentElement.classList.add("js");</script>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebPage",
+            "@id": "https://fatjonrrapaj.dev/notes/html-forms-and-form-elements.html#webpage",
+            "url": "https://fatjonrrapaj.dev/notes/html-forms-and-form-elements.html",
+            "name": "HTML Forms & Form Elements — text, radio, select, checkbox | Fatjon Rrapaj Notes",
+            "description": "HTML form elements explained: text, password, date, tel, number, radio buttons, select, checkboxes, and submit/reset buttons. Free teaching notes by Fatjon Rrapaj.",
+            "inLanguage": "en",
+            "isPartOf": {
+              "@id": "https://fatjonrrapaj.dev/#website"
+            },
+            "about": {
+              "@id": "https://fatjonrrapaj.dev/notes/html-forms-and-form-elements.html#lesson"
+            },
+            "primaryImageOfPage": {
+              "@id": "https://fatjonrrapaj.dev/notes/html-forms-and-form-elements.html#primaryimage"
+            },
+            "breadcrumb": {
+              "@id": "https://fatjonrrapaj.dev/notes/html-forms-and-form-elements.html#breadcrumb"
+            },
+            "author": {
+              "@id": "https://fatjonrrapaj.dev/#person"
+            },
+            "publisher": {
+              "@id": "https://fatjonrrapaj.dev/#person"
+            },
+            "datePublished": "2023-02-09",
+            "dateModified": "2026-11-15",
+            "isAccessibleForFree": true,
+            "speakable": {
+              "@type": "SpeakableSpecification",
+              "cssSelector": [
+                ".lesson-hero h1",
+                ".lesson-hero .lead",
+                ".lesson-body h2"
+              ]
+            },
+            "potentialAction": {
+              "@type": "ReadAction",
+              "target": "https://fatjonrrapaj.dev/notes/html-forms-and-form-elements.html"
+            }
+          },
+          {
+            "@type": [
+              "LearningResource",
+              "Article",
+              "TechArticle"
+            ],
+            "@id": "https://fatjonrrapaj.dev/notes/html-forms-and-form-elements.html#lesson",
+            "url": "https://fatjonrrapaj.dev/notes/html-forms-and-form-elements.html",
+            "name": "Understanding HTML Forms and Form Elements",
+            "headline": "Understanding HTML Forms and Form Elements",
+            "description": "HTML form elements explained: text, password, date, tel, number, radio buttons, select, checkboxes, and submit/reset buttons. Free teaching notes by Fatjon Rrapaj.",
+            "datePublished": "2023-02-09",
+            "dateModified": "2026-11-15",
+            "inLanguage": "en",
+            "isAccessibleForFree": true,
+            "learningResourceType": [
+              "Lesson",
+              "Tutorial"
+            ],
+            "educationalLevel": "Beginner",
+            "timeRequired": "PT30M",
+            "keywords": [
+              "HTML forms",
+              "input type text",
+              "HTML radio button",
+              "HTML select",
+              "HTML checkbox",
+              "form elements tutorial"
+            ],
+            "teaches": [
+              "HTML forms",
+              "input types",
+              "radio buttons",
+              "select",
+              "checkbox",
+              "form buttons",
+              "label for attribute"
+            ],
+            "about": [
+              "HTML5 forms",
+              "User input",
+              "Accessibility labels"
+            ],
+            "articleSection": "HTML",
+            "author": {
+              "@id": "https://fatjonrrapaj.dev/#person"
+            },
+            "creator": {
+              "@id": "https://fatjonrrapaj.dev/#person"
+            },
+            "provider": {
+              "@id": "https://fatjonrrapaj.dev/#person"
+            },
+            "publisher": {
+              "@id": "https://fatjonrrapaj.dev/#person"
+            },
+            "image": {
+              "@id": "https://fatjonrrapaj.dev/notes/html-forms-and-form-elements.html#primaryimage"
+            },
+            "thumbnailUrl": "https://fatjonrrapaj.dev/notes/html.png",
+            "mainEntityOfPage": {
+              "@id": "https://fatjonrrapaj.dev/notes/html-forms-and-form-elements.html#webpage"
+            },
+            "isPartOf": {
+              "@type": "Course",
+              "@id": "https://fatjonrrapaj.dev/blog.html#course",
+              "name": "HTML, CSS, JavaScript & React — teaching notes",
+              "url": "https://fatjonrrapaj.dev/blog.html"
+            },
+            "educationalAlignment": {
+              "@type": "AlignmentObject",
+              "alignmentType": "educationalSubject",
+              "targetName": "HTML"
+            },
+            "audience": {
+              "@type": "EducationalAudience",
+              "educationalRole": "student",
+              "audienceType": "Beginner web developers"
+            },
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "EUR",
+              "availability": "https://schema.org/InStock"
+            },
+            "relatedLink": [
+              "https://fatjonrrapaj.dev/notes/hyrje-ne-html.html",
+              "https://fatjonrrapaj.dev/notes/html-tables.html"
+            ]
+          },
+          {
+            "@type": "ImageObject",
+            "@id": "https://fatjonrrapaj.dev/notes/html-forms-and-form-elements.html#primaryimage",
+            "url": "https://fatjonrrapaj.dev/notes/html.png",
+            "contentUrl": "https://fatjonrrapaj.dev/notes/html.png",
+            "width": 1204,
+            "height": 1068,
+            "caption": "HTML teaching notes cover — forms and form elements",
+            "inLanguage": "en"
+          },
+          {
+            "@type": "BreadcrumbList",
+            "@id": "https://fatjonrrapaj.dev/notes/html-forms-and-form-elements.html#breadcrumb",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "https://fatjonrrapaj.dev/"
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Notes",
+                "item": "https://fatjonrrapaj.dev/blog.html"
+              },
+              {
+                "@type": "ListItem",
+                "position": 3,
+                "name": "HTML",
+                "item": "https://fatjonrrapaj.dev/blog.html#html"
+              },
+              {
+                "@type": "ListItem",
+                "position": 4,
+                "name": "Understanding HTML Forms and Form Elements",
+                "item": "https://fatjonrrapaj.dev/notes/html-forms-and-form-elements.html"
+              }
+            ]
+          }
+        ]
+      }
+    </script>
+  </head>
+  <body class="inner-page">
+    <header class="site-nav">
+      <a class="brand" href="/">Fatjon <span>Rrapaj</span></a>
+      <button class="nav-toggle" type="button" aria-label="Open menu">
+        <span></span>
+      </button>
+      <ul class="nav-links">
+        <li><a href="/experience.html">Experience</a></li>
+        <li><a href="/projects.html">Projects</a></li>
+        <li><a href="/blog.html" aria-current="page">Notes</a></li>
+        <li><a class="nav-cta" href="/contact.html">Let’s talk</a></li>
+      </ul>
+    </header>
+
+    <main class="page-shell lesson-shell">
+      <article class="lesson" itemscope itemtype="https://schema.org/LearningResource">
+        <nav class="lesson-breadcrumb" aria-label="Breadcrumb">
+          <ol>
+            <li><a href="/">Home</a></li>
+            <li><a href="/blog.html">Notes</a></li>
+            <li><a href="/blog.html#html">HTML</a></li>
+            <li aria-current="page">Understanding HTML Forms and Form Elements</li>
+          </ol>
+        </nav>
+        <header class="lesson-hero">
+          <p class="eyebrow reveal">
+            <a href="/blog.html#html">HTML</a>
+            <span aria-hidden="true"> · </span>
+            <time datetime="2023-02-09" itemprop="datePublished">February 9, 2023</time>
+          </p>
+          <h1 class="hero-brand reveal" style="font-size: clamp(2.1rem, 5.5vw, 3.4rem)"><span itemprop="headline">Understanding HTML Forms and Form Elements
+          </span></h1>
+          <p class="lead reveal" itemprop="description">
+            Forms let users input data and send it to the server. Here’s a
+            closer look at the form elements you’ll actually use.
+          </p>
+          <p class="lesson-dropbox reveal">
+            <a
+              href="https://www.dropbox.com/scl/fi/7v90wwysu9mctm11wwv3r/Understanding-HTML-Forms-and-Form-Elements.paper?dl=0&rlkey=zh0t0gr2j4802c5dide0jqwu9"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Read on Dropbox instead →</a
+            >
+          </p>
+        </header>
+
+        <div class="lesson-body">
+          <p>
+            HTML forms are a crucial component of web development as they
+            allow users to input data and send it to the server for
+            processing. In this article, we’ll take a closer look at
+            different form elements and how to use them in HTML.
+          </p>
+
+          <h2>Input type: text</h2>
+          <p>
+            The <code>input</code> element with <code>type="text"</code> is
+            one of the most basic form elements and is used for collecting
+            simple text inputs:
+          </p>
+          <pre><code>&lt;div&gt;
+  &lt;label for="firstName"&gt;Name:&lt;/label&gt;
+  &lt;input
+    id="firstName"
+    name="name"
+    type="text"
+    placeholder="John"
+    required
+  /&gt;
+&lt;/div&gt;
+&lt;br /&gt;
+&lt;div&gt;
+  &lt;label for="lastName"&gt;Surname:&lt;/label&gt;
+  &lt;input
+    id="lastName"
+    name="surname"
+    type="text"
+    placeholder="Smith"
+    required
+  /&gt;
+&lt;/div&gt;</code></pre>
+          <p>
+            Here we have two text inputs — name and surname. The
+            <code>label</code> associates each input with its text. The
+            <code>placeholder</code> attribute hints at the expected input,
+            and <code>required</code> ensures a value before submit.
+          </p>
+
+          <h2>Input type: password</h2>
+          <p>
+            <code>type="password"</code> collects password inputs. Characters
+            are usually obscured for security:
+          </p>
+          <pre><code>&lt;div&gt;
+  &lt;label for="password"&gt;Password:&lt;/label&gt;
+  &lt;input id="password" name="password" type="password" /&gt;
+&lt;/div&gt;</code></pre>
+          <p>
+            In this example, a password input is associated with the label
+            “Password.”
+          </p>
+
+          <h2>Input type: date</h2>
+          <p>
+            <code>type="date"</code> collects dates and typically shows a
+            date picker / calendar:
+          </p>
+          <pre><code>&lt;div&gt;
+  &lt;label for="birthDate"&gt;Birthdate:&lt;/label&gt;
+  &lt;input id="birthDate" name="birthDate" type="date" /&gt;
+&lt;/div&gt;</code></pre>
+          <p>
+            Here a date input is associated with the label “Birthdate.”
+          </p>
+
+          <h2>Input type: tel</h2>
+          <p>
+            <code>type="tel"</code> is used for telephone numbers:
+          </p>
+          <pre><code>&lt;div&gt;
+  &lt;label for="phone"&gt;Phone:&lt;/label&gt;
+  &lt;input
+    id="phone"
+    name="phone"
+    type="tel"
+    placeholder="00355 68 68686 6886"
+  /&gt;
+&lt;/div&gt;</code></pre>
+          <p>
+            The <code>placeholder</code> hints at the expected phone format.
+          </p>
+
+          <h2>Input type: number</h2>
+          <p>
+            <code>type="number"</code> collects numerical inputs:
+          </p>
+          <pre><code>&lt;div&gt;
+  &lt;label for="weight"&gt;Weight (in kg):&lt;/label&gt;
+  &lt;input
+    id="weight"
+    name="weight"
+    type="number"
+    step="10"
+    max="300"
+    min="50"
+  /&gt;
+&lt;/div&gt;</code></pre>
+          <p>
+            <code>step</code> sets the interval between valid values — here
+            10, so multiples of 10. <code>max</code> is 300 and
+            <code>min</code> is 50. Together they define a valid range — useful
+            for something like weight. These attributes are optional; if
+            omitted, browser defaults apply.
+          </p>
+
+          <h2>Radio buttons</h2>
+          <p>
+            Radio buttons work when there are multiple options but only one
+            can be selected at a time — here, employment status:
+          </p>
+          <pre><code>&lt;div&gt;
+  &lt;label for="unemployed"&gt;Unemployed: &lt;/label&gt;
+  &lt;input id="unemployed" type="radio" name="employmentStatus" /&gt;
+  &lt;label for="student"&gt;Student: &lt;/label&gt;
+  &lt;input id="student" type="radio" name="employmentStatus" /&gt;
+  &lt;label for="employed"&gt;Employed: &lt;/label&gt;
+  &lt;input id="employed" type="radio" name="employmentStatus" /&gt;
+&lt;/div&gt;</code></pre>
+          <p>
+            Each option is an <code>input</code> with
+            <code>type="radio"</code>. The shared <code>name</code> groups
+            them so only one can be selected. <code>id</code> connects each
+            input to its <code>label</code>.
+          </p>
+
+          <h2>Select boxes</h2>
+          <p>
+            A select box (dropdown) is used when there are multiple options
+            and one must be chosen — here, payment method:
+          </p>
+          <pre><code>&lt;div&gt;
+  &lt;label for="paymentMethod"&gt;Payment Method:&lt;/label&gt;
+  &lt;select id="paymentMethod" name="paymentMethod"&gt;
+    &lt;option value="cash"&gt;Cash&lt;/option&gt;
+    &lt;option value="card"&gt;Card&lt;/option&gt;
+    &lt;option value="paypal"&gt;PayPal&lt;/option&gt;
+  &lt;/select&gt;
+&lt;/div&gt;</code></pre>
+          <p>
+            The control is a <code>select</code>. <code>name</code> identifies
+            it on submit; <code>id</code> ties it to the label. Choices are
+            <code>option</code> elements.
+          </p>
+
+          <h2>Checkboxes</h2>
+          <p>
+            Checkboxes allow one or more options to be selected — here,
+            agreeing to terms:
+          </p>
+          <pre><code>&lt;div&gt;
+  &lt;label for="term"&gt;Agree with terms &lt;/label&gt;
+  &lt;input id="term" type="checkbox" name="terms" /&gt;
+&lt;/div&gt;</code></pre>
+          <p>
+            Use <code>type="checkbox"</code>. <code>name</code> identifies it
+            on submit; <code>id</code> connects it to the label.
+          </p>
+
+          <h2>Buttons</h2>
+          <p>
+            Two buttons — one to reset the form, one to submit:
+          </p>
+          <pre><code>&lt;button type="reset"&gt;Reset&lt;/button&gt;
+&lt;button type="submit"&gt;Submit&lt;/button&gt;</code></pre>
+          <p>
+            The <code>type</code> attribute sets the action.
+            <code>reset</code> restores defaults; <code>submit</code> sends
+            the form data to the server.
+          </p>
+          <p class="lesson-try">
+            Try it yourself →
+            <a
+              href="https://codesandbox.io/p/sandbox/html-forms-simple-2qdovr?file=%2Findex.html"
+              target="_blank"
+              rel="noopener noreferrer"
+            >open on CodeSandbox</a>
+          </p>
+        </div>
+
+        <aside class="lesson-related" aria-labelledby="lesson-related-title">
+          <h2 id="lesson-related-title">More in HTML</h2>
+          <ul>
+          <li>
+            <a href="/notes/hyrje-ne-html.html" hreflang="sq"
+              >Hyrje në HTML</a
+            >
+          </li>
+          <li>
+            <a href="/notes/html-tables.html" hreflang="sq"
+              >HTML Tables</a
+            >
+          </li>
+          </ul>
+          <p class="lesson-related__all">
+            <a href="/blog.html#html">All HTML notes →</a>
+          </p>
+        </aside>
+      </article>
+
+      <footer class="site-footer">
+        <nav aria-label="Site">
+          <ul class="site-footer__nav">
+            <li><a href="/">Home</a></li>
+            <li><a href="/blog.html">Notes</a></li>
+            <li><a href="/contact.html">Contact</a></li>
+          </ul>
+        </nav>
+        <p>© Fatjon Rrapaj</p>
+        <p><a href="/blog.html#html">Back to notes</a></p>
+      </footer>
+    </main>
+  </body>
+</html>

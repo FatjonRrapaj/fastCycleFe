@@ -109,7 +109,9 @@ img {
   display: block;
 }
 
-a {
+a,
+a:link,
+a:visited {
   color: inherit;
   text-decoration: none;
 }
@@ -226,7 +228,9 @@ html.is-booted body {
   list-style: none;
 }
 
-.nav-links a {
+.nav-links a,
+.nav-links a:link,
+.nav-links a:visited {
   font-size: 0.92rem;
   font-weight: 500;
   color: var(--ink-soft);
@@ -234,7 +238,9 @@ html.is-booted body {
 }
 
 .nav-links a:hover,
-.nav-links a.is-active {
+.nav-links a.is-active,
+.nav-links a:hover:visited,
+.nav-links a.is-active:visited {
   color: var(--ink);
 }
 
@@ -2401,8 +2407,259 @@ body.demo-modal-open {
 }
 
 /* ——— Notes / teaching blog ——— */
-.notes-shell {
+.notes-shell,
+.lesson-shell {
   width: min(920px, 100%);
+}
+
+.lesson-breadcrumb {
+  margin: 0 0 1.1rem;
+}
+
+.lesson-breadcrumb ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.55rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.lesson-breadcrumb li:not(:last-child)::after {
+  content: "/";
+  margin-left: 0.55rem;
+  opacity: 0.55;
+}
+
+.lesson-breadcrumb a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+
+.lesson-breadcrumb a:hover {
+  color: var(--accent-deep);
+  border-bottom-color: color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.lesson-breadcrumb [aria-current="page"] {
+  color: var(--ink-soft);
+}
+
+.lesson-related {
+  margin: 0.5rem 0 0;
+  padding: 1.75rem 0 0.5rem;
+  border-top: 1px solid var(--line);
+}
+
+.lesson-related h2 {
+  margin: 0 0 0.85rem;
+  max-width: none;
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.lesson-related ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.lesson-related a {
+  color: var(--accent-deep);
+  text-decoration: none;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 500;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+.lesson-related a:hover {
+  color: var(--ink);
+}
+
+.lesson-related__all {
+  margin: 1rem 0 0;
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+}
+
+.lesson-hero {
+  padding-bottom: 1.5rem;
+}
+
+.lesson-hero .eyebrow a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.lesson-hero .eyebrow a:hover {
+  color: var(--accent-deep);
+}
+
+.lesson-body {
+  -webkit-user-select: text;
+  user-select: text;
+  max-width: 40rem;
+  padding: 0.5rem 0 2rem;
+  border-top: 1px solid var(--line);
+}
+
+.lesson-figure {
+  margin: 0 0 1.35rem;
+}
+
+.lesson-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+}
+
+.lesson-figure figcaption {
+  margin-top: 0.55rem;
+  color: var(--muted);
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  letter-spacing: 0.02em;
+  line-height: 1.45;
+}
+
+.lesson-body h2 {
+  margin: 2.1rem 0 0.75rem;
+  max-width: 22ch;
+  font-family: var(--font-display);
+  font-size: clamp(1.15rem, 2.4vw, 1.45rem);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+
+.lesson-body h3 {
+  margin: 1.5rem 0 0.65rem;
+  max-width: 28ch;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+
+.lesson-body p {
+  margin: 0 0 1rem;
+  color: var(--ink-soft);
+  font-size: 1.05rem;
+  line-height: 1.65;
+}
+
+.lesson-body a {
+  color: var(--accent-deep);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.lesson-body a:hover {
+  color: var(--ink);
+}
+
+.lesson-body code {
+  font-family: var(--font-display);
+  font-size: 0.88em;
+  color: var(--accent-deep);
+}
+
+.lesson-body pre {
+  margin: 0 0 1.35rem;
+  padding: 1rem 1.1rem;
+  overflow-x: auto;
+  background: color-mix(in srgb, var(--paper-deep) 55%, #0f2d34 12%);
+  border: 1px solid var(--line);
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.lesson-body pre code {
+  display: block;
+  color: var(--ink);
+  font-size: 0.82rem;
+  line-height: 1.55;
+  white-space: pre;
+}
+
+.inner-page .lesson-body pre {
+  background: color-mix(in srgb, #0f2d34 88%, #9fe8df 4%);
+  border-color: rgba(159, 232, 223, 0.14);
+}
+
+.inner-page .lesson-body pre code {
+  color: #e8f7f4;
+}
+
+.lesson-try {
+  margin-top: 2rem !important;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--line);
+  font-family: var(--font-display);
+  font-size: 0.85rem !important;
+  letter-spacing: 0.04em;
+  color: var(--muted) !important;
+}
+
+.lesson-try a {
+  color: var(--accent-deep);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.lesson-try a:hover {
+  color: var(--ink);
+}
+
+.lesson-dropbox {
+  margin: 0.85rem 0 0;
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+}
+
+.lesson-dropbox a {
+  color: var(--accent-deep);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.lesson-dropbox a:hover {
+  color: var(--ink);
+}
+
+.lesson-list {
+  margin: 0 0 1.25rem;
+  padding-left: 1.25rem;
+  color: var(--ink-soft);
+  font-size: 1.05rem;
+  line-height: 1.65;
+}
+
+.lesson-list li {
+  margin-bottom: 0.45rem;
+}
+
+.lesson-list code {
+  font-family: var(--font-display);
+  font-size: 0.88em;
+  color: var(--accent-deep);
 }
 
 .notes-hero .lead {
@@ -2436,7 +2693,6 @@ body.demo-modal-open {
 .notes-track {
   padding-top: 2.75rem;
   padding-bottom: 1.25rem;
-  border-top: 1px solid var(--line);
 }
 
 .notes-track__head {
@@ -2485,10 +2741,6 @@ body.demo-modal-open {
   color: inherit;
   text-decoration: none;
   transition: transform 0.28s var(--ease);
-}
-
-.notes-list li:last-child .notes-item {
-  border-bottom: 1px solid var(--line);
 }
 
 .notes-item:hover {
@@ -2549,7 +2801,6 @@ body.demo-modal-open {
 
 .notes-videos {
   padding-top: 3rem;
-  border-top: 1px solid var(--line);
 }
 
 .notes-videos .lead {

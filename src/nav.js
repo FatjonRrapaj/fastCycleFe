@@ -52,5 +52,13 @@ export function initReveals() {
     { threshold: 0.18, rootMargin: "0px 0px -8% 0px" }
   );
 
-  items.forEach((el) => observer.observe(el));
+  items.forEach((el) => {
+    // Tall blocks (full lesson bodies) never reach threshold 0.18 in one
+    // viewport — show them immediately instead of leaving opacity: 0 forever.
+    if (el.getBoundingClientRect().height > window.innerHeight * 0.85) {
+      el.classList.add("is-in");
+      return;
+    }
+    observer.observe(el);
+  });
 }

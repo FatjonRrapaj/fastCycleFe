@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JavaScript Event Listeners &amp; CSS Animations — Fatjon Rrapaj Notes</title>
+    <meta
+      name="description"
+      content="Learn JavaScript event listeners: onclick, onmouseover, onkeydown, form submit, and controlling CSS keyframe animations with getAnimations(). Free teaching notes by Fatjon Rrapaj."
+    />
+    <meta
+      name="robots"
+      content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    />
+    <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="author" content="Fatjon Rrapaj" />
+    <meta name="creator" content="Fatjon Rrapaj" />
+    <meta name="publisher" content="Fatjon Rrapaj" />
+    <meta name="theme-color" content="#eef8f6" />
+    <meta name="keywords" content="JavaScript event listeners, onclick, onmouseover, onkeydown, CSS animations JavaScript, getAnimations" />
+    <meta name="language" content="en" />
+    <meta name="geo.region" content="AL-11" />
+    <meta name="geo.placename" content="Tirana" />
+    <link
+      rel="canonical"
+      href="https://fatjonrrapaj.dev/notes/js-event-listeners.html"
+    />
+    <link
+      rel="alternate"
+      hreflang="en"
+      href="https://fatjonrrapaj.dev/notes/js-event-listeners.html"
+    />
+    <link
+      rel="alternate"
+      hreflang="x-default"
+      href="https://fatjonrrapaj.dev/notes/js-event-listeners.html"
+    />
+    <link rel="icon" href="/favicon.png?v=5" type="image/png" sizes="32x32" />
+    <link rel="icon" href="/favicon.svg?v=5" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=5" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="Fatjon Rrapaj" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale:alternate" content="sq_AL" />
+    <meta
+      property="og:url"
+      content="https://fatjonrrapaj.dev/notes/js-event-listeners.html"
+    />
+    <meta
+      property="og:title"
+      content="JavaScript Event Listeners &amp; CSS Animations — Fatjon Rrapaj Notes"
+    />
+    <meta
+      property="og:description"
+      content="Event listeners and CSS animations — respond to clicks, hover, keys, and control keyframe animations with JS."
+    />
+    <meta property="og:image" content="https://fatjonrrapaj.dev/notes/javascript.png" />
+    <meta property="og:image:secure_url" content="https://fatjonrrapaj.dev/notes/javascript.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="870" />
+    <meta property="og:image:height" content="664" />
+    <meta property="og:image:alt" content="JavaScript teaching notes cover — event listeners" />
+    <meta property="article:published_time" content="2023-02-07" />
+    <meta property="article:modified_time" content="2026-11-15" />
+    <meta property="article:author" content="Fatjon Rrapaj" />
+    <meta property="article:section" content="JavaScript" />
+    <meta property="article:tag" content="JavaScript event listeners" />
+    <meta property="article:tag" content="onclick" />
+    <meta property="article:tag" content="onmouseover" />
+    <meta property="article:tag" content="onkeydown" />
+    <meta property="article:tag" content="CSS animations" />
+    <meta property="article:tag" content="CSS keyframes" />
+    <meta property="article:tag" content="animation-play-state" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="JavaScript Event Listeners &amp; CSS Animations — Fatjon Rrapaj Notes" />
+    <meta
+      name="twitter:description"
+      content="Event listeners and CSS animations — respond to clicks, hover, keys, and control keyframe animations with JS."
+    />
+    <meta name="twitter:image" content="https://fatjonrrapaj.dev/notes/javascript.png" />
+    <meta name="twitter:image:alt" content="JavaScript teaching notes cover — event listeners" />
+
+    <meta name="format-detection" content="telephone=no" />
+    <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
+
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      html { background: #eef8f6; }
+      body { margin: 0; }
+      a, a:link, a:visited { color: inherit; text-decoration: none; }
+      html.js body { visibility: hidden; }
+      html.is-booted body { visibility: visible; }
+    </style>
+    <noscript><style>body { visibility: visible !important; }</style></noscript>
+    <script>document.documentElement.classList.add("js");</script>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebPage",
+            "@id": "https://fatjonrrapaj.dev/notes/js-event-listeners.html#webpage",
+            "url": "https://fatjonrrapaj.dev/notes/js-event-listeners.html",
+            "name": "JavaScript Event Listeners & CSS Animations — Fatjon Rrapaj Notes",
+            "description": "Learn JavaScript event listeners: onclick, onmouseover, onkeydown, form submit, and controlling CSS keyframe animations with getAnimations(). Free teaching notes by Fatjon Rrapaj.",
+            "inLanguage": "en",
+            "isPartOf": {
+              "@id": "https://fatjonrrapaj.dev/#website"
+            },
+            "about": {
+              "@id": "https://fatjonrrapaj.dev/notes/js-event-listeners.html#lesson"
+            },
+            "primaryImageOfPage": {
+              "@id": "https://fatjonrrapaj.dev/notes/js-event-listeners.html#primaryimage"
+            },
+            "breadcrumb": {
+              "@id": "https://fatjonrrapaj.dev/notes/js-event-listeners.html#breadcrumb"
+            },
+            "author": {
+              "@id": "https://fatjonrrapaj.dev/#person"
+            },
+            "publisher": {
+              "@id": "https://fatjonrrapaj.dev/#person"
+            },
+            "datePublished": "2023-02-07",
+            "dateModified": "2026-11-15",
+            "isAccessibleForFree": true,
+            "speakable": {
+              "@type": "SpeakableSpecification",
+              "cssSelector": [
+                ".lesson-hero h1",
+                ".lesson-hero .lead",
+                ".lesson-body h2"
+              ]
+            },
+            "potentialAction": {
+              "@type": "ReadAction",
+              "target": "https://fatjonrrapaj.dev/notes/js-event-listeners.html"
+            }
+          },
+          {
+            "@type": [
+              "LearningResource",
+              "Article",
+              "TechArticle"
+            ],
+            "@id": "https://fatjonrrapaj.dev/notes/js-event-listeners.html#lesson",
+            "url": "https://fatjonrrapaj.dev/notes/js-event-listeners.html",
+            "name": "JavaScript Event Listeners",
+            "headline": "JavaScript Event Listeners",
+            "description": "Learn JavaScript event listeners: onclick, onmouseover, onkeydown, form submit, and controlling CSS keyframe animations with getAnimations(). Free teaching notes by Fatjon Rrapaj.",
+            "datePublished": "2023-02-07",
+            "dateModified": "2026-11-15",
+            "inLanguage": "en",
+            "isAccessibleForFree": true,
+            "learningResourceType": [
+              "Lesson",
+              "Tutorial"
+            ],
+            "educationalLevel": "Beginner",
+            "timeRequired": "PT30M",
+            "keywords": [
+              "JavaScript event listeners",
+              "onclick",
+              "onmouseover",
+              "onkeydown",
+              "CSS animations JavaScript",
+              "getAnimations"
+            ],
+            "teaches": [
+              "JavaScript event listeners",
+              "onclick",
+              "onmouseover",
+              "onkeydown",
+              "CSS animations",
+              "CSS keyframes",
+              "animation-play-state"
+            ],
+            "about": [
+              "DOM events",
+              "Web interactivity",
+              "CSS Animation"
+            ],
+            "articleSection": "JavaScript",
+            "author": {
+              "@id": "https://fatjonrrapaj.dev/#person"
+            },
+            "creator": {
+              "@id": "https://fatjonrrapaj.dev/#person"
+            },
+            "provider": {
+              "@id": "https://fatjonrrapaj.dev/#person"
+            },
+            "publisher": {
+              "@id": "https://fatjonrrapaj.dev/#person"
+            },
+            "image": {
+              "@id": "https://fatjonrrapaj.dev/notes/js-event-listeners.html#primaryimage"
+            },
+            "thumbnailUrl": "https://fatjonrrapaj.dev/notes/javascript.png",
+            "mainEntityOfPage": {
+              "@id": "https://fatjonrrapaj.dev/notes/js-event-listeners.html#webpage"
+            },
+            "isPartOf": {
+              "@type": "Course",
+              "@id": "https://fatjonrrapaj.dev/blog.html#course",
+              "name": "HTML, CSS, JavaScript & React — teaching notes",
+              "url": "https://fatjonrrapaj.dev/blog.html"
+            },
+            "educationalAlignment": {
+              "@type": "AlignmentObject",
+              "alignmentType": "educationalSubject",
+              "targetName": "JavaScript"
+            },
+            "audience": {
+              "@type": "EducationalAudience",
+              "educationalRole": "student",
+              "audienceType": "Beginner web developers"
+            },
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "EUR",
+              "availability": "https://schema.org/InStock"
+            },
+            "relatedLink": [
+              "https://fatjonrrapaj.dev/notes/js-arrays-objects-for-loops.html",
+              "https://fatjonrrapaj.dev/notes/js-interactions-html-forms.html"
+            ]
+          },
+          {
+            "@type": "ImageObject",
+            "@id": "https://fatjonrrapaj.dev/notes/js-event-listeners.html#primaryimage",
+            "url": "https://fatjonrrapaj.dev/notes/javascript.png",
+            "contentUrl": "https://fatjonrrapaj.dev/notes/javascript.png",
+            "width": 870,
+            "height": 664,
+            "caption": "JavaScript teaching notes cover — event listeners",
+            "inLanguage": "en"
+          },
+          {
+            "@type": "BreadcrumbList",
+            "@id": "https://fatjonrrapaj.dev/notes/js-event-listeners.html#breadcrumb",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "https://fatjonrrapaj.dev/"
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Notes",
+                "item": "https://fatjonrrapaj.dev/blog.html"
+              },
+              {
+                "@type": "ListItem",
+                "position": 3,
+                "name": "JavaScript",
+                "item": "https://fatjonrrapaj.dev/blog.html#javascript"
+              },
+              {
+                "@type": "ListItem",
+                "position": 4,
+                "name": "JavaScript Event Listeners",
+                "item": "https://fatjonrrapaj.dev/notes/js-event-listeners.html"
+              }
+            ]
+          }
+        ]
+      }
+    </script>
+  </head>
+  <body class="inner-page">
+    <header class="site-nav">
+      <a class="brand" href="/">Fatjon <span>Rrapaj</span></a>
+      <button class="nav-toggle" type="button" aria-label="Open menu">
+        <span></span>
+      </button>
+      <ul class="nav-links">
+        <li><a href="/experience.html">Experience</a></li>
+        <li><a href="/projects.html">Projects</a></li>
+        <li><a href="/blog.html" aria-current="page">Notes</a></li>
+        <li><a class="nav-cta" href="/contact.html">Let’s talk</a></li>
+      </ul>
+    </header>
+
+    <main class="page-shell lesson-shell">
+      <article class="lesson" itemscope itemtype="https://schema.org/LearningResource">
+        <nav class="lesson-breadcrumb" aria-label="Breadcrumb">
+          <ol>
+            <li><a href="/">Home</a></li>
+            <li><a href="/blog.html">Notes</a></li>
+            <li><a href="/blog.html#javascript">JavaScript</a></li>
+            <li aria-current="page">JavaScript Event Listeners</li>
+          </ol>
+        </nav>
+        <header class="lesson-hero">
+          <p class="eyebrow reveal">
+            <a href="/blog.html#javascript">JavaScript</a>
+            <span aria-hidden="true"> · </span>
+            <time datetime="2023-02-07" itemprop="datePublished">February 7, 2023</time>
+          </p>
+          <h1 class="hero-brand reveal" style="font-size: clamp(2.1rem, 5.5vw, 3.4rem)"><span itemprop="headline">JavaScript Event Listeners
+          </span></h1>
+          <p class="lead reveal" itemprop="description">
+            Event listeners let you watch for things like a button click and
+            run a function in response — the foundation of dynamic, interactive
+            pages.
+          </p>
+          <p class="lesson-dropbox reveal">
+            <a
+              href="https://www.dropbox.com/scl/fi/dw0p4yzjccer85zgo5ro7/JavaScript-Event-Listeners.paper?dl=0&rlkey=uzjmpf9ype69nqz9mtxwxa5y9"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Read on Dropbox instead →</a
+            >
+          </p>
+        </header>
+
+        <div class="lesson-body">
+          <p>
+            Event listeners are an essential part of JavaScript programming.
+            They allow you to listen for specific events, such as a button
+            click, and respond by executing specific functions. That makes
+            websites that can react to user input and give feedback. In this
+            lesson we explore event listeners, why they matter, common
+            examples, and how they pair with CSS animations.
+          </p>
+
+          <h2>What are event listeners?</h2>
+          <p>
+            Event listeners are functions attached to HTML elements — buttons,
+            images, form fields, and more. When an event occurs (a mouse click,
+            a key press), the attached function runs. It might update content
+            on the page, or talk to a server.
+          </p>
+
+          <h2>Why use event listeners?</h2>
+          <p>
+            They make sites dynamic and interactive. Users can act; your code
+            can respond in a meaningful way. That’s a core part of a good user
+            experience.
+          </p>
+
+          <h2>Common event listeners in JavaScript</h2>
+          <p>Some of the most used ones:</p>
+          <ol class="lesson-list">
+            <li>
+              <code>onclick</code> — detect a mouse click on an element.
+            </li>
+            <li>
+              <code>onmouseover</code> — detect when the mouse moves over an
+              element.
+            </li>
+            <li>
+              <code>onkeydown</code> — detect when a keyboard key is pressed.
+            </li>
+            <li>
+              <code>onload</code> — detect when an element has finished
+              loading.
+            </li>
+            <li>
+              <code>onsubmit</code> — detect when a form is submitted.
+            </li>
+          </ol>
+
+          <h2>Examples</h2>
+          <pre><code>// Add an onclick event listener to a button
+const button = document.getElementById("myButton");
+button.onclick = function() {
+  alert("Button was clicked!");
+};
+
+// Add an onmouseover event listener to an image
+const image = document.getElementById("myImage");
+image.onmouseover = function() {
+  image.src = "newImage.jpg";
+};
+
+// Add an onkeydown event listener to the entire document
+document.onkeydown = function(event) {
+  console.log("Key pressed: ", event.code);
+};</code></pre>
+          <p>
+            These show how listeners respond to user interaction with the page.
+          </p>
+
+          <h2>Practical example — interacting with HTML</h2>
+          <p>HTML:</p>
+          <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;title&gt;Parcel Sandbox&lt;/title&gt;
+    &lt;meta charset="UTF-8" /&gt;
+    &lt;link rel="stylesheet" href="./src/styles.css" /&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;h1 id="clickTitle"&gt;You clicked: 0 times&lt;/h1&gt;
+    &lt;h1 id="clickHover"&gt;You Hovered: 0 times&lt;/h1&gt;
+    &lt;div id="app"&gt;&lt;/div&gt;
+    &lt;script src="src/index.js"&gt;&lt;/script&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+          <p>JavaScript:</p>
+          <pre><code>const appDiv = document.getElementById("app");
+const h1 = document.getElementById("clickTitle");
+const h1Hover = document.getElementById("clickHover");
+
+let clickCount = 0;
+appDiv.onclick = function handleDivClick() {
+  clickCount = clickCount + 1;
+  h1.innerText = "You clicked: " + clickCount + " times";
+};
+
+let mouseOverCount = 0;
+appDiv.onmouseover = function handleMouseOver() {
+  mouseOverCount = mouseOverCount + 1;
+  h1Hover.innerText = "You hovered: " + mouseOverCount + " times";
+};
+
+document.onkeydown = function onKeyDown(event) {
+  console.log("Key pressed: ", event.code);
+};</code></pre>
+          <p>Three listeners at work:</p>
+          <ol class="lesson-list">
+            <li>
+              <code>onclick</code> on <code>#app</code> — each click increments
+              <code>clickCount</code> and updates <code>#clickTitle</code>.
+            </li>
+            <li>
+              <code>onmouseover</code> on <code>#app</code> — each hover
+              increments <code>mouseOverCount</code> and updates
+              <code>#clickHover</code>.
+            </li>
+            <li>
+              <code>onkeydown</code> on <code>document</code> — logs
+              <code>event.code</code> when a key is pressed.
+            </li>
+          </ol>
+          <p class="lesson-try">
+            Try it yourself →
+            <a
+              href="https://codesandbox.io/p/sandbox/condescending-silence-46zifr?file=%2Fsrc%2Findex.js"
+              target="_blank"
+              rel="noopener noreferrer"
+            >open on CodeSandbox</a>
+          </p>
+
+          <h2>Event listeners &amp; CSS animations</h2>
+          <p>
+            CSS animations create dynamic motion with keyframes. You can
+            control them with JavaScript event handlers.
+          </p>
+          <p>
+            Example: a <code>#ball</code> div with a
+            <code>ballAnimation</code> that moves from left to right:
+          </p>
+          <pre><code>#ball {
+  width: 100px;
+  height: 100px;
+  background-color: red;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-weight: bolder;
+  animation: ballAnimation 1s linear;
+  position: relative;
+  animation-fill-mode: forwards;
+  animation-play-state: paused;
+}
+
+@keyframes ballAnimation {
+  0% {
+    left: 0;
+  }
+  100% {
+    left: calc(100vw - 100px);
+  }
+}</code></pre>
+          <p>
+            <code>animation: ballAnimation 1s linear</code> names the
+            animation, sets a <code>1s</code> duration, and a
+            <code>linear</code> timing function.
+            <code>position: relative</code> lets the ball move.
+            <code>animation-fill-mode: forwards</code> keeps the end position.
+            <code>animation-play-state: paused</code> means it won’t run until
+            an event starts it.
+          </p>
+          <p>
+            In <code>@keyframes ballAnimation</code>, at
+            <code>0%</code> <code>left</code> is <code>0</code> (left edge). At
+            <code>100%</code> it’s <code>calc(100vw - 100px)</code> — right edge
+            minus the ball’s width.
+          </p>
+
+          <h2>JS — interacting with CSS animations</h2>
+          <p>Select the ball and its label:</p>
+          <pre><code>const ball = document.getElementById("ball");
+const textInsideBall = document.getElementById("ballText");</code></pre>
+          <p>Read the animations on the element:</p>
+          <pre><code>const ballAnimations = ball.getAnimations();</code></pre>
+          <p>
+            Track whether the animation has finished once:
+          </p>
+          <pre><code>let isAnimationCompleted = false;</code></pre>
+          <p>
+            On click: play if it hasn’t finished; otherwise pause, reverse, and
+            play again:
+          </p>
+          <pre><code>ball.onclick = function onBallClick() {
+  if (!isAnimationCompleted) {
+    ballAnimations[0].play();
+  } else {
+    ballAnimations[0].pause();
+    ballAnimations[0].reverse();
+    ballAnimations[0].play();
+  }
+};</code></pre>
+          <p>
+            When the animation ends, mark it complete and update the label:
+          </p>
+          <pre><code>ball.onanimationend = function onBallAnimationEnd() {
+  isAnimationCompleted = true;
+  textInsideBall.textContent = "Clicked!";
+};</code></pre>
+          <p class="lesson-try">
+            Try it yourself →
+            <a
+              href="https://codesandbox.io/p/sandbox/frosty-fast-qg0scn?file=%2Findex.html"
+              target="_blank"
+              rel="noopener noreferrer"
+            >open the ball animation on CodeSandbox</a>
+          </p>
+
+          <h2>Conclusion</h2>
+          <p>
+            Combining CSS animations, keyframes, timing, duration, and JS event
+            handlers lets you build interactive motion. This example moves a
+            ball across the viewport and controls that motion with listeners —
+            a pattern you can reuse on real product UIs.
+          </p>
+        </div>
+
+
+        <aside class="lesson-related" aria-labelledby="lesson-related-title">
+          <h2 id="lesson-related-title">More in JavaScript</h2>
+          <ul>
+          <li>
+            <a href="/notes/js-arrays-objects-for-loops.html" hreflang="en"
+              >JS Arrays, Objects &amp; For Loops</a
+            >
+          </li>
+          <li>
+            <a href="/notes/js-interactions-html-forms.html" hreflang="en"
+              >Introduction to JavaScript Interactions with HTML Forms</a
+            >
+          </li>
+          </ul>
+          <p class="lesson-related__all">
+            <a href="/blog.html#javascript">All JavaScript notes →</a>
+          </p>
+        </aside>
+      </article>
+
+      <footer class="site-footer">
+        <nav aria-label="Site">
+          <ul class="site-footer__nav">
+            <li><a href="/">Home</a></li>
+            <li><a href="/blog.html">Notes</a></li>
+            <li><a href="/contact.html">Contact</a></li>
+          </ul>
+        </nav>
+        <p>© Fatjon Rrapaj</p>
+        <p><a href="/blog.html#javascript">Back to notes</a></p>
+      </footer>
+    </main>
+  </body>
+</html>

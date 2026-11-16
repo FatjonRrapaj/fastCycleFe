@@ -3,6 +3,20 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 
 const pages = ["projects", "experience", "contact", "blog"];
+const lessons = [
+  "notes/js-arrays-objects-for-loops",
+  "notes/js-event-listeners",
+  "notes/js-interactions-html-forms",
+  "notes/css-box-model",
+  "notes/css-flexbox",
+  "notes/css-element-positioning",
+  "notes/hyrje-ne-html",
+  "notes/html-tables",
+  "notes/html-forms-and-form-elements",
+  "notes/hyrje-ne-react",
+  "notes/jsx",
+  "notes/react-useeffect-hook",
+];
 
 module.exports = {
   entry: {
@@ -44,6 +58,14 @@ module.exports = {
         new HtmlWebpackPlugin({
           template: `./src/pages/${page}.html`,
           filename: `${page}.html`,
+          chunks: ["site"],
+        })
+    ),
+    ...lessons.map(
+      (lesson) =>
+        new HtmlWebpackPlugin({
+          template: `./src/pages/${lesson}.html`,
+          filename: `${lesson}.html`,
           chunks: ["site"],
         })
     ),

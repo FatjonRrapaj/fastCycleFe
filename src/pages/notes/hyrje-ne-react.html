@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="sq">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hyrje në React (Shqip) — Components, DOM, JSX | Fatjon Rrapaj Notes</title>
+    <meta
+      name="description"
+      content="Hyrje në React në shqip: librari vs framework, komponentë, DOM nodes vs elements, JSX dhe ReactDOM.createRoot. Shënime falas nga Fatjon Rrapaj."
+    />
+    <meta
+      name="robots"
+      content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    />
+    <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="author" content="Fatjon Rrapaj" />
+    <meta name="creator" content="Fatjon Rrapaj" />
+    <meta name="publisher" content="Fatjon Rrapaj" />
+    <meta name="theme-color" content="#eef8f6" />
+    <meta name="keywords" content="Hyrje në React, React shqip, React components, React DOM, JSX introduction, mëso React" />
+    <meta name="language" content="sq" />
+    <meta name="geo.region" content="AL-11" />
+    <meta name="geo.placename" content="Tirana" />
+    <link
+      rel="canonical"
+      href="https://fatjonrrapaj.dev/notes/hyrje-ne-react.html"
+    />
+    <link
+      rel="alternate"
+      hreflang="sq"
+      href="https://fatjonrrapaj.dev/notes/hyrje-ne-react.html"
+    />
+    <link
+      rel="alternate"
+      hreflang="x-default"
+      href="https://fatjonrrapaj.dev/blog.html"
+    />
+    <link rel="icon" href="/favicon.png?v=5" type="image/png" sizes="32x32" />
+    <link rel="icon" href="/favicon.svg?v=5" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=5" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="Fatjon Rrapaj" />
+    <meta property="og:locale" content="sq_AL" />
+    <meta property="og:locale:alternate" content="en_US" />
+    <meta
+      property="og:url"
+      content="https://fatjonrrapaj.dev/notes/hyrje-ne-react.html"
+    />
+    <meta
+      property="og:title"
+      content="Hyrje në React (Shqip) — Components, DOM, JSX | Fatjon Rrapaj Notes"
+    />
+    <meta
+      property="og:description"
+      content="React — librari për User Interface, komponentë, DOM, JSX dhe props. Hyrje në shqip."
+    />
+    <meta property="og:image" content="https://fatjonrrapaj.dev/notes/react.png" />
+    <meta property="og:image:secure_url" content="https://fatjonrrapaj.dev/notes/react.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="798" />
+    <meta property="og:image:alt" content="React teaching notes cover — introduction to React" />
+    <meta property="article:published_time" content="2022-09-03" />
+    <meta property="article:modified_time" content="2026-11-15" />
+    <meta property="article:author" content="Fatjon Rrapaj" />
+    <meta property="article:section" content="React" />
+    <meta property="article:tag" content="React" />
+    <meta property="article:tag" content="React components" />
+    <meta property="article:tag" content="JSX" />
+    <meta property="article:tag" content="DOM" />
+    <meta property="article:tag" content="props" />
+    <meta property="article:tag" content="ReactDOM.createRoot" />
+    <meta property="article:tag" content="Library vs framework" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Hyrje në React (Shqip) — Components, DOM, JSX | Fatjon Rrapaj Notes" />
+    <meta
+      name="twitter:description"
+      content="React — librari për User Interface, komponentë, DOM, JSX dhe props. Hyrje në shqip."
+    />
+    <meta name="twitter:image" content="https://fatjonrrapaj.dev/notes/react.png" />
+    <meta name="twitter:image:alt" content="React teaching notes cover — introduction to React" />
+
+    <meta name="format-detection" content="telephone=no" />
+    <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
+
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      html { background: #eef8f6; }
+      body { margin: 0; }
+      a, a:link, a:visited { color: inherit; text-decoration: none; }
+      html.js body { visibility: hidden; }
+      html.is-booted body { visibility: visible; }
+    </style>
+    <noscript><style>body { visibility: visible !important; }</style></noscript>
+    <script>document.documentElement.classList.add("js");</script>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebPage",
+            "@id": "https://fatjonrrapaj.dev/notes/hyrje-ne-react.html#webpage",
+            "url": "https://fatjonrrapaj.dev/notes/hyrje-ne-react.html",
+            "name": "Hyrje në React (Shqip) — Components, DOM, JSX | Fatjon Rrapaj Notes",
+            "description": "Hyrje në React në shqip: librari vs framework, komponentë, DOM nodes vs elements, JSX dhe ReactDOM.createRoot. Shënime falas nga Fatjon Rrapaj.",
+            "inLanguage": "sq",
+            "isPartOf": {
+              "@id": "https://fatjonrrapaj.dev/#website"
+            },
+            "about": {
+              "@id": "https://fatjonrrapaj.dev/notes/hyrje-ne-react.html#lesson"
+            },
+            "primaryImageOfPage": {
+              "@id": "https://fatjonrrapaj.dev/notes/hyrje-ne-react.html#primaryimage"
+            },
+            "breadcrumb": {
+              "@id": "https://fatjonrrapaj.dev/notes/hyrje-ne-react.html#breadcrumb"
+            },
+            "author": {
+              "@id": "https://fatjonrrapaj.dev/#person"
+            },
+            "publisher": {
+              "@id": "https://fatjonrrapaj.dev/#person"
+            },
+            "datePublished": "2022-09-03",
+            "dateModified": "2026-11-15",
+            "isAccessibleForFree": true,
+            "speakable": {
+              "@type": "SpeakableSpecification",
+              "cssSelector": [
+                ".lesson-hero h1",
+                ".lesson-hero .lead",
+                ".lesson-body h2"
+              ]
+            },
+            "potentialAction": {
+              "@type": "ReadAction",
+              "target": "https://fatjonrrapaj.dev/notes/hyrje-ne-react.html"
+            }
+          },
+          {
+            "@type": [
+              "LearningResource",
+              "Article",
+              "TechArticle"
+            ],
+            "@id": "https://fatjonrrapaj.dev/notes/hyrje-ne-react.html#lesson",
+            "url": "https://fatjonrrapaj.dev/notes/hyrje-ne-react.html",
+            "name": "Hyrje në React",
+            "headline": "Hyrje në React",
+            "description": "Hyrje në React në shqip: librari vs framework, komponentë, DOM nodes vs elements, JSX dhe ReactDOM.createRoot. Shënime falas nga Fatjon Rrapaj.",
+            "datePublished": "2022-09-03",
+            "dateModified": "2026-11-15",
+            "inLanguage": "sq",
+            "isAccessibleForFree": true,
+            "learningResourceType": [
+              "Lesson",
+              "Tutorial"
+            ],
+            "educationalLevel": "Beginner",
+            "timeRequired": "PT35M",
+            "keywords": [
+              "Hyrje në React",
+              "React shqip",
+              "React components",
+              "React DOM",
+              "JSX introduction",
+              "mëso React"
+            ],
+            "teaches": [
+              "React",
+              "React components",
+              "JSX",
+              "DOM",
+              "props",
+              "ReactDOM.createRoot",
+              "Library vs framework"
+            ],
+            "about": [
+              "React",
+              "Frontend frameworks",
+              "User interface"
+            ],
+            "articleSection": "React",
+            "author": {
+              "@id": "https://fatjonrrapaj.dev/#person"
+            },
+            "creator": {
+              "@id": "https://fatjonrrapaj.dev/#person"
+            },
+            "provider": {
+              "@id": "https://fatjonrrapaj.dev/#person"
+            },
+            "publisher": {
+              "@id": "https://fatjonrrapaj.dev/#person"
+            },
+            "image": {
+              "@id": "https://fatjonrrapaj.dev/notes/hyrje-ne-react.html#primaryimage"
+            },
+            "thumbnailUrl": "https://fatjonrrapaj.dev/notes/react.png",
+            "mainEntityOfPage": {
+              "@id": "https://fatjonrrapaj.dev/notes/hyrje-ne-react.html#webpage"
+            },
+            "isPartOf": {
+              "@type": "Course",
+              "@id": "https://fatjonrrapaj.dev/blog.html#course",
+              "name": "HTML, CSS, JavaScript & React — teaching notes",
+              "url": "https://fatjonrrapaj.dev/blog.html"
+            },
+            "educationalAlignment": {
+              "@type": "AlignmentObject",
+              "alignmentType": "educationalSubject",
+              "targetName": "React"
+            },
+            "audience": {
+              "@type": "EducationalAudience",
+              "educationalRole": "student",
+              "audienceType": "Beginner web developers"
+            },
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "EUR",
+              "availability": "https://schema.org/InStock"
+            },
+            "relatedLink": [
+              "https://fatjonrrapaj.dev/notes/jsx.html",
+              "https://fatjonrrapaj.dev/notes/react-useeffect-hook.html"
+            ]
+          },
+          {
+            "@type": "ImageObject",
+            "@id": "https://fatjonrrapaj.dev/notes/hyrje-ne-react.html#primaryimage",
+            "url": "https://fatjonrrapaj.dev/notes/react.png",
+            "contentUrl": "https://fatjonrrapaj.dev/notes/react.png",
+            "width": 1200,
+            "height": 798,
+            "caption": "React teaching notes cover — introduction to React",
+            "inLanguage": "sq"
+          },
+          {
+            "@type": "BreadcrumbList",
+            "@id": "https://fatjonrrapaj.dev/notes/hyrje-ne-react.html#breadcrumb",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "https://fatjonrrapaj.dev/"
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Notes",
+                "item": "https://fatjonrrapaj.dev/blog.html"
+              },
+              {
+                "@type": "ListItem",
+                "position": 3,
+                "name": "React",
+                "item": "https://fatjonrrapaj.dev/blog.html#react"
+              },
+              {
+                "@type": "ListItem",
+                "position": 4,
+                "name": "Hyrje në React",
+                "item": "https://fatjonrrapaj.dev/notes/hyrje-ne-react.html"
+              }
+            ]
+          }
+        ]
+      }
+    </script>
+  </head>
+  <body class="inner-page">
+    <header class="site-nav">
+      <a class="brand" href="/">Fatjon <span>Rrapaj</span></a>
+      <button class="nav-toggle" type="button" aria-label="Open menu">
+        <span></span>
+      </button>
+      <ul class="nav-links">
+        <li><a href="/experience.html">Experience</a></li>
+        <li><a href="/projects.html">Projects</a></li>
+        <li><a href="/blog.html" aria-current="page">Notes</a></li>
+        <li><a class="nav-cta" href="/contact.html">Let’s talk</a></li>
+      </ul>
+    </header>
+
+    <main class="page-shell lesson-shell">
+      <article class="lesson" itemscope itemtype="https://schema.org/LearningResource">
+        <nav class="lesson-breadcrumb" aria-label="Breadcrumb">
+          <ol>
+            <li><a href="/">Home</a></li>
+            <li><a href="/blog.html">Notes</a></li>
+            <li><a href="/blog.html#react">React</a></li>
+            <li aria-current="page">Hyrje në React</li>
+          </ol>
+        </nav>
+        <header class="lesson-hero">
+          <p class="eyebrow reveal">
+            <a href="/blog.html#react">React</a>
+            <span aria-hidden="true"> · </span>
+            <time datetime="2022-09-03" itemprop="datePublished">3 shtator 2022</time>
+            <span aria-hidden="true"> · </span>
+            <span>Shqip</span>
+          </p>
+          <h1 class="hero-brand reveal" style="font-size: clamp(2.1rem, 5.5vw, 3.4rem)"><span itemprop="headline">Hyrje në React
+          </span></h1>
+          <p class="lead reveal" itemprop="description">
+            React-i është një librari JavaScript e dizenjuar për ndërtimin e
+            pikës së komunikimit me përdoruesit (User Interface).
+          </p>
+          <p class="lesson-dropbox reveal">
+            <a
+              href="https://www.dropbox.com/scl/fi/2ekwsl54yum32x384i3ti/Hyrje-ne-React.paper?dl=0&rlkey=0bap4mwekamzj27oxs6yoyp4v"
+              target="_blank"
+              rel="noopener noreferrer"
+              hreflang="sq"
+              >Read on Dropbox instead →</a
+            >
+          </p>
+        </header>
+
+        <div class="lesson-body">
+          <p>
+            React-i është një librari JavaScript e dizenjuar për ndërtimin e
+            pikës së komunikimit me përdoruesit (User Interface).
+          </p>
+
+          <h2>
+            React është një librari
+          </h2>
+          <p>
+            <strong>Librari</strong> → Një set klasash dhe funksionesh për t’i
+            lehtësuar punën programuesit.
+          </p>
+          <p>
+            <strong>Framework</strong> → Bazë kodi nga ku fillon ndërtimi i
+            aplikacionit. (Të “detyron” të ndjekësh një strukturë të caktuar.)
+          </p>
+          <p>
+            Më shumë:
+            <a
+              href="https://www.interviewbit.com/blog/framework-vs-library/"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Library vs Framework Comparison</a
+            >
+            ·
+            <a
+              href="https://www.taniarascia.com/getting-started-with-react/#what-is-react"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Tania Rascia — What is React</a
+            >
+          </p>
+          <p>
+            React është librari JS dhe jo framework, pasi nuk të detyron të
+            përdorësh një strukturë të caktuar për të ndërtuar një projekt —
+            ndryshe nga Angular p.sh., i cili që në implementim të
+            inicializon një sërë mjetesh për format, testet, network requests
+            etj. React, në anën tjetër, të lejon të zgjedhësh vetë si dëshiron
+            t’i zgjidhësh këto probleme.
+          </p>
+          <p>
+            Më shumë:
+            <a
+              href="https://www.freecodecamp.org/news/is-react-a-library-or-a-framework/"
+              target="_blank"
+              rel="noopener noreferrer"
+              >freeCodeCamp — Is React a Library or a Framework?</a
+            >
+          </p>
+
+          <h2>Pothuajse çdo gjë në React është komponent</h2>
+          <p>
+            <a
+              href="https://www.taniarascia.com/getting-started-with-react/#components"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Components (Tania Rascia)</a
+            >
+          </p>
+          <p>Shpjegim paraprak:</p>
+          <p>
+            <strong>DOM</strong> (Document Object Model) është një pikë
+            komunikimi e një faqeje web me programet që mund ta ndryshojnë.
+          </p>
+          <p>
+            Një <strong>DOM node</strong> është njësi përbërëse e DOM-it.
+          </p>
+          <p>
+            Një <strong>Element</strong> në DOM është një node që shkruhet
+            brenda një tag-u.
+          </p>
+
+          <h3>Shembull — DOM node &amp; Element</h3>
+          <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;title&gt;Texo&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;!-- Page Body --&gt;
+    &lt;h2&gt;My Page&lt;/h2&gt;
+    &lt;p id="content"&gt;Thank you for starting the React course!&lt;/p&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+          <figure class="lesson-figure">
+            <img
+              src="/notes/hyrje-ne-react/dom-view.png"
+              alt="DOM View — prezantimi vizual i DOM për dokumentin e mësipërm"
+              width="433"
+              height="303"
+              loading="lazy"
+              decoding="async"
+            />
+            <figcaption>
+              DOM View (prezantimi vizual i DOM) për dokumentin e mësipërm.
+            </figcaption>
+          </figure>
+          <p>
+            Dokumenti i mësipërm i HTML përmban një hierarki me node, ku
+            <code>&lt;html&gt;</code> është një node, dhe ka 2 children:
+            <code>&lt;head&gt;</code> dhe <code>&lt;body&gt;</code>. Vetë
+            <code>body</code> ka 3 children: një koment, një
+            <code>&lt;h2&gt;</code> dhe një <code>&lt;p&gt;</code>.
+          </p>
+          <p>
+            Elementët në këtë dokument do të ishin:
+            <code>&lt;html&gt;</code>, <code>&lt;head&gt;</code>,
+            <code>&lt;title&gt;</code>, <code>&lt;body&gt;</code>,
+            <code>&lt;h2&gt;</code>, <code>&lt;p&gt;</code> — pra të gjitha
+            ato DOM node që janë tag-e.
+          </p>
+
+          <h3>Diferenca midis DOM node &amp; Element</h3>
+          <pre><code>&lt;p&gt;
+  &lt;b&gt;Mësoni React&lt;/b&gt; në Texo
+&lt;/p&gt;</code></pre>
+          <p>
+            Nëse do të kontrollohej se sa nodes ka, paragrafi
+            <code>&lt;p&gt;</code> përmban 2 child nodes: një element bold
+            <strong>Mësoni React</strong> edhe një text node “në Texo”.
+          </p>
+          <p>
+            Nëse do të kontrollohej se sa elementë ka, paragrafi
+            <code>&lt;p&gt;</code> përmban vetëm një element
+            <code>&lt;b&gt;Mësoni React&lt;/b&gt;</code>, sepse elementët
+            janë tag-e.
+          </p>
+          <p>
+            Më shumë:
+            <a
+              href="https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model/Introduction"
+              target="_blank"
+              rel="noopener noreferrer"
+              >MDN — Introduction to the DOM</a
+            >
+          </p>
+          <p>
+            <strong>Komponenti në React</strong> (React Component) janë njësi
+            kodi përgjegjëse për shfaqjen e një “peme” elementësh në DOM.
+          </p>
+          <p>
+            <strong>Elementi në React</strong> (React Element) është
+            përfaqësimi i një nyje në DOM (DOM node).
+          </p>
+
+          <h2>
+            Për të ndërtuar komponentët në React, ne përdorim JSX
+          </h2>
+          <p>
+            <a
+              href="https://reactjs.org/docs/introducing-jsx.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              >React docs — Introducing JSX</a
+            >
+          </p>
+          <p>
+            JSX që ne shkruajmë përfaqëson objekte.
+            <a href="https://babeljs.io/" target="_blank" rel="noopener noreferrer"
+              >Babel</a
+            >, një JS compiler, merr kodin që ne e shkruajmë edhe e përkthen
+            në kod të kuptueshëm për ambiente të ndryshme ku kodi ekzekutohet
+            (p.sh. browsers të vjetërsive të ndryshme).
+          </p>
+          <p>Kodi që ne shkruajmë në JSX:</p>
+          <pre><code>const element = (
+  &lt;h1 className="greeting"&gt;
+    Hello, world!
+  &lt;/h1&gt;
+);</code></pre>
+          <p>Babel e përkthen në:</p>
+          <pre><code>const element = React.createElement(
+  'h1',
+  {className: 'greeting'},
+  'Hello, world!'
+);</code></pre>
+          <p>E cila, e thjeshtëzuar për lexim nga ne, do të ishte:</p>
+          <pre><code>const element = {
+  type: 'h1',
+  props: {
+    className: 'greeting',
+    children: 'Hello, world!'
+  }
+};</code></pre>
+          <p>
+            Pra këto objekte janë elementët e React (“React Elements”), të
+            cilët — ndryshe nga elementët e DOM — janë shumë më efiçientë për
+            t’u krijuar.
+          </p>
+
+          <h2>Shfaqja e elementit të React</h2>
+          <p>
+            Aplikacionet e ndërtuara në React tipikisht kanë vetëm një DOM
+            node. Dikur në një dokument HTML supozojmë se ekziston një
+            <code>&lt;div&gt;</code>:
+          </p>
+          <pre><code>&lt;div id="root"&gt;&lt;/div&gt;</code></pre>
+          <p>
+            Ky <code>&lt;div&gt;</code> do të shërbejë si pika hyrëse / rrënja
+            e aplikacionit të React. Kjo realizohet nëpërmjet
+            <a
+              href="https://reactjs.org/docs/react-dom-client.html#createroot"
+              target="_blank"
+              rel="noopener noreferrer"
+              >ReactDOM.createRoot()</a
+            >, dhe elementi që do të shfaqet jepet si argument në
+            <code>root.render()</code>:
+          </p>
+          <pre><code>const root = ReactDOM.createRoot(
+  document.getElementById('root')
+);
+const element = &lt;h1&gt;Hello, world&lt;/h1&gt;;
+root.render(element);</code></pre>
+
+          <h2>Components and Props</h2>
+          <p>
+            <a
+              href="https://reactjs.org/docs/components-and-props.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              >React docs — Components and Props</a
+            >
+          </p>
+          <p>
+            Nga React docs: Components let you split the UI into independent,
+            reusable pieces, and think about each piece in isolation.
+          </p>
+          <figure class="lesson-figure">
+            <img
+              src="/notes/hyrje-ne-react/components-props.png"
+              alt="Ilustrim i komponentëve dhe props në React"
+              width="700"
+              height="475"
+              loading="lazy"
+              decoding="async"
+            />
+          </figure>
+          <p>
+            Në vazhdimësi, me qëllim progresin e shpejtë, ne do të fokusohemi
+            tek functional components:
+          </p>
+          <pre><code>function TestComponent(props){
+  return &lt;h2&gt;Yes I'm referring a lot to the React oficial docs&lt;/h2&gt;
+}</code></pre>
+          <p>
+            Rifreskim JS:
+            <a
+              href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/A_re-introduction_to_JavaScript"
+              target="_blank"
+              rel="noopener noreferrer"
+              >MDN — A re-introduction to JavaScript</a
+            >
+          </p>
+        </div>
+
+        <aside class="lesson-related" aria-labelledby="lesson-related-title">
+          <h2 id="lesson-related-title">More in React</h2>
+          <ul>
+          <li>
+            <a href="/notes/jsx.html" hreflang="sq"
+              >JSX</a
+            >
+          </li>
+          <li>
+            <a href="/notes/react-useeffect-hook.html" hreflang="sq"
+              >React useEffect hook</a
+            >
+          </li>
+          </ul>
+          <p class="lesson-related__all">
+            <a href="/blog.html#react">All React notes →</a>
+          </p>
+        </aside>
+      </article>
+
+      <footer class="site-footer">
+        <nav aria-label="Site">
+          <ul class="site-footer__nav">
+            <li><a href="/">Home</a></li>
+            <li><a href="/blog.html">Notes</a></li>
+            <li><a href="/contact.html">Contact</a></li>
+          </ul>
+        </nav>
+        <p>© Fatjon Rrapaj</p>
+        <p><a href="/blog.html#react">Back to notes</a></p>
+      </footer>
+    </main>
+  </body>
+</html>

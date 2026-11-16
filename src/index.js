@@ -1419,6 +1419,18 @@ const BOOT_PAGES = [
   "/projects.html",
   "/contact.html",
   "/blog.html",
+  "/notes/js-arrays-objects-for-loops.html",
+  "/notes/js-event-listeners.html",
+  "/notes/js-interactions-html-forms.html",
+  "/notes/css-box-model.html",
+  "/notes/css-flexbox.html",
+  "/notes/css-element-positioning.html",
+  "/notes/hyrje-ne-html.html",
+  "/notes/html-tables.html",
+  "/notes/html-forms-and-form-elements.html",
+  "/notes/hyrje-ne-react.html",
+  "/notes/jsx.html",
+  "/notes/react-useeffect-hook.html",
   "/site.bundle.js",
 ];
 
