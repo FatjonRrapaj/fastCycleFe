@@ -144,6 +144,41 @@
           );
         }
       } catch (e) {}
+      /* Lockdown Mode / no-JIT: main bundle can sit at 0% for a long time.
+         Fake progress + hard timeout so the page is never stuck forever. */
+      (function () {
+        if (document.documentElement.classList.contains("is-warm-return")) return;
+        var boot = document.getElementById("boot-screen");
+        var bar = document.getElementById("boot-bar");
+        var pct = document.getElementById("boot-pct");
+        var status = document.getElementById("boot-status");
+        var t0 = Date.now();
+        var fake = 0;
+        var iv = setInterval(function () {
+          if (document.documentElement.classList.contains("is-booted")) {
+            clearInterval(iv);
+            return;
+          }
+          fake = Math.min(0.38, fake + 0.025);
+          if (bar) bar.style.width = (fake * 100).toFixed(1) + "%";
+          if (pct)
+            pct.textContent = String(Math.round(fake * 100)).padStart(2, "0");
+          if (status) status.textContent = "LOAD";
+          if (Date.now() - t0 < 14000) return;
+          clearInterval(iv);
+          document.documentElement.classList.add("is-booted");
+          document.body.classList.add("is-booted");
+          if (!boot) return;
+          boot.setAttribute("aria-busy", "false");
+          boot.classList.add("is-done");
+          setTimeout(function () {
+            if (boot.parentNode) boot.remove();
+          }, 400);
+        }, 350);
+        window.__clearBootWatchdog = function () {
+          clearInterval(iv);
+        };
+      })();
     </script>
     <script type="application/ld+json">
       {

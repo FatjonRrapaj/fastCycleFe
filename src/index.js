@@ -269,39 +269,47 @@ function setDroneStory(stage) {
   if (droneStorySub) droneStorySub.textContent = stage.sub;
 }
 
-const renderer = new THREE.WebGLRenderer({
-  antialias: true,
-  alpha: true,
-});
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
-renderer.setClearColor(0x000000, 0);
-renderer.outputColorSpace = THREE.SRGBColorSpace;
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.35;
-threeContainer.appendChild(renderer.domElement);
-
+/** WebGL can fail under iOS Lockdown Mode — keep the page usable without 3D. */
+let webglOk = false;
+let renderer = null;
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
 camera.position.set(0, 0, 3.2);
 camera.lookAt(0, 0, 0);
-
-const pmrem = new THREE.PMREMGenerator(renderer);
-scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-pmrem.dispose();
-
-const ambient = new THREE.AmbientLight(0xffffff, 1.45);
-const key = new THREE.DirectionalLight(0xffffff, 2.1);
-key.position.set(2.2, 3.4, 4.2);
-const fill = new THREE.DirectionalLight(0xd8fff8, 1.15);
-fill.position.set(-2.5, 1.2, 2);
-const rim = new THREE.DirectionalLight(0xffffff, 0.95);
-rim.position.set(0, -2.2, -3);
-const bounce = new THREE.DirectionalLight(0xb8fff4, 0.7);
-bounce.position.set(0, 4.5, -1.5);
-scene.add(ambient, key, fill, rim, bounce);
-
 const dronePivot = new THREE.Group();
 scene.add(dronePivot);
+
+try {
+  renderer = new THREE.WebGLRenderer({
+    antialias: true,
+    alpha: true,
+  });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
+  renderer.setClearColor(0x000000, 0);
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.35;
+  threeContainer.appendChild(renderer.domElement);
+
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+  pmrem.dispose();
+
+  const ambient = new THREE.AmbientLight(0xffffff, 1.45);
+  const key = new THREE.DirectionalLight(0xffffff, 2.1);
+  key.position.set(2.2, 3.4, 4.2);
+  const fill = new THREE.DirectionalLight(0xd8fff8, 1.15);
+  fill.position.set(-2.5, 1.2, 2);
+  const rim = new THREE.DirectionalLight(0xffffff, 0.95);
+  rim.position.set(0, -2.2, -3);
+  const bounce = new THREE.DirectionalLight(0xb8fff4, 0.7);
+  bounce.position.set(0, 4.5, -1.5);
+  scene.add(ambient, key, fill, rim, bounce);
+  webglOk = true;
+} catch (err) {
+  console.warn("WebGL unavailable — continuing without the 3D drone", err);
+  webglOk = false;
+}
 
 /** Slight oversize so the 3D silhouette covers the SVG sketch. */
 const SKETCH_BOOST = 1.05;
@@ -1359,7 +1367,7 @@ function startFreeFlight() {
     const height = threeContainer.clientHeight || 1;
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
-    renderer.setSize(width, height, false);
+    if (renderer) renderer.setSize(width, height, false);
 
     placePivotAtScreen(snap);
     const afterRect = threeContainer.getBoundingClientRect();
@@ -1859,6 +1867,7 @@ const _fitProj = new THREE.Vector3();
 const FIT_SKIP = /camera/i;
 
 function resizeRenderer() {
+  if (!webglOk || !renderer) return;
   const width = threeContainer.clientWidth || 1;
   const height = threeContainer.clientHeight || 1;
   camera.aspect = width / height;
@@ -2175,6 +2184,11 @@ window.addEventListener("resize", () => {
 
 const dracoLoader = new DRACOLoader();
 dracoLoader.setDecoderPath("/draco/");
+// Normal devices: WASM (fast). Lockdown Mode blocks WASM — fall back to JS.
+const wasmOk =
+  typeof WebAssembly === "object" &&
+  typeof WebAssembly.instantiate === "function";
+dracoLoader.setDecoderConfig({ type: wasmOk ? "wasm" : "js" });
 
 const loader = new GLTFLoader();
 loader.setDRACOLoader(dracoLoader);
@@ -2333,6 +2347,9 @@ function mountDroneGltf(gltf) {
 }
 
 function loadDroneModel() {
+  if (!webglOk || !renderer) {
+    return Promise.reject(new Error("WebGL unavailable"));
+  }
   return new Promise((resolve, reject) => {
     loader.load(
       "/noYUp.glb",
@@ -2393,10 +2410,20 @@ const BOOT_DECODERS = [
   "/draco/draco_decoder.js",
 ];
 
+function withTimeout(promise, ms) {
+  return Promise.race([
+    promise,
+    new Promise((resolve) => setTimeout(resolve, ms)),
+  ]);
+}
+
 function preloadFetch(url) {
-  return fetch(url, { credentials: "same-origin" })
-    .then((r) => (r.ok ? r.arrayBuffer() : null))
-    .catch(() => null);
+  return withTimeout(
+    fetch(url, { credentials: "same-origin" })
+      .then((r) => (r.ok ? r.arrayBuffer() : null))
+      .catch(() => null),
+    5000
+  );
 }
 
 /** Load + decode so the bitmap is ready before first scroll. */
@@ -2439,6 +2466,7 @@ function dismissBootScreen() {
 
 /** Keep the drone mounted under the SVG at opacity 0 — no pop-in on morph. */
 function seatHiddenDroneUnderSketch() {
+  if (!webglOk || !renderer) return;
   if (!droneModel || themeLocked || flight.active || flight.staged) return;
   dronePivot.rotation.set(0, 0, 0);
   dronePivot.position.set(0, 0, 0);
@@ -2453,6 +2481,7 @@ function seatHiddenDroneUnderSketch() {
 }
 
 function warmThreeScene() {
+  if (!webglOk || !renderer) return;
   const width = threeContainer.clientWidth || window.innerWidth || 1;
   const height = threeContainer.clientHeight || window.innerHeight || 1;
   camera.aspect = width / height;
@@ -2471,6 +2500,10 @@ function hideBootScreenImmediate() {
 }
 
 async function runHomeBoot() {
+  if (typeof window.__clearBootWatchdog === "function") {
+    window.__clearBootWatchdog();
+  }
+
   const returningLive = wasStoryCompleted();
   const warmed = isHomeWarmed();
 
@@ -2491,16 +2524,18 @@ async function runHomeBoot() {
       ),
     ]);
     warmThreeScene();
-    try {
-      await loadDroneModel();
-      if (returningLive) {
-        applyFinishedDockPose();
-        applyColorProgress(1);
-      } else {
-        seatHiddenDroneUnderSketch();
+    if (webglOk) {
+      try {
+        await withTimeout(loadDroneModel(), 12000);
+        if (returningLive) {
+          applyFinishedDockPose();
+          applyColorProgress(1);
+        } else {
+          seatHiddenDroneUnderSketch();
+        }
+      } catch (_) {
+        /* page still usable */
       }
-    } catch (_) {
-      /* page still usable */
     }
     markHomeWarmed();
     dismissBootScreen();
@@ -2513,39 +2548,52 @@ async function runHomeBoot() {
     return;
   }
 
-  // First visit only — block until everything is cached for smooth scroll.
-  setBootProgress(0.06, "TYPE");
+  // First visit — keep moving even on Lockdown Mode / slow devices.
+  setBootProgress(0.08, "TYPE");
   if (document.fonts?.ready) {
     await Promise.race([
       document.fonts.ready,
-      new Promise((r) => setTimeout(r, 1600)),
+      new Promise((r) => setTimeout(r, 1200)),
     ]);
   }
 
-  setBootProgress(0.18, "SVG");
+  setBootProgress(0.22, "SVG");
   const imageSrcs = collectHomeImageSrcs();
-  await Promise.all(imageSrcs.map(preloadImage));
-  await Promise.all(
-    [...document.images].map((img) =>
-      img.decode ? img.decode().catch(() => {}) : Promise.resolve()
-    )
+  await withTimeout(Promise.all(imageSrcs.map(preloadImage)), 6000);
+  await withTimeout(
+    Promise.all(
+      [...document.images].map((img) =>
+        img.decode ? img.decode().catch(() => {}) : Promise.resolve()
+      )
+    ),
+    4000
   );
 
-  setBootProgress(0.36, "PAGES");
-  await Promise.all(BOOT_PAGES.map(preloadFetch));
+  setBootProgress(0.4, "PAGES");
+  await withTimeout(Promise.all(BOOT_PAGES.map(preloadFetch)), 8000);
 
-  setBootProgress(0.48, "DECODER");
-  await Promise.all(BOOT_DECODERS.map(preloadFetch));
+  setBootProgress(0.52, "DECODER");
+  await withTimeout(
+    Promise.all(
+      (wasmOk
+        ? BOOT_DECODERS
+        : ["/draco/draco_decoder.js", "/draco/draco_wasm_wrapper.js"]
+      ).map(preloadFetch)
+    ),
+    5000
+  );
 
-  setBootProgress(0.6, "SCENE");
+  setBootProgress(0.64, "SCENE");
   warmThreeScene();
 
-  setBootProgress(0.72, "MODEL");
-  try {
-    await loadDroneModel();
-    seatHiddenDroneUnderSketch();
-  } catch (_) {
-    /* sketch still works without the GLB */
+  setBootProgress(0.78, "MODEL");
+  if (webglOk) {
+    try {
+      await withTimeout(loadDroneModel(), 14000);
+      seatHiddenDroneUnderSketch();
+    } catch (_) {
+      /* sketch still works without the GLB */
+    }
   }
 
   setBootProgress(1, "READY");
@@ -2565,6 +2613,7 @@ const clock = new THREE.Clock();
 
 function animate() {
   requestAnimationFrame(animate);
+  if (!webglOk || !renderer) return;
   const delta = clock.getDelta();
   const t = clock.getElapsedTime();
 
